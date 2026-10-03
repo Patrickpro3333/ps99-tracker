@@ -107,7 +107,7 @@ h3{font-size:22px;line-height:1.1;margin:22px 0 8px;color:var(--y)}
 .fab svg{width:28px;height:28px}
 .pc{position:relative;background:var(--pn);border:2px solid var(--ed);border-radius:18px;padding:20px 14px 14px;margin-bottom:16px;overflow:hidden}
 .pc::before{content:"";position:absolute;left:14px;right:14px;top:10px;height:4px;border-radius:4px;background:var(--y)}
-.pch{display:flex;gap:14px;align-items:center;margin:8px 0 12px}.pch h2{font-size:28px;margin:0 0 4px;overflow-wrap:anywhere}.pch .meta{margin:0}
+.pch{display:flex;gap:14px;align-items:center;margin:8px 0 12px}.pch h2{font-size:28px;margin:0 0 4px;overflow-wrap:anywhere}.pcn{flex:1;min-width:0}.pch .meta{margin:0}
 .pch .av.big{border:3px solid var(--y)}
 .tag{display:inline-block;margin-right:8px;padding:1px 9px;border:2px solid var(--y);border-radius:8px;background:#000;color:var(--y);font-weight:700;font-size:14px}
 .pct{margin:0 0 12px}
@@ -124,7 +124,7 @@ h3{font-size:22px;line-height:1.1;margin:22px 0 8px;color:var(--y)}
 .prm small{display:block;color:var(--mut);font-size:12px;letter-spacing:.04em}.prm b{display:block;font:400 34px/1.1 "Lilita One",Impact,sans-serif;color:var(--y)}
 .prb{position:relative;height:8px;margin:12px 4px 8px;border-radius:8px;background:#262626}.prb i{display:block;height:100%;border-radius:8px;background:var(--g)}
 .prb em{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;border:3px solid var(--g)}
-.prx{display:block;margin-top:8px;text-align:center;color:var(--mut);font-size:12px}
+.prx{display:block;margin-top:8px;text-align:center;color:var(--mut);font-size:12px}.pnote{margin:-2px 0 10px;font-size:13px}
 .prp{display:grid;grid-template-columns:1fr 1fr;text-align:center}.prp b{display:block;font:400 22px "Lilita One",Impact,sans-serif;color:var(--g)}.prp div+div b{color:var(--tx)}.prp small{color:var(--mut);font-size:13px}
 .pcc{background:#000;border:2px solid var(--ed);border-radius:14px;padding:12px;margin:0 0 10px}
 .pcch{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;margin-bottom:6px}.pcch b{display:block;font:400 20px "Lilita One",Impact,sans-serif;color:var(--y)}.pcch small{color:var(--mut);font-size:13px}
@@ -535,11 +535,13 @@ const H=hourly(a),hv=H.map(h=>h[1]).filter(v=>v!=null),now=a.length?a[a.length-1
 return{kind,team:d.name,teamRank:d.i>=0?d.rank:null,size:d.rows.length,rank:r?i+1:null,has:!!r,member,p,share:r&&tp?p/tp*100:null,ri:r?rinfo(kind,p,id):null,last:r&&r.t,
 a,H,day:v0!=null&&a.length>1?p-v0:null,span:now-from,best:hv.length?Math.max(...hv):null,latest:hv.length?hv[hv.length-1]:null}}
 // Players just ahead and behind: exact from the live top list, otherwise from the full scan's ranking
-// (players/rank/<kind>/<n>.json), scaled to live points like the rank itself.
-async function pnear(kind,s,id){const g=GPX[kind],ri=s.ri,p=s.p;if(!ri||!ri.rank)return null;
+// (players/rank/<kind>/<n>.json), scaled to live points like the rank itself. Only files the scan's
+// meta.json lists are requested, so a scan that has not made them yet causes no failed requests.
+async function pnear(kind,s,id,pm){const g=GPX[kind],ri=s.ri,p=s.p;if(!ri||!ri.rank)return null;
 if(ri.src==='live'){const o=g.list.filter(q=>String(q.id)!==String(id)),ah=o.filter(q=>q.p>p).pop(),be=o.find(q=>q.p<=p);return{a:ah&&{id:ah.id,r:ri.rank-1},b:be&&{id:be.id,r:ri.rank+1},live:1}}
-const st=sstat(kind);if(!st.file)return null;const f=p<g.T?scanScale(st,g):1,pos=st.n-ub(st.arr,p/f),C=500,k=kind.toLowerCase();
-const c0=Math.max(0,Math.floor((pos-2)/C)),c1=Math.floor((pos+1)/C),get=i=>rawj('data-ranks/players/rank/'+k+'/'+i+'.json').catch(()=>null);
+const st=sstat(kind),C=pm&&pm.rankChunk,N=pm&&pm.ranked&&pm.ranked[kind];if(!st.file||!C||!N)return null;
+const f=p<g.T?scanScale(st,g):1,pos=st.n-ub(st.arr,p/f),k=kind.toLowerCase(),last=Math.ceil(N/C)-1;
+const c0=Math.min(last,Math.max(0,Math.floor((pos-2)/C))),c1=Math.min(last,Math.floor((pos+1)/C)),get=i=>rawj('data-ranks/players/rank/'+k+'/'+i+'.json').catch(()=>null);
 const ch=await Promise.all([get(c0),c1!==c0?get(c1):null]),list=[].concat(ch[0]||[],ch[1]||[]);if(!list.length)return null;
 // Their places sit right next to the player's own rank, so the three numbers always line up.
 let ah=null,be=null;list.forEach(e=>{if(String(e[0])===String(id))return;if(e[1]*f>p)ah={id:e[0],r:ri.rank-1};else if(!be)be={id:e[0],r:ri.rank+1}});return{a:ah,b:be,live:0}}
@@ -548,9 +550,10 @@ const tl=ri.est||ri.nEst||ri.rEst?'~':'',ap=ri.pct!=null?Math.max(0,Math.min(100
 const side=(x,lab)=>'<div class="prn">'+(x?'<small>'+(nb.live?'':'~')+'#'+x.r.toLocaleString()+' · '+lab+'</small>'+pav(x.id)+'<span>'+esc(U[x.id]?(U[x.id][1]!==U[x.id][0]?U[x.id][1]+' ('+U[x.id][0]+')':U[x.id][0]):'User '+x.id)+'</span>':'<small>'+lab+'</small><span class="st">'+(nb===undefined?'Loading':'-')+'</span>')+'</div>';
 return '<div class="pr"><div class="prt">'+side(nb&&nb.b,'Behind')+'<div class="prm"><small>GLOBAL RANK</small><b>'+tl+'#'+ri.rank.toLocaleString()+'</b><small>of '+(ri.N?(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString():'?')+' players</small></div>'+side(nb&&nb.a,'Ahead')+'</div>'
 +(ap!=null?'<div class="prb"><i style="width:'+ap.toFixed(2)+'%"></i><em style="left:'+ap.toFixed(2)+'%"></em></div><div class="prp"><div><b>'+tl+ap.toFixed(2)+'%</b><small>players behind</small></div><div><b>'+tl+(100-ap).toFixed(2)+'%</b><small>players ahead</small></div></div>':'')
-+(nb===null?'<small class="prx">The players just ahead and behind show after the next full scan.</small>':'')+'</div>'}
++(nb===null?'<small class="prx">The players just ahead and behind show after the next full scan.</small>':'')
++(tl||nb&&!nb.live&&(nb.a||nb.b)?'<small class="prx">~ means an estimate.</small>':'')+'</div>'}
 function pchart(H){const v=H.map(h=>h[1]).filter(x=>x!=null);
-if(v.length<2)return '<p class="st">This fills in as snapshots arrive: one at every full scan (every 3 hours), and one every minute while this page is open.</p>';
+if(v.length<2)return '<p class="st">No hourly points yet. The chart fills in the same way as the boxes above.</p>';
 const W=340,Hh=200,l=46,r=14,t=28,b=24,pw=W-l-r,ph=Hh-t-b,mx=nice(Math.max(1,...v)),n=H.length,X=i=>l+(n<2?pw:i*pw/(n-1)),Y=x=>t+ph-x/mx*ph,avg=v.reduce((s,x)=>s+x,0)/v.length;
 let g='<defs><linearGradient id="pl" x1="0" x2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#ffd23f"/></linearGradient><linearGradient id="pa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd23f" stop-opacity=".35"/><stop offset="1" stop-color="#ffd23f" stop-opacity="0"/></linearGradient></defs>';
 for(let k=0;k<=5;k++){const y=Y(mx*k/5);g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#242424"/><text x="'+(l-6)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end">'+fmt(mx*k/5)+'</text>'}
@@ -565,27 +568,33 @@ return '<svg class="pchs" viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="Poin
 function renderPlayer(V){const id=V.id,u=U[id],img=IM[id],kinds=['Clan','League'].filter(k=>V[k].t);
 let k=PKIND[id];if(!kinds.includes(k))k=kinds.includes('Clan')&&(!V.Clan.s||V.Clan.s.has||!kinds.includes('League'))?'Clan':kinds[0];
 const P=k?V[k]:null,s=P&&P.s,war=k==='League'?'league':'clan',title=k==='Clan'?(BREC?BREC.title:'Clan war'):'League';
-let h='<section class="pc"><div class="pch"><span class="av big">'+'<b>'+esc(((u?u[0]:'?')[0]||'?').toUpperCase())+'</b>'+(img?'<img src="'+esc(img)+'" alt="">':'')+'</span><div style="min-width:0"><h2>'+esc(u?u[0]:'User '+id)+'</h2>'
+let h='<section class="pc"><div class="pch"><span class="av big">'+'<b>'+esc(((u?u[0]:'?')[0]||'?').toUpperCase())+'</b>'+(img?'<img src="'+esc(img)+'" alt="">':'')+'</span><div class="pcn"><h2>'+esc(u?u[0]:'User '+id)+'</h2>'
 +'<p class="meta">'+(P&&P.d?'<span class="tag">['+esc(P.d.name)+']</span>':'')+esc(k?title:'Not in a top 2,000 team')+'</p>'+(u&&u[1]!==u[0]?'<p class="meta">'+esc(u[1])+'</p>':'')+'</div><button class="share" data-share>Share</button></div>';
 if(kinds.length>1)h+='<div class="seg pct">'+kinds.map(x=>'<button data-pk="'+x+'" aria-pressed="'+(x===k)+'">'+(x==='Clan'?'Clan war':'League')+'</button>').join('')+'</div>';
 if(!k)h+='<p class="st">Not in a top 2,000 league or clan'+(V.pm?'':' as far as the official top lists show (the full scan has not run yet)')+'.</p>';
 else if(!P.d)h+='<p class="st">In '+esc(P.t.name)+', but its data could not load right now.</p>';
 else if(!s.has&&!s.member)h+='<p class="st">Was in '+esc(P.d.name)+' at the last scan, but is not a member any more and has no points left there.</p>';
-else{const pp=x=>x==null?'Collecting':sg(x),so=s.span<86000&&s.day!=null?' <small>('+dur(s.span)+')</small>':'';
+else{const avg=s.day==null||s.span<3000?null:s.day/(s.span/3600),so=s.span<86000&&s.day!=null?' <small>('+dur(s.span)+')</small>':'';
 h+='<div class="pcg pt"><div class="pk c1">'+ico('star')+'<small>'+(k==='Clan'?'War points':'League points')+'</small><b>'+(s.has?fmt(s.p):'0')+'</b></div>'
 +'<div class="pk c5">'+ico('cup')+'<small>'+(k==='Clan'?'Clan':'League')+' rank · '+esc(P.d.name)+'</small><b>'+(s.rank?s.rank+'/'+s.size:'-')+'</b>'+(s.share!=null?'<small>'+pc(s.share,100)+'% of its points</small>':'')+'</div>'
 +prank(s,P.nb)+'</div>'
-+'<div class="pcg four"><div class="pk c1">'+ico('star')+'<small>Points · 24h</small><b>'+(s.day==null?'Collecting':fmt(s.day))+so+'</b></div>'
-+'<div class="pk c2">'+ico('bars')+'<small>Average / hour</small><b>'+(s.day==null||s.span<3000?'Collecting':fmt(s.day/(s.span/3600)))+'</b></div>'
-+'<div class="pk c3">'+ico('cup')+'<small>Best hour</small><b>'+(s.best==null?'Collecting':fmt(s.best))+'</b></div>'
-+'<div class="pk c4">'+ico('bolt')+'<small>Latest hour</small><b>'+(s.latest==null?'Collecting':fmt(s.latest))+'</b></div></div>'
++'<div class="pcg four"><div class="pk c1">'+ico('star')+'<small>Points · 24h</small><b>'+(s.day==null?'-':fmt(s.day)+so)+'</b></div>'
++'<div class="pk c2">'+ico('bars')+'<small>Average / hour</small><b>'+(avg==null?'-':fmt(avg))+'</b></div>'
++'<div class="pk c3">'+ico('cup')+'<small>Best hour</small><b>'+(s.best==null?'-':fmt(s.best))+'</b></div>'
++'<div class="pk c4">'+ico('bolt')+'<small>Latest hour</small><b>'+(s.latest==null?'-':fmt(s.latest))+'</b></div></div>'
++(s.day==null||avg==null||s.best==null||s.latest==null?'<p class="st pnote">Boxes showing "-" fill in as points come in: at every full scan (every 3 hours), and every minute while this page is open.</p>':'')
 +'<div class="pcc"><div class="pcch"><div><b>Hourly performance</b><small>Points earned per hour · last '+(s.H.length||24)+' hours</small></div><div class="pleg"><span><i class="d"></i>Hourly points</span><span><i class="ds"></i>Average</span></div></div>'+pchart(s.H)+'</div>'
 +(s.has?'':'<p class="st">A member, but no points'+(k==='Clan'?' in this clan war':'')+' yet.</p>')+(s.member?'':'<p class="st">Not a member any more; these are the points left in this '+war+'.</p>')
-+'<p class="st">'+(s.ri&&s.ri.rank?'Global rank based on: '+basis(s.ri)+'. ':'')+'Points over time come from full scans (every 3 hours) and this device while the page is open'+(s.last?'; last points '+ago(Date.now()/1000-s.last):'')+'.</p>'}
++'<p class="st">'+(s.ri&&s.ri.rank?'Global rank based on: '+basis(s.ri)+'. ':'')+'Points over time come from full scans (every 3 hours) and this device while the page is open.'+(s.last?' Last earned '+war+' points '+ago(Date.now()/1000-s.last)+'.':'')+'</p>'}
 if(k&&P.d)h+='<button class="more" data-open="'+k+'" data-n="'+esc(P.d.name)+'">Open '+esc(P.d.name)+'</button>';
 h+='<p class="st">'+(V.pm&&V.pm.updated?'Teams come from the full scan of the top 2,000 leagues and clans, '+ago(Date.now()/1000-V.pm.updated)+'. Points are live.':'Teams come from the official top player lists until the full scan has run. Points are live.')+'</p></section>';
 return h}
-document.addEventListener('click',e=>{const b=e.target.closest('[data-pk]');if(!b||!PV)return;PKIND[PV.id]=b.dataset.pk;$('dash').innerHTML=renderPlayer(PV)});
+// Long names shrink until they fit on one line (down to 16px; past that they wrap).
+function fitName(){const e=document.querySelector('.pch h2');if(!e)return;e.style.fontSize='';e.style.whiteSpace='nowrap';
+let f=28;while(f>16&&e.scrollWidth>e.clientWidth)e.style.fontSize=--f+'px';e.style.whiteSpace=''}
+function drawPlayer(V){$('dash').innerHTML=renderPlayer(V);fitName()}
+document.fonts&&document.fonts.ready.then(fitName);addEventListener('resize',fitName);
+document.addEventListener('click',e=>{const b=e.target.closest('[data-pk]');if(!b||!PV)return;PKIND[PV.id]=b.dataset.pk;drawPlayer(PV)});
 async function paintPlayer(show){const q=S.Player,seq=++PSEQ,box=$('dash'),ok=()=>seq===PSEQ&&mode==='Player';if(!q){box.innerHTML='';return}
 if(show)box.innerHTML='<p class="st">Looking up '+esc(q)+'...</p>';
 try{const id=await findUser(q);if(!ok())return;
@@ -596,12 +605,12 @@ const [lt,ct,pm,ld,cd]=await Promise.all([tl,tc,pmeta(),tl.then(t=>t?dataL(t.nam
 const V={id,pm,League:{t:lt,d:ld},Clan:{t:ct,d:cd}};['League','Clan'].forEach(k=>{if(V[k].t&&V[k].d)V[k].s=pstat(k,V[k].t,V[k].d,id)});
 // On the minute refresh the players just ahead and behind stay on screen until the new ones are in.
 if(PV&&PV.id===id)['League','Clan'].forEach(k=>{if(V[k].s&&PV[k].nb!==undefined)V[k].nb=PV[k].nb});
-PV=V;box.innerHTML=renderPlayer(V);shown('Player',U[id]?U[id][0]:String(id));
+PV=V;drawPlayer(V);shown('Player',U[id]?U[id][0]:String(id));
 // The players just ahead and behind (with names and pictures) fill in on a second draw.
-const ks=['League','Clan'].filter(k=>V[k].s&&V[k].s.ri),nbs=await Promise.all(ks.map(k=>pnear(k,V[k].s,id).catch(()=>null)));ks.forEach((k,i)=>{V[k].nb=nbs[i]});
+const ks=['League','Clan'].filter(k=>V[k].s&&V[k].s.ri),nbs=await Promise.all(ks.map(k=>pnear(k,V[k].s,id,pm).catch(()=>null)));ks.forEach((k,i)=>{V[k].nb=nbs[i]});
 const ids=[].concat(...nbs.filter(Boolean).map(x=>[x.a&&x.a.id,x.b&&x.b.id])).filter(Boolean);
 await Promise.race([Promise.all([pp,ids.length?Promise.all([names(ids),pics(ids)]):null]),sleep(4000)]);
-if(ok()&&PV===V)box.innerHTML=renderPlayer(V)}
+if(ok()&&PV===V)drawPlayer(V)}
 catch(e){if(ok())box.innerHTML='<section class="card"><b>'+(e==='roblox'?'Could not reach Roblox to look up that username.':'Could not load this player.')+'</b><p class="st">Try again in a moment, or type their user ID.</p></section>'}}
 async function paint(show){if(mode==='Player')return paintPlayer(show);
 const name=S[mode],k=mode,seq=++PSEQ;if(!name){$('dash').innerHTML='';return}
