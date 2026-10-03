@@ -4,7 +4,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
 <title>PS99 Tracker: Pet Simulator 99 League &amp; Clan Rank Tracker</title>
-<meta name="description" content="Free Pet Simulator 99 tracker. Check any league or clan rank, points per hour, gains and top contributors. Live top 2,000 leaderboards, updated every minute.">
+<meta name="description" content="Free Pet Simulator 99 tracker. Check any league or clan rank, points per hour, gains and top contributors. Live top 2,000 leaderboards from the official API.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <link rel="canonical" href="https://petsim99tracker.netlify.app/">
 <meta name="application-name" content="PS99 Tracker">
@@ -38,12 +38,12 @@
 <link rel="preconnect" href="https://ps99.biggamesapi.io" crossorigin>
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[
 {"@type":"WebSite","@id":"https://petsim99tracker.netlify.app/#website","url":"https://petsim99tracker.netlify.app/","name":"PS99 Tracker","alternateName":["Pet Simulator 99 Tracker","Pet Sim 99 Tracker","PS99 League Tracker","PS99 Clan Tracker"],"description":"Free Pet Simulator 99 league and clan rank tracker.","inLanguage":"en"},
-{"@type":"WebApplication","@id":"https://petsim99tracker.netlify.app/#app","name":"PS99 Tracker","alternateName":"Pet Simulator 99 League and Clan Tracker","url":"https://petsim99tracker.netlify.app/","isPartOf":{"@id":"https://petsim99tracker.netlify.app/#website"},"description":"Free Pet Simulator 99 tracker. Check any league or clan rank, points per hour, gains and top contributors. Live top 2,000 leaderboards, updated every minute.","applicationCategory":"GameApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","inLanguage":"en","isAccessibleForFree":true,"image":"https://petsim99tracker.netlify.app/og.png","screenshot":"https://petsim99tracker.netlify.app/og.png","featureList":["League rank and clan rank lookup","Points per hour","Points gained over 1, 6, 12 and 24 hours","Gap to the teams above and below","Top contributors with global player rank","Live top 2,000 leagues and clans"],"about":{"@type":"VideoGame","name":"Pet Simulator 99","gamePlatform":"Roblox","publisher":{"@type":"Organization","name":"BIG Games"}},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},
+{"@type":"WebApplication","@id":"https://petsim99tracker.netlify.app/#app","name":"PS99 Tracker","alternateName":"Pet Simulator 99 League and Clan Tracker","url":"https://petsim99tracker.netlify.app/","isPartOf":{"@id":"https://petsim99tracker.netlify.app/#website"},"description":"Free Pet Simulator 99 tracker. Check any league or clan rank, points per hour, gains and top contributors. Live top 2,000 leaderboards from the official API.","applicationCategory":"GameApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","inLanguage":"en","isAccessibleForFree":true,"image":"https://petsim99tracker.netlify.app/og.png","screenshot":"https://petsim99tracker.netlify.app/og.png","featureList":["League rank and clan rank lookup","Points per hour","Points gained over 1, 6, 12 and 24 hours","Gap to the teams above and below","Top contributors with global player rank","Live top 2,000 leagues and clans"],"about":{"@type":"VideoGame","name":"Pet Simulator 99","gamePlatform":"Roblox","publisher":{"@type":"Organization","name":"BIG Games"}},"offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}},
 {"@type":"FAQPage","@id":"https://petsim99tracker.netlify.app/#faq","mainEntity":[
 {"@type":"Question","name":"How do I check my league rank in Pet Simulator 99?","acceptedAnswer":{"@type":"Answer","text":"Pick League, type your league name, and tap Show my stats. If your league is in the top 2,000 you get its rank, points and gap to the next league."}},
 {"@type":"Question","name":"How do I check my clan rank?","acceptedAnswer":{"@type":"Answer","text":"Pick Clan, type your clan name, and tap Show my stats. You also see who contributed the most points and how fast your clan is gaining."}},
-{"@type":"Question","name":"How often does the leaderboard update?","acceptedAnswer":{"@type":"Answer","text":"The top lists refresh every minute from the official BIG Games public API. Points per hour and gains build up while the page is open."}},
-{"@type":"Question","name":"What does \"better than X% of players\" mean?","acceptedAnswer":{"@type":"Answer","text":"It compares a contributor's points with the other players in the top 2,000 leagues (or the top 1,000 clans for clan war). The page scans teams in the background, so the numbers sharpen while it stays open. Ranks marked with ~ are estimates."}},
+{"@type":"Question","name":"How often does the leaderboard update?","acceptedAnswer":{"@type":"Answer","text":"The top 100 and the team you look up refresh every minute, and the full top 2,000 every 5 minutes, from the official BIG Games public API. Points per hour and gains build up while the page is open."}},
+{"@type":"Question","name":"What does \"better than X% of players\" mean?","acceptedAnswer":{"@type":"Answer","text":"It compares a contributor's points with every player in the top 2,000 leagues (or the top 2,000 clans for clan war). Ranks marked with ~ are estimates while the scan of those teams is still running."}},
 {"@type":"Question","name":"Is this an official tool?","acceptedAnswer":{"@type":"Answer","text":"No. It is fan-made and not affiliated with BIG Games or Roblox."}}]}]}</script>
 <link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lilita+One&display=swap" rel="stylesheet">
 <style>
@@ -157,7 +157,7 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 <li><b>Gains</b> are points added in the last 1, 6, 12, and 24 hours. They fill in the longer this page stays open.</li>
 <li><b>Gap</b> is how many points you need to pass the team above you, and how far ahead you are of the team below.</li>
 <li><b>Contributors</b> shows who added the most points.</li>
-<li>Only the top 2,000 teams get a rank here. Better than % compares a contributor with every player in the top 2,000 leagues (or the top 1,000 clans for clan war). The page scans every one of those teams in the background, with a progress bar and time left. Until the scan finishes, ranks marked with ~ are estimates. When it finishes, the numbers are exact.</li></ul></details>
+<li>Only the top 2,000 teams get a rank here. Better than % compares a contributor with every player in the top 2,000 leagues (or the top 2,000 clans for clan war). Those numbers come from a full scan of every one of those teams, run twice a day. If that scan is missing or more than 2 days old, the page scans in the background instead, with a progress bar and time left, and ranks marked with ~ are estimates until it finishes. Players in the official top players list always get their exact live rank.</li></ul></details>
 <details class="card help" id="share"><summary>For the site owner: share the scan with everyone</summary>
 <p class="st" style="margin-top:0">The scan is saved only in this browser. To make it global, download the finished scan as a file, name it ranks.json, and upload it next to index.html. Every visitor then gets exact numbers with no waiting.</p>
 <p class="st" id="shst">Checking scan progress...</p>
@@ -166,19 +166,23 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 <p>PS99 Tracker is a free fan-made tool for Pet Simulator 99 (Pet Sim 99, PS99) on Roblox. Look up any league or clan in the top 2,000 to see its rank, points, points per hour, gains over 1, 6, 12 and 24 hours, and the gap to the teams above and below it. Every contributor shows with their Roblox avatar and how they compare to other players in the league war or clan war.</p>
 <details class="faq"><summary>How do I check my league rank in Pet Simulator 99?</summary><p>Pick League, type your league name, and tap Show my stats. If your league is in the top 2,000 you get its rank, points and gap to the next league.</p></details>
 <details class="faq"><summary>How do I check my clan rank?</summary><p>Pick Clan, type your clan name, and tap Show my stats. You also see who contributed the most points and how fast your clan is gaining.</p></details>
-<details class="faq"><summary>How often does the leaderboard update?</summary><p>The top lists refresh every minute from the official BIG Games public API. Points per hour and gains build up while the page is open.</p></details>
-<details class="faq"><summary>What does "better than X% of players" mean?</summary><p>It compares a contributor's points with the other players in the top 2,000 leagues (or the top 1,000 clans for clan war). The page scans teams in the background, so the numbers sharpen while it stays open. Ranks marked with ~ are estimates.</p></details>
+<details class="faq"><summary>How often does the leaderboard update?</summary><p>The top 100 and the team you look up refresh every minute, and the full top 2,000 every 5 minutes, from the official BIG Games public API. Points per hour and gains build up while the page is open.</p></details>
+<details class="faq"><summary>What does "better than X% of players" mean?</summary><p>It compares a contributor's points with every player in the top 2,000 leagues (or the top 2,000 clans for clan war). Ranks marked with ~ are estimates while the scan of those teams is still running.</p></details>
 <details class="faq"><summary>Is this an official tool?</summary><p>No. It is fan-made and not affiliated with BIG Games or Roblox.</p></details></section>
 <footer><p>Fan-made and unofficial. Data comes from the <a href="https://github.com/BIG-Games-LLC/ps99-public-api-docs">BIG Games public API</a>. Pet Simulator 99 belongs to BIG Games, and Roblox is a trademark of Roblox Corporation.</p></footer>
 </main>
 <script>
 const $=i=>document.getElementById(i);
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
-const fmt=v=>{if(typeof v!=='number')return v;const a=Math.abs(v);return (v<0?'-':'')+(a>=1e12?(a/1e12).toFixed(2)+'t':a>=1e9?(a/1e9).toFixed(2)+'b':a>=1e6?(a/1e6).toFixed(2)+'m':a>=1e3?(a/1e3).toFixed(1)+'k':''+Math.round(a))};
+const UNITS=[[1e12,'t',2],[1e9,'b',2],[1e6,'m',2],[1e3,'k',1]];
+const fmt=v=>{if(typeof v!=='number')return v;const a=Math.abs(v),m=v<0&&Math.round(a)?'-':'';
+for(let i=0;i<UNITS.length;i++){const[d,s,f]=UNITS[i];if(a>=d){const t=(a/d).toFixed(f);return m+(i&&+t>=1000?(a/UNITS[i-1][0]).toFixed(UNITS[i-1][2])+UNITS[i-1][1]:t+s)}}
+return m+(Math.round(a)>=1000?'1.0k':''+Math.round(a))};
 const ago=s=>s<90?'now':s<5400?Math.round(s/60)+'m ago':s<172800?Math.round(s/3600)+'h ago':Math.round(s/86400)+'d ago';
 const dur=s=>s<5400?Math.round(s/60)+'m':Math.round(s/3600)+'h';
 const BASE=['https://ps99.biggamesapi.io','/ps99api'];
-async function jget(p){for(const b of BASE){const c=new AbortController(),t=setTimeout(()=>c.abort(),25000);try{const r=await fetch(b+p,{signal:c.signal});if(r.ok){if(BASE[0]!==b)BASE.unshift(BASE.splice(BASE.indexOf(b),1)[0]);return await r.json()}}catch(e){}finally{clearTimeout(t)}}throw 0}
+async function jget(p){let st=0;for(const b of BASE){const c=new AbortController(),t=setTimeout(()=>c.abort(),25000);try{const r=await fetch(b+p,{signal:c.signal});if(r.ok){if(BASE[0]!==b)BASE.unshift(BASE.splice(BASE.indexOf(b),1)[0]);return await r.json()}st=r.status}catch(e){}finally{clearTimeout(t)}}throw st}
+const GONE=e=>e===400||e===404;
 const U=(()=>{try{return JSON.parse(localStorage.getItem('ps99u'))||{}}catch(e){return{}}})(),IM={},X={};
 const RB={u:['https://users.roblox.com','/rbx','https://users.roproxy.com'],t:['https://thumbnails.roblox.com','/rbxt','https://thumbnails.roproxy.com']};
 const PE={};
@@ -213,12 +217,16 @@ const fresh=(r,old)=>{const s=new Set(r.map(x=>String(x[0]).toLowerCase()));retu
 if(full){L=a.rows;C=b.rows}else{L=fresh(a.rows,L);C=fresh(b.rows,C)}
 LT=a.total||LT;if(full){try{CT=(await jget('/api/clansTotal')).data||CT}catch(e){}}live=true}
 async function dataL(name){const j=await jget('/v1/leagues/'+encodeURIComponent(name));if(j.status!=='ok')throw 0;const d=j.data,i=L.findIndex(x=>String(x[0]).toLowerCase()===d.Name.toLowerCase());
-SMP.League[d.Name.toLowerCase()]={t:Date.now(),p:(d.PointContributions||[]).map(x=>Math.round(x.Points))};SV.League++;return{kind:'League',key:'l:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:d.Points,mem:(d.Members||[]).length+1,cap:d.MemberCapacity,owner:d.Owner&&d.Owner.DisplayName,oid:typeof d.Owner==='number'?d.Owner:null,i,list:L,rank:i+1,sum:(d.PointContributions||[]).reduce((s,x)=>s+x.Points,0),nAll:(d.PointContributions||[]).length,rows:(d.PointContributions||[]).slice(0,10).map(x=>({id:x.UserID,n:x.DisplayName,p:x.Points,t:x.Timestamp}))}}
+SMP.League[d.Name.toLowerCase()]={t:Date.now(),p:(d.PointContributions||[]).map(x=>Math.round(x.Points))};SV.League++;return{kind:'League',key:'l:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:d.Points,mem:(d.Members||[]).length+1,cap:d.MemberCapacity,oid:d.Owner&&typeof d.Owner==='object'?d.Owner.UserID:d.Owner,owner:d.Owner&&d.Owner.DisplayName,i,list:L,rank:i+1,sum:(d.PointContributions||[]).reduce((s,x)=>s+x.Points,0),nAll:(d.PointContributions||[]).length,rows:(d.PointContributions||[]).slice(0,10).map(x=>({id:x.UserID,n:x.DisplayName,p:x.Points,t:x.Timestamp}))}}
 async function dataC(name){const j=await jget('/api/clan/'+encodeURIComponent(name));if(j.status!=='ok')throw 0;const d=j.data,i=C.findIndex(x=>String(x[0]).toLowerCase()===d.Name.toLowerCase());
 let bid='';try{bid=await battle()}catch(e){}const cb=cpts(d,bid),bp=bid&&d.Battles&&d.Battles[bid];
-if(bid||d.Contribution){SMP.Clan[d.Name.toLowerCase()]={t:Date.now(),p:cb.map(x=>Math.round(x.Points))};SV.Clan++}return{kind:'Clan',key:'c:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:i>=0?C[i][1]:bp&&bp.Points!=null?bp.Points:null,mem:(d.Members||[]).length,cap:d.MemberCapacity,oid:d.Owner,i,list:C,rank:i+1,
+if(bid||d.Contribution){SMP.Clan[d.Name.toLowerCase()]={t:Date.now(),p:cb.map(x=>Math.round(x.Points))};SV.Clan++}return{kind:'Clan',key:'c:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:bp&&bp.Points!=null?bp.Points:i>=0?C[i][1]:null,mem:(d.Members||[]).length,cap:d.MemberCapacity,oid:d.Owner,i,list:C,rank:i+1,
 sum:cb.reduce((s,x)=>s+x.Points,0),nAll:cb.length,rows:cb.slice().sort((a,b)=>b.Points-a.Points).slice(0,10).map(x=>({id:x.UserID,n:'Player '+x.UserID,p:x.Points,t:0})),
-extra:'Clan level '+d.GuildLevel+', '+(d.GoldMedals||0)+' gold, '+(d.SilverMedals||0)+' silver, '+(d.BronzeMedals||d.GoodMedals||0)+' bronze medals.'}}
+extra:'Clan level '+d.GuildLevel+'. Clan battle medals: '+(d.GoldMedals||0)+' gold, '+(d.SilverMedals||0)+' silver, '+(d.BronzeMedals||0)+' bronze, '+(d.GoodMedals||0)+' good.'}}
+async function near(d){if(d.i<100)return d;const k=d.kind,p=Math.floor(d.i/100)+1,st=(p-1)*100,lc=x=>String(x[0]).toLowerCase();
+try{const j=await jget((k==='League'?'/v1/leagues?':'/api/clans?')+'pageSize=100&sort=Points&sortOrder=desc&page='+p),r=(k==='League'?j.data&&j.data.leagues:j.data)||[];if(!r.length)return d;
+const rows=r.map(x=>[x.Name,x.Points,x.Members,x.Icon,x.ContributorCount]),s=new Set(rows.map(lc)),a=k==='League'?L:C,rest=a.filter((x,i)=>(i<st||i>=st+100)&&!s.has(lc(x))),out=rest.slice(0,st).concat(rows,rest.slice(st));
+if(k==='League')L=out;else C=out;d.list=out;d.i=out.findIndex(x=>lc(x)===d.name.toLowerCase());d.rank=d.i+1}catch(e){}return d}
 const H={get(k){try{return JSON.parse(localStorage.getItem('ps99h:'+k))||[]}catch(e){return[]}},set(k,a){try{localStorage.setItem('ps99h:'+k,JSON.stringify(a))}catch(e){}}};
 function snap(d){if(d.pts==null)return[];
 const now=Math.floor(Date.now()/1000),a=H.get(d.key).filter(s=>now-s[0]<93600);
@@ -265,10 +273,11 @@ const leg=ser.length>1?'<div class="leg">'+ser.map(q=>'<span class="lgd">'+av(q.
 return ctl(hrs,d.kind)+sum+'<svg class="ch" viewBox="0 0 '+CW+' '+CH+'" role="img" aria-label="Points per hour chart">'+g+'</svg><p class="cap" id="cap">Touch or drag on the chart to see exact numbers. Gaps mean the page was closed.</p>'+leg}
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const ldS=k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){return{}}};
-const SMP={League:ldS('ps99g:League'),Clan:ldS('ps99g:Clan')},SV={League:0,Clan:0},SS={League:{v:-1},Clan:{v:-1}},FC={};
+try{localStorage.removeItem('ps99g:League');localStorage.removeItem('ps99g:Clan')}catch(e){}
+const SMP={League:ldS('ps99g2:League'),Clan:ldS('ps99g2:Clan')},SV={League:0,Clan:0},SS={League:{v:-1},Clan:{v:-1}},FC={};
 let crawling=false,cn=0,cf=0;
-const LIM={League:2000,Clan:1000};
-function savS(){['League','Clan'].forEach(k=>{try{localStorage.setItem('ps99g:'+k,JSON.stringify(SMP[k]))}catch(e){}})}
+const LIM={League:2000,Clan:2000};
+function savS(){['League','Clan'].forEach(k=>{try{localStorage.setItem('ps99g2:'+k,JSON.stringify(SMP[k]))}catch(e){}})}
 document.addEventListener('visibilitychange',()=>{if(document.hidden)savS()});
 function lb(arr,x){let lo=0,hi=arr.length;while(lo<hi){const m=(lo+hi)>>1;if(arr[m]<x)lo=m+1;else hi=m}return lo}
 const RK={},FS={};
@@ -288,16 +297,17 @@ if(e&&e.p.length){N+=e.p.length;for(const v of e.p)if(v<p)below++}
 else{const k=Math.min(4,c),t=x[1]>0?p/x[1]:0,ar=s.sh[k];N+=c;for(let i=0;i<k;i++){const z=ar[i];below+=z.length?lb(z,t)/z.length:(1/k<t?1:0)}}}
 return{below,N}}
 function rinfo(kind,p,id){const s=sstat(kind),ex=GP[id];
-if(s.tot>0&&s.done>=s.tot&&s.n>0){const rank=s.n-ub(s.arr,p)+1;return{rank,pct:Math.max(0,(1-rank/s.n)*100),est:false,N:s.n,s}}
+if(s.tot>0&&s.done>=s.tot&&s.n>0){const rank=ex||s.n-ub(s.arr,p)+1;return{rank,pct:Math.max(0,(1-rank/s.n)*100),est:false,N:s.n,s,src:ex?'live':s.file?'file':'scan'}}
 if(kind==='League'){const N=popL();
-if(ex&&N)return{rank:ex,pct:Math.max(0,(1-ex/N)*100),est:false,N,s};
+if(ex&&N)return{rank:ex,pct:Math.max(0,(1-ex/N)*100),est:false,N,s,src:'live'};
 if(s.nl<12||!N)return{rank:0,pct:null,est:true,N:0,s};
 const q=lbelow(p,s),rank=Math.max(Math.round(q.N-q.below),p<GT&&GN?GN+1:1);
 return{rank,pct:q.below/q.N*100,est:true,N:q.N,s}}
-const cov=s.n>=120&&s.cov>0,N=cov?Math.round(s.n*s.tot/s.cov):0;
-if(ex&&N)return{rank:ex,pct:Math.max(0,(1-ex/N)*100),est:false,N,s};
+const cov=s.n>=120&&s.cov>=Math.min(100,s.tot),N=cov?Math.round(s.n*s.tot/s.cov):0;
+if(ex&&N)return{rank:ex,pct:Math.max(0,(1-ex/N)*100),est:false,nEst:true,N,s,src:'live'};
 if(cov){const fb=lb(s.arr,p)/s.n,rank=Math.max(Math.round((1-fb)*N)+1,p<GT&&GN?GN+1:1);return{rank,pct:fb*100,est:true,N,s}}
-return ex?{rank:ex,pct:null,est:false,N:0,s}:{rank:0,pct:null,est:true,N:0,s}}
+return ex?{rank:ex,pct:null,est:false,N:0,s,src:'live'}:{rank:0,pct:null,est:true,N:0,s}}
+const basis=ri=>ri.est?'Estimate, '+ri.s.cov.toLocaleString()+' of '+ri.s.tot.toLocaleString()+' scanned':ri.src==='live'?'Official top players list':ri.src==='file'?'Full scan, '+ago(Date.now()/1000-ri.s.file):'Full scan in this browser';
 let t0=Date.now();
 const fmtETA=ms=>{const m=Math.ceil(ms/60000);return m<1?'under a minute':m<60?m+' min':Math.floor(m/60)+' h '+(m%60)+' min'};
 const scanText=k=>{const s=sstat(k),w=k==='League'?'leagues':'clans';
@@ -323,13 +333,14 @@ if(!Q[kk].length){const now=Date.now();Q[kk]=a.slice(0,LIM[kk]).map(x=>String(x[
 if(Q[kk].length){k=kk;break}}
 if(!k){await sleep(20000);continue}
 const name=Q[k].pop(),key=name.toLowerCase();
-try{const j=await jget((k==='League'?'/v1/leagues/':'/api/clan/')+encodeURIComponent(name));if(j.status!=='ok')throw 0;
+try{const j=await jget((k==='League'?'/v1/leagues/':'/api/clan/')+encodeURIComponent(name));if(j.status!=='ok')throw 404;
 const d=j.data,rows=k==='League'?(d.PointContributions||[]):cpts(d,d.Contribution?'':await battle());
 SMP[k][key]={t:Date.now(),p:rows.map(x=>Math.round(x.Points))};SV[k]++;cf=0}
-catch(e){cf++;Q[k].unshift(name);FC[key]=(FC[key]||0)+1;if(FC[key]>4){Q[k].shift();SMP[k][key]={t:Date.now(),p:[]};SV[k]++}await sleep(Math.min(90000,10000*cf));continue}
+catch(e){if(GONE(e)){SMP[k][key]={t:Date.now(),p:[]};SV[k]++;await sleep(window.CRAWL_MS||1000);continue}
+cf++;FC[key]=(FC[key]||0)+1;if(FC[key]<=4)Q[k].unshift(name);await sleep(Math.min(90000,10000*cf));continue}
 cn++;if(cn%15===0)savS();
 if(cn%6===0){const el=$('scan');if(el)el.innerHTML=scanText(el.dataset.k);shareUI()}
-await sleep(window.CRAWL_MS||600)}catch(e){await sleep(15000)}}}
+await sleep(window.CRAWL_MS||1000)}catch(e){await sleep(15000)}}}
 const nm=r=>{const u=U[r.id];return u?'@'+u[0]:String(r.n)===String(r.id)?'User '+r.id:r.n};
 const av=r=>{const t=nm(r).replace(/^(@|User )/,'');return '<span class="av"><b>'+esc((t[0]||'?').toUpperCase())+'</b><img src="'+esc(IM[r.id]||'https://www.roblox.com/headshot-thumbnail/image?userId='+r.id+'&width=150&height=150&format=png')+'" alt="" loading="lazy"></span>'};
 function render(d,a){LAST={a,d};const tot=d.kind==='League'?LT:CT,pill=d.i>=0&&tot?'<span class="pill">Better than '+pc((tot-d.rank)/tot*100)+'% of '+tot.toLocaleString()+' '+(d.kind==='League'?'leagues':'clans')+'</span>':'';
@@ -340,16 +351,16 @@ if(g24&&g24[2][2]&&last[2]){const r=g24[2][2]-last[2];ct=r>0?'Up '+r:r<0?'Down '
 const cells=[['Points',d.pts==null?'n/a':fmt(d.pts)],['Points per hour',pph==null?'Collecting':sg(pph)],['Average per member',d.pts==null||!d.mem?'n/a':fmt(d.pts/d.mem)],['Members',d.mem+' of '+d.cap]];
 const mx=Math.max(1,...G.map(x=>x?Math.abs(x[0]):0)),lab=['1 hour','6 hours','12 hours','24 hours'];
 const gains=[1,6,12,24].map((h,k)=>{const x=G[k];return '<div class="gr"><span>'+lab[k]+'</span><div><b>'+(x?sg(x[0])+(x[1]<h*3600-120?' <small>('+dur(x[1])+' so far)</small>':''):'Collecting')+'</b><div class="bar"><i style="width:'+(x?Math.max(2,Math.abs(x[0])/mx*100):0)+'%"></i></div></div></div>'}).join('');
-const A=d.i>0?d.list[d.i-1]:null,B=d.i>=0?d.list[d.i+1]:null,ok=d.pts!=null&&d.i>=0,me=ok?d.list[d.i][1]:0;
+const A=d.i>0?d.list[d.i-1]:null,B=d.i>=0?d.list[d.i+1]:null,ok=d.pts!=null&&d.i>=0,me=ok?d.pts:0;
 const nb=(T,lab,val)=>T&&ok?'<div class="cell nb">'+logo(T[3],T[0],'lgs')+'<div><small>'+lab+' '+esc(T[0])+'</small><b>'+val+'</b></div></div>':'<div class="cell"><small>'+(!ok?'Gap unavailable':lab==='To pass'&&d.i===0?'You are first':'Nobody here')+'</small></div>';
 const gap=nb(A,'To pass','+'+fmt(Math.max(0,(A?A[1]:0)-me)))+nb(B,'Ahead of',fmt(Math.max(0,me-(B?B[1]:0))));
 const top=Math.max(1,...d.rows.map(r=>r.p));
 const war=d.kind==='League'?'league':'clan',pcs=x=>Math.min(99.9,Math.max(0,x)).toFixed(1);
-const mem=d.rows.map((r,k)=>{const m0=g1&&g1[2][3]?g1[2][3][r.id]:null,m1=last[3][r.id],pp=m0!=null&&m1!=null&&g1[1]>=120?(m1-m0)/(g1[1]/3600):null,u=U[r.id],sh=d.sum?pc(r.p/d.sum*100,100):null,ri=rinfo(d.kind,r.p,r.id);
-const best=ri.pct!=null?'Better than '+(ri.est?'~':'')+pcs(ri.pct)+'% of '+war+' war players (rank '+(ri.est?'~':'')+'#'+ri.rank.toLocaleString()+')':ri.rank?'Global rank #'+ri.rank.toLocaleString()+' (exact)':'Working out the global rank ('+ri.s.cov.toLocaleString()+' of '+ri.s.tot.toLocaleString()+' '+(d.kind==='League'?'leagues':'clans')+' scanned)...';
+const mem=d.rows.map((r,k)=>{const m0=g1&&g1[2][3]?g1[2][3][r.id]:null,m1=last[3][r.id],pp=m0!=null&&m1!=null&&g1[1]>=120?(m1-m0)/(g1[1]/3600):null,u=U[r.id],tp=d.pts!=null?d.pts:d.sum,sh=tp?pc(r.p/tp*100,100):null,ri=rinfo(d.kind,r.p,r.id);
+const best=ri.pct!=null?'Better than '+(ri.est||ri.nEst?'~':'')+pcs(ri.pct)+'% of '+war+' war players (rank '+(ri.est?'~':'')+'#'+ri.rank.toLocaleString()+')':ri.rank?'Global rank #'+ri.rank.toLocaleString()+' (exact)':'Working out the global rank ('+ri.s.cov.toLocaleString()+' of '+ri.s.tot.toLocaleString()+' '+(d.kind==='League'?'leagues':'clans')+' scanned)...';
 return '<div class="mem'+(OPEN.has(String(r.id))?' open':'')+'" data-id="'+r.id+'" tabindex="0">'+av(r)+'<div><a href="https://www.roblox.com/users/'+r.id+'/profile">'+esc(nm(r))+'</a>'+(u&&u[1]!==u[0]?'<em>'+esc(u[1])+'</em>':'')+'<div class="bar"><i style="width:'+Math.max(2,r.p/top*100)+'%"></i></div><small>'+fmt(r.p)+' points'+(pp==null?'':', '+sg(pp)+'/hr')+(r.t?', last '+ago(now-r.t):'')+'</small><span class="pill">'+best+'</span>'
-+'<div class="det"><div class="cell"><small>Share of team points</small><b>'+(sh==null?'n/a':sh+'%')+'</b></div><div class="cell"><small>Global rank</small><b>'+(ri.rank?(ri.est?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' of '+ri.N.toLocaleString():''):'Scanning...')+'</b></div><div class="cell"><small>Based on</small><b>'+(ri.rank?(ri.est?'Estimate, '+ri.s.cov.toLocaleString()+' of '+ri.s.tot.toLocaleString()+' scanned':'Exact rank'):'Scan in progress')+'</b></div></div></div><b class="rn">#'+(k+1)+'</b></div>'}).join('')||'<p class="st">No contributor data.</p>';
-const own=d.owner||(d.oid?nm({id:d.oid,n:d.oid}):'');
++'<div class="det"><div class="cell"><small>Share of team points</small><b>'+(sh==null?'n/a':sh+'%')+'</b></div><div class="cell"><small>Global rank</small><b>'+(ri.rank?(ri.est?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' of '+(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString():''):'Scanning...')+'</b></div><div class="cell"><small>Based on</small><b>'+(ri.rank?basis(ri):'Scan in progress')+'</b></div></div></div><b class="rn">#'+(k+1)+'</b></div>'}).join('')||'<p class="st">No contributor data.</p>';
+const own=d.oid?nm({id:d.oid,n:d.owner||d.oid}):d.owner||'';
 return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div><h2>'+esc(d.name)+'</h2><p class="meta">'+(own?'Owner: '+esc(own)+'. ':'')+d.mem+' of '+d.cap+' members.</p>'+pill+'</div></div>'
 +'<div class="hd"><div><small>'+d.kind+' rank</small><span class="big">'+(d.i>=0?'#'+d.rank:'n/a')+'</span></div><div><small>Rank change, 24h</small><span class="big sm '+cc+'">'+ct+'</span></div></div>'
 +'<div class="grid">'+cells.map(c=>'<div class="cell"><small>'+c[0]+'</small><b>'+c[1]+'</b></div>').join('')+'</div>'
@@ -360,7 +371,7 @@ return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+
 async function paint(show){
 const name=S[mode],k=mode;if(!name){$('dash').innerHTML='';return}
 if(show)$('dash').innerHTML='<p class="st">Loading '+esc(name)+'...</p>';
-try{const d=await(k==='League'?dataL(name):dataC(name));const ids=d.rows.map(r=>r.id);
+try{const d=await near(await(k==='League'?dataL(name):dataC(name)));const ids=d.rows.map(r=>r.id);
 await Promise.race([Promise.all([names(d.oid?ids.concat(d.oid):ids),pics(ids),gplay(k)]),new Promise(z=>setTimeout(z,5000))]);
 if(k!==mode||name!==S[mode])return;
 $('dash').innerHTML=render(d,snap(d))+(ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'')}

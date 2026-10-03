@@ -9,8 +9,9 @@ Put ranks.json next to index.html on your site and every visitor gets exact
 Usage:   python3 scan.py
 Options: --leagues 2000 --clans 2000 --rate 60 --out ranks.json
 Needs only Python 3 (standard library). The API allows 100 requests per minute
-per IP, so the default is 60 per minute: about 35 minutes for 2,000 leagues and
-2,000 clans. Run it again whenever you want fresh numbers.
+per IP, so the default is 60 per minute: about 70 minutes for 2,000 leagues and
+2,000 clans (one request per team plus the list pages). Run it again whenever you
+want fresh numbers.
 """
 import argparse, json, os, sys, time, urllib.error, urllib.parse, urllib.request
 
