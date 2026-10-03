@@ -1,8 +1,0 @@
-{
-  "name": "ps99-tracker",
-  "private": true,
-  "description": "Netlify functions for PS99 Tracker: 24h server-side history for the top 2,000 leagues and clans",
-  "dependencies": {
-    "@netlify/blobs": "^11.1.3"
-  }
-}

@@ -1,0 +1,119 @@
+#!/usr/bin/env python3
+"""
+PS99 Tracker history snapshot.
+
+Reads the top 2,000 leagues and clans (40 list requests) and adds one snapshot of each
+team's points and rank to 24 hours of history kept in --dir:
+
+  h/league/<bucket>.json and h/clan/<bucket>.json   {"<lowercase name>": [[unixSeconds, points, rank], ...]}
+  h/meta.json                                        when each kind was last saved
+
+GitHub Actions runs this about every 15 minutes (.github/workflows/history.yml) and saves the
+folder to the data-history branch, which index.html reads. Needs only Python 3.
+"""
+import argparse, json, os, sys, time, urllib.error, urllib.request
+from concurrent.futures import ThreadPoolExecutor
+
+API = os.environ.get("PS99_API", "https://ps99.biggamesapi.io")
+KEEP = 24 * 3600 + 1200  # 24 hours, plus a spare snapshot so the 24h gain has a start point
+BUCKETS = 128
+PAGES = 20  # 20 pages of 100 = top 2,000
+KINDS = {
+    "league": ("/v1/leagues?pageSize=100&sort=Points&sortOrder=desc&page=", lambda d: (d or {}).get("leagues")),
+    "clan": ("/api/clans?pageSize=100&sort=Points&sortOrder=desc&page=", lambda d: d),
+}
+
+
+def bucket(name):
+    # FNV-1a over code points. index.html uses the same function to find a team's file.
+    h = 0x811C9DC5
+    for ch in name:
+        h ^= ord(ch)
+        h = (h * 16777619) & 0xFFFFFFFF
+    return h % BUCKETS
+
+
+def page(kind, p):
+    path, rows = KINDS[kind]
+    for _ in range(3):
+        try:
+            req = urllib.request.Request(API + path + str(p), headers={"User-Agent": "ps99-tracker-history/1.0"})
+            with urllib.request.urlopen(req, timeout=15) as r:
+                out = rows(json.load(r).get("data"))
+            if isinstance(out, list):
+                return out
+        except urllib.error.HTTPError as e:
+            if e.code == 429:
+                return None  # rate limited: skip this page rather than retry
+        except Exception:
+            pass
+        time.sleep(1)
+    return None
+
+
+def load(path):
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
+
+
+def save(path, obj):
+    os.makedirs(os.path.dirname(path), exist_ok=True)
+    with open(path, "w") as f:
+        json.dump(obj, f, separators=(",", ":"))
+
+
+ap = argparse.ArgumentParser()
+ap.add_argument("--dir", default="hist")
+a = ap.parse_args()
+
+t = int(time.time())
+meta_path = os.path.join(a.dir, "h", "meta.json")
+meta = load(meta_path) or {}
+saved = 0
+for kind in KINDS:
+    with ThreadPoolExecutor(4) as ex:  # 4 at a time, 20 pages per kind: far below 100 per minute
+        pages = list(ex.map(lambda p: page(kind, p), range(1, PAGES + 1)))
+    now, failed = {}, 0
+    for pi, rows in enumerate(pages):
+        if rows is None:
+            failed += 1
+            continue
+        for i, x in enumerate(rows):
+            name, pts = str(x.get("Name") or "").lower(), x.get("Points")
+            # Names aren't unique; keep the higher one, like the API's own name lookup.
+            # Rank comes from the page position, so a failed page never shifts other ranks.
+            if name and name not in now and isinstance(pts, (int, float)):
+                now[name] = [t, pts, pi * 100 + i + 1]
+    print(f"{kind}: {len(now)} teams, {failed} pages failed", flush=True)
+    if not now:
+        continue
+    saved += len(now)
+    by_bucket = [[] for _ in range(BUCKETS)]
+    for name, entry in now.items():
+        by_bucket[bucket(name)].append((name, entry))
+    cut = t - KEEP
+    for b in range(BUCKETS):
+        path = os.path.join(a.dir, "h", kind, f"{b}.json")
+        old = load(path) or {}
+        nxt = {}
+        for name, h in old.items():
+            h = [e for e in h if e[0] >= cut]
+            if h:
+                nxt[name] = h
+        for name, entry in by_bucket[b]:
+            h = nxt.setdefault(name, [])
+            if h and entry[0] - h[-1][0] < 60:
+                h[-1] = entry  # a re-run must not add a second point for the same moment
+            else:
+                h.append(entry)
+        save(path, nxt)
+    meta[kind] = {"t": t, "n": len(now), "failedPages": failed}
+
+if not saved:
+    sys.exit("No data from the API, so the history was left unchanged.")
+meta["lastRun"] = {"t": t, "seconds": round(time.time() - t, 1)}
+save(meta_path, meta)
+print("Saved snapshot", t)
