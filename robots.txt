@@ -1,0 +1,4 @@
+User-agent: *
+Allow: /
+
+Sitemap: https://wonderful-selkie-5dc389.netlify.app/sitemap.xml
