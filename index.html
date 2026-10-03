@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#000000">
+<title>PS99 Tracker: Pet Simulator 99 League and Clan Rank, Points per Hour</title>
+<meta name="description" content="Free Pet Simulator 99 tracker. Check your league or clan rank, points per hour, gains and top players. Live top 2,000 leaderboards, updated every minute.">
+<meta name="robots" content="index,follow,max-image-preview:large">
+<link rel="canonical" href="https://wonderful-selkie-5dc389.netlify.app/">
+<meta name="application-name" content="PS99 Tracker">
+<meta name="apple-mobile-web-app-title" content="PS99 Tracker">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="PS99 Tracker">
+<meta property="og:title" content="PS99 Tracker: Pet Simulator 99 League and Clan Rank, Points per Hour">
+<meta property="og:description" content="Free Pet Simulator 99 tracker. Check your league or clan rank, points per hour, gains and top players. Live top 2,000 leaderboards, updated every minute.">
+<meta property="og:url" content="https://wonderful-selkie-5dc389.netlify.app/">
+<meta property="og:image" content="https://wonderful-selkie-5dc389.netlify.app/og.png">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta property="og:image:alt" content="PS99 Tracker: Pet Simulator 99 league and clan rank tracker">
+<meta name="twitter:card" content="summary_large_image">
+<meta name="twitter:title" content="PS99 Tracker: Pet Simulator 99 League and Clan Rank, Points per Hour">
+<meta name="twitter:description" content="Free Pet Simulator 99 tracker. Check your league or clan rank, points per hour, gains and top players. Live top 2,000 leaderboards, updated every minute.">
+<meta name="twitter:image" content="https://wonderful-selkie-5dc389.netlify.app/og.png">
+<link rel="icon" type="image/svg+xml" href="data:image/svg+xml,%3Csvg%20xmlns=%22http://www.w3.org/2000/svg%22%20viewBox=%220%200%20128%20128%22%3E%3Crect%20width=%22128%22%20height=%22128%22%20rx=%2228%22%20fill=%22%23ffd23f%22/%3E%3Cg%20transform=%22translate(22%2013)%20scale(.74)%22%3E%3Cpath%20d=%22M60%206C92%206%20114%2058%20114%2094c0%2030-24%2050-54%2050S6%20124%206%2094C6%2058%2028%206%2060%206Z%22%20fill=%22%23fff%22%20stroke=%22%2314204a%22%20stroke-width=%227%22%20stroke-linejoin=%22round%22/%3E%3Cpath%20d=%22M14%2084l17-13%2015%2015%2015-17%2015%2015%2017-13%2013%2011%22%20fill=%22none%22%20stroke=%22%2314204a%22%20stroke-width=%226%22%20stroke-linejoin=%22round%22%20stroke-linecap=%22round%22/%3E%3Ccircle%20cx=%2240%22%20cy=%2242%22%20r=%228%22%20fill=%22%23ff9ec7%22/%3E%3Ccircle%20cx=%2282%22%20cy=%2234%22%20r=%226%22%20fill=%22%23ffd23f%22/%3E%3Ccircle%20cx=%2278%22%20cy=%22118%22%20r=%229%22%20fill=%22%237ee6ff%22/%3E%3Ccircle%20cx=%2236%22%20cy=%22112%22%20r=%226%22%20fill=%22%23b98cff%22/%3E%3C/g%3E%3C/svg%3E">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="manifest" href="/site.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="preconnect" href="https://ps99.biggamesapi.io" crossorigin>
+<script type="application/ld+json">{"@context":"https://schema.org","@type":"WebApplication","name":"PS99 Tracker","alternateName":"Pet Simulator 99 League and Clan Tracker","url":"https://wonderful-selkie-5dc389.netlify.app/","description":"Free Pet Simulator 99 tracker. Check your league or clan rank, points per hour, gains and top players. Live top 2,000 leaderboards, updated every minute.","applicationCategory":"GameApplication","operatingSystem":"Any","browserRequirements":"Requires JavaScript","inLanguage":"en","image":"https://wonderful-selkie-5dc389.netlify.app/og.png","offers":{"@type":"Offer","price":"0","priceCurrency":"USD"}}</script>
+<link href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lilita+One&display=swap" rel="stylesheet">
+<style>
+:root{--pn:#121212;--ed:#2e2e2e;--tx:#f5f5f5;--mut:#a8a8a8;--y:#ffd23f;--g:#3ddc84;--r:#ff5a47;color-scheme:dark;box-sizing:border-box;padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px)}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+*,*::before,*::after{box-sizing:border-box}
+body{margin:0;background:#000;color:var(--tx);font:17px/1.5 "Atkinson Hyperlegible",system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 40px}
+h1,h2,h3,.big,button,input{font-family:"Lilita One",Impact,system-ui,sans-serif;font-weight:400}
+h1{font-size:clamp(36px,11vw,54px);line-height:1.05;margin:24px 0 6px}
+h1 span{color:var(--y)}
+.sub{color:var(--mut);margin:0 0 18px}
+.card{background:var(--pn);border:2px solid var(--ed);border-radius:18px;padding:16px;margin-bottom:16px}
+.tabs{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px}
+.tab{min-height:50px;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx);font-size:20px;cursor:pointer}
+.tab[aria-pressed="true"]{background:var(--y);color:#111;border-color:var(--y)}
+label{display:block;margin:0 0 6px;font-weight:700}
+input{width:100%;min-height:54px;font-size:20px;padding:10px 14px;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx)}
+:focus-visible{outline:3px solid var(--y);outline-offset:2px}
+.go{width:100%;min-height:54px;margin-top:10px;border:0;border-radius:14px;background:var(--y);color:#111;font-size:22px;cursor:pointer}
+.go:active{transform:scale(.98)}
+.st{font-size:14px;color:var(--mut);margin:10px 0 0}
+small{color:var(--mut);font-size:14px}
+.dash h2,.card h2{font-size:28px;margin:0 0 6px;overflow-wrap:anywhere}
+.meta{color:var(--mut);margin:0 0 12px;font-size:15px}
+.hd{display:grid;grid-template-columns:1fr 1fr;gap:12px}
+.big{font-size:36px;line-height:1.1;display:block}
+.big.sm{font-size:26px;line-height:1.3;padding-top:6px}
+.up{color:var(--g)}.dn{color:var(--r)}
+.grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
+.cell{background:#000;border:2px solid var(--ed);border-radius:14px;padding:10px 12px;min-width:0}
+.cell b{display:block;font:400 22px/1.2 "Lilita One",Impact,sans-serif;overflow-wrap:anywhere}
+h3{font-size:22px;line-height:1.1;margin:22px 0 8px;color:var(--y)}
+.gr{display:grid;grid-template-columns:88px 1fr;gap:10px;align-items:center;margin:8px 0}
+.gr b{font-weight:700}
+.bar{height:10px;border-radius:99px;background:#262626;overflow:hidden;margin-top:5px}
+.bar i{display:block;height:100%;background:var(--g);border-radius:99px}
+.mem{display:grid;grid-template-columns:52px 1fr auto;gap:12px;align-items:start;padding:10px 0;border-top:1px solid var(--ed)}
+.mem a{color:var(--tx);font-weight:700;overflow-wrap:anywhere}
+.mem em{font-style:normal;color:var(--mut);margin-left:8px;font-size:14px}
+.rn{font-size:18px;color:var(--mut)}
+.av{position:relative;width:52px;height:52px;border-radius:50%;background:#262626;display:grid;place-items:center;overflow:hidden;color:var(--y);font:400 22px "Lilita One",Impact,sans-serif}
+.ok b{visibility:hidden}
+.av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.ch{width:100%;height:auto;display:block;touch-action:pan-y;background:#000;border:2px solid var(--ed);border-radius:14px}
+.ch text{fill:#a8a8a8;font:10px "Atkinson Hyperlegible",system-ui,sans-serif}
+.seg{display:flex;gap:6px;margin:8px 0}
+.seg button{flex:1;min-height:42px;border:2px solid var(--ed);border-radius:12px;background:#000;color:var(--tx);font-size:16px;cursor:pointer}
+.seg button[aria-pressed="true"]{background:var(--y);color:#111;border-color:var(--y)}
+.sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+.sum .cell b{font-size:19px}
+.cap{min-height:24px;margin:8px 0 0;font-size:15px;color:var(--mut)}
+.lg{position:relative;flex:none;width:38px;height:38px;border-radius:10px;background:#262626;display:grid;place-items:center;overflow:hidden;color:var(--y);font:400 18px "Lilita One",Impact,sans-serif}
+.lg.lgb{width:72px;height:72px;border-radius:16px;font-size:30px}
+.lg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.top{display:flex;gap:14px;align-items:center;margin-bottom:12px}.top h2{margin:0 0 4px}.top .meta{margin:0}
+.rk{display:grid;grid-template-columns:44px 38px 1fr auto;gap:8px;align-items:center;width:100%;min-height:52px;padding:6px 4px;background:none;border:0;border-top:1px solid var(--ed);color:var(--tx);text-align:left;font:inherit;font-size:18px;cursor:pointer}
+.rk:first-child{border-top:0}.rk b{font-family:"Lilita One",Impact,sans-serif;font-weight:400;color:var(--mut)}.rk span{overflow-wrap:anywhere;font-weight:700}.rk i{font-style:normal;color:var(--y)}
+.help summary{cursor:pointer;font:400 20px "Lilita One",Impact,sans-serif;min-height:44px;display:flex;align-items:center}
+.help ul{padding-left:20px;margin:6px 0 0}.help li{margin-bottom:8px}
+footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
+#shbtn:disabled{opacity:.45;cursor:not-allowed}
+.pill{display:block;width:fit-content;max-width:100%;margin-top:6px;padding:4px 10px;border-radius:12px;background:#262626;color:var(--y);font-size:13px;font-weight:700}
+.faq{border-top:1px solid var(--ed)}.faq summary{cursor:pointer;font-weight:700;min-height:48px;display:flex;align-items:center}.faq p{margin:0 0 12px;color:var(--mut)}
+.mem{cursor:pointer}.mem .det{display:none;margin-top:10px}.mem.open .det{display:block}
+.det .cell{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px;padding:8px 12px}.det .cell b{font-size:17px;white-space:nowrap}.det .cell small{min-width:0}
+.nb{display:flex;gap:10px;align-items:center}.lg.lgs{width:30px;height:30px;border-radius:8px;font-size:15px}
+.av.sm{width:28px;height:28px;font-size:13px}
+.leg{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}.lgd{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:700}
+#sg{margin-top:8px}
+.sg{display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;width:100%;min-height:52px;padding:6px 8px;background:#000;border:1px solid var(--ed);border-radius:12px;color:var(--tx);text-align:left;font:inherit;font-size:17px;margin-top:6px;cursor:pointer}
+.sg i{font-style:normal;color:var(--y);font-size:14px}
+.more{width:100%;min-height:48px;margin-top:10px;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx);font-size:18px;cursor:pointer}
+#ld{position:fixed;inset:0;z-index:50;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;touch-action:none;transition:opacity .35s}
+[hidden]{display:none!important}
+#ld.out{opacity:0;pointer-events:none}
+#ld svg{width:84px;animation:ldw 1.2s ease-in-out infinite}
+@keyframes ldw{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(10deg)}}
+@media(prefers-reduced-motion:reduce){#ld svg{animation:none}}
+.ldt{font:400 30px/1.1 "Lilita One",Impact,system-ui,sans-serif;color:var(--y)}
+#ld p{margin:0;max-width:22em}
+.ldb{width:min(320px,80vw);margin-top:6px}.ldb i{transition:width .3s}
+.ldbtn{display:grid;gap:10px;width:min(320px,80vw);margin-top:8px}
+@media(min-width:640px){.grid{grid-template-columns:repeat(4,1fr)}}
+</style></head>
+<body><div id="ld" role="status" aria-live="polite"><svg viewBox="0 0 120 150" aria-hidden="true"><path d="M60 6C92 6 114 58 114 94c0 30-24 50-54 50S6 124 6 94C6 58 28 6 60 6Z" fill="#fff" stroke="#14204a" stroke-width="7" stroke-linejoin="round"/><path d="M14 84l17-13 15 15 15-17 15 15 17-13 13 11" fill="none" stroke="#14204a" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="40" cy="42" r="8" fill="#ff9ec7"/><circle cx="82" cy="34" r="6" fill="#ffd23f"/><circle cx="78" cy="118" r="9" fill="#7ee6ff"/><circle cx="36" cy="112" r="6" fill="#b98cff"/></svg>
+<div class="ldt" id="ldh">Loading all API data</div>
+<p id="ldp">Please wait...</p>
+<div class="bar ldb"><i id="ldbar" style="width:3%"></i></div>
+<p class="st" id="lddet">Starting...</p>
+<p class="st" id="ldslow" hidden>Still working. The game's servers can be slow, thanks for waiting.</p>
+<div class="ldbtn" id="ldbtns" hidden><button class="go" id="ldretry">Try again</button><button class="tab" id="ldopen">Open anyway</button></div></div>
+<noscript><style>#ld{display:none}</style></noscript>
+<main class="wrap">
+<h1>PS99 <span>Tracker</span></h1>
+<p class="sub">A free Pet Simulator 99 league and clan tracker. See your rank, points per hour and gains. Pick League or Clan, type the name, and tap the yellow button.</p>
+<noscript><p class="st">PS99 Tracker needs JavaScript to load the live Pet Simulator 99 league and clan leaderboards.</p></noscript>
+<section class="card">
+<div class="tabs" role="group" aria-label="What to look up"><button class="tab" id="tL" aria-pressed="true">League</button><button class="tab" id="tC" aria-pressed="false">Clan</button></div>
+<label for="q" id="ql">Your league name</label>
+<input id="q" type="text" enterkeyhint="search" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Example: dmcc">
+<div id="sg"></div>
+<button class="go" id="go">Show my stats</button>
+<p class="st" id="st">Loading live data...</p>
+</section>
+<div id="dash" aria-live="polite"></div>
+<section class="card"><h2 id="th">Top 10 leagues</h2><p class="st" style="margin:0 0 6px">Tap one to see its stats. This list updates every minute.</p><div id="top"></div></section>
+<details class="card help"><summary>How to read the stats</summary><ul>
+<li><b>Rank</b> is your place on the leaderboard. #1 is the best.</li>
+<li><b>Points per hour</b> is how fast points are coming in. It shows up after the page has been open a few minutes.</li>
+<li><b>Gains</b> are points added in the last 1, 6, 12, and 24 hours. They fill in the longer this page stays open.</li>
+<li><b>Gap</b> is how many points you need to pass the team above you, and how far ahead you are of the team below.</li>
+<li><b>Contributors</b> shows who added the most points.</li>
+<li>Only the top 2,000 teams get a rank here. Better than % compares a contributor with every player in the top 2,000 leagues (or the top 1,000 clans for clan war). The page scans every one of those teams in the background, with a progress bar and time left. Until the scan finishes, ranks marked with ~ are estimates. When it finishes, the numbers are exact.</li></ul></details>
+<details class="card help" id="share"><summary>For the site owner: share the scan with everyone</summary>
+<p class="st" style="margin-top:0">The scan is saved only in this browser. To make it global, download the finished scan as a file, name it ranks.json, and upload it next to index.html. Every visitor then gets exact numbers with no waiting.</p>
+<p class="st" id="shst">Checking scan progress...</p>
+<button class="go" id="shbtn" disabled>Download ranks.json</button></details>
+<section class="card about" aria-labelledby="ab"><h2 id="ab">About this Pet Simulator 99 tracker</h2>
+<p>PS99 Tracker is a free fan-made tool for Pet Simulator 99 on Roblox. Look up any league or clan in the top 2,000 to see its rank, points, points per hour, gains over 1, 6, 12 and 24 hours, and the gap to the teams above and below it. Every contributor shows with their Roblox avatar and how they compare to other players in the league war or clan war.</p>
+<details class="faq"><summary>How do I check my league rank in Pet Simulator 99?</summary><p>Pick League, type your league name, and tap Show my stats. If your league is in the top 2,000 you get its rank, points and gap to the next league.</p></details>
+<details class="faq"><summary>How do I check my clan rank?</summary><p>Pick Clan, type your clan name, and tap Show my stats. You also see who contributed the most points and how fast your clan is gaining.</p></details>
+<details class="faq"><summary>How often does the leaderboard update?</summary><p>The top lists refresh every minute from the official BIG Games public API. Points per hour and gains build up while the page is open.</p></details>
+<details class="faq"><summary>What does "better than X% of players" mean?</summary><p>It compares a contributor's points with the other players in the top 2,000 leagues (or the top 1,000 clans for clan war). The page scans teams in the background, so the numbers sharpen while it stays open. Ranks marked with ~ are estimates.</p></details>
+<details class="faq"><summary>Is this an official tool?</summary><p>No. It is fan-made and not affiliated with BIG Games or Roblox.</p></details></section>
+<footer><p>Fan-made and unofficial. Data comes from the <a href="https://github.com/BIG-Games-LLC/ps99-public-api-docs">BIG Games public API</a>. Pet Simulator 99 belongs to BIG Games, and Roblox is a trademark of Roblox Corporation.</p></footer>
+</main>
+<script>
+const $=i=>document.getElementById(i);
+const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+const fmt=v=>{if(typeof v!=='number')return v;const a=Math.abs(v);return (v<0?'-':'')+(a>=1e12?(a/1e12).toFixed(2)+'t':a>=1e9?(a/1e9).toFixed(2)+'b':a>=1e6?(a/1e6).toFixed(2)+'m':a>=1e3?(a/1e3).toFixed(1)+'k':''+Math.round(a))};
+const ago=s=>s<90?'now':s<5400?Math.round(s/60)+'m ago':s<172800?Math.round(s/3600)+'h ago':Math.round(s/86400)+'d ago';
+const dur=s=>s<5400?Math.round(s/60)+'m':Math.round(s/3600)+'h';
+const BASE=['https://ps99.biggamesapi.io','/ps99api'];
+async function jget(p){for(const b of BASE){const c=new AbortController(),t=setTimeout(()=>c.abort(),25000);try{const r=await fetch(b+p,{signal:c.signal});if(r.ok){if(BASE[0]!==b)BASE.unshift(BASE.splice(BASE.indexOf(b),1)[0]);return await r.json()}}catch(e){}finally{clearTimeout(t)}}throw 0}
+const U=(()=>{try{return JSON.parse(localStorage.getItem('ps99u'))||{}}catch(e){return{}}})(),IM={},X={};
+const RB={u:['https://users.roblox.com','/rbx','https://users.roproxy.com'],t:['https://thumbnails.roblox.com','/rbxt','https://thumbnails.roproxy.com']};
+const PE={};
+async function rj(k,p,o){for(const b of RB[k]){try{const r=await fetch(b+p,o);if(r.ok){RB[k]=[b].concat(RB[k].filter(x=>x!==b));return await r.json()}PE[k]=r.status}catch(e){PE[k]='blocked'}}throw 0}
+async function names(ids){
+const need=ids.filter(i=>!U[i]);
+if(need.length){try{const j=await rj('u','/v1/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userIds:need,excludeBannedUsers:false})});(j.data||[]).forEach(x=>{U[x.id]=[x.name,x.displayName||x.name]})}catch(e){}}
+for(const i of ids.filter(i=>!U[i]&&!X[i])){try{const j=await rj('u','/v1/users/'+i);if(j.name)U[i]=[j.name,j.displayName||j.name]}catch(e){X[i]=1}}
+try{localStorage.setItem('ps99u',JSON.stringify(U))}catch(e){}}
+async function pics(ids){const need=ids.filter(i=>!IM[i]);if(!need.length)return;
+try{const j=await rj('t','/v1/users/avatar-headshot?userIds='+need.join(',')+'&size=150x150&format=Png&isCircular=false');(j.data||[]).forEach(x=>{if(x.imageUrl)IM[x.targetId]=x.imageUrl})}catch(e){}}
+let L=[],C=[],live=false,LT=0,CT=0,n=0,mode='League',BN=10,GP={},GN=0,GT=0,GPT=0,GK='',GS=[],GTOT=0,AVG=[],CUM=[];const OPEN=new Set();
+async function gplay(k){if(GK===k&&Date.now()-GPT<180000)return;
+try{let pl=[],tc=0;
+if(k==='League'){const j=await jget('/v1/leagues/players');pl=((j.data&&j.data.players)||[]).map(q=>[q.UserID,q.Points])}
+else{const b=await jget('/api/activeClanBattle'),id=b.data&&b.data.configName;if(!id)throw 0;const j=await jget('/v1/clans/battles/'+encodeURIComponent(id));pl=((j.data&&j.data.topPlayers)||[]).map(q=>[q.userId,q.points]);tc=(j.data&&j.data.stats&&j.data.stats.totalContributors)||0}
+GP={};pl.forEach((q,i)=>{GP[q[0]]=i+1});GS=pl.map(q=>q[1]);GN=pl.length;GT=pl.length?pl[pl.length-1][1]:0;GTOT=tc;GPT=Date.now();GK=k}catch(e){GP={};GS=[];GN=0;GT=0;GTOT=0;GK=''}}
+const S=(()=>{try{return JSON.parse(localStorage.getItem('ps99s'))||{}}catch(e){return{}}})();
+const save=()=>{try{localStorage.setItem('ps99s',JSON.stringify(S))}catch(e){}};
+async function pages(path,rows,max,cb){const out=[];let total=0;
+for(let p=1;p<=40&&out.length<max;p++){const j=await jget(path+'&page='+p);const a=rows(j.data);if(!a||!a.length)break;if(p===1)total=(j.data&&j.data.total)||0;a.forEach(x=>out.push([x.Name,x.Points,x.Members,x.Icon,x.ContributorCount]));if(cb)cb(p)}
+return{rows:out.slice(0,max),total}}
+let lp=0,cp=0;
+const ldUpd=()=>{const b=$('ldbar');if(!b)return;b.style.width=Math.max(3,Math.min(100,Math.round((lp+cp)/40*100)))+'%';$('lddet').textContent='Leagues '+Math.min(lp,20)+' of 20 pages, clans '+Math.min(cp,20)+' of 20 pages'};
+async function pull(full){
+const m=full?2000:100,[a,b]=await Promise.all([pages('/v1/leagues?pageSize=100&sort=Points&sortOrder=desc',d=>d.leagues,m,full?(q=>{lp=q;ldUpd()}):null),pages('/api/clans?pageSize=100&sort=Points&sortOrder=desc',d=>d,m,full?(q=>{cp=q;ldUpd()}):null)]);
+if(!a.rows.length||!b.rows.length)throw 0;
+if(full){L=a.rows;C=b.rows}else{L=a.rows.concat(L.slice(100));C=b.rows.concat(C.slice(100))}
+LT=a.total||LT;if(full){try{CT=(await jget('/api/clansTotal')).data||CT}catch(e){}}live=true}
+async function dataL(name){const j=await jget('/v1/leagues/'+encodeURIComponent(name));if(j.status!=='ok')throw 0;const d=j.data,i=L.findIndex(x=>String(x[0]).toLowerCase()===d.Name.toLowerCase());
+SMP.League[d.Name.toLowerCase()]={t:Date.now(),p:(d.PointContributions||[]).map(x=>Math.round(x.Points))};SV.League++;return{kind:'League',key:'l:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:d.Points,mem:(d.Members||[]).length+1,cap:d.MemberCapacity,owner:d.Owner&&d.Owner.DisplayName,i,list:L,rank:i+1,sum:(d.PointContributions||[]).reduce((s,x)=>s+x.Points,0),nAll:(d.PointContributions||[]).length,rows:(d.PointContributions||[]).slice(0,10).map(x=>({id:x.UserID,n:x.DisplayName,p:x.Points,t:x.Timestamp}))}}
+async function dataC(name){const j=await jget('/api/clan/'+encodeURIComponent(name));if(j.status!=='ok')throw 0;const d=j.data,i=C.findIndex(x=>String(x[0]).toLowerCase()===d.Name.toLowerCase());
+SMP.Clan[d.Name.toLowerCase()]={t:Date.now(),p:((d.Contribution&&d.Contribution.Battle)||[]).map(x=>Math.round(x.Points))};SV.Clan++;return{kind:'Clan',key:'c:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:i<0?null:C[i][1],mem:(d.Members||[]).length,cap:d.MemberCapacity,owner:'player '+d.Owner,i,list:C,rank:i+1,
+sum:((d.Contribution&&d.Contribution.Battle)||[]).reduce((s,x)=>s+x.Points,0),nAll:((d.Contribution&&d.Contribution.Battle)||[]).length,rows:((d.Contribution&&d.Contribution.Battle)||[]).slice().sort((a,b)=>b.Points-a.Points).slice(0,10).map(x=>({id:x.UserID,n:'Player '+x.UserID,p:x.Points,t:0})),
+extra:'Clan level '+d.GuildLevel+', '+d.GoldMedals+' gold, '+d.SilverMedals+' silver, '+d.BronzeMedals+' bronze medals.'}}
+const H={get(k){try{return JSON.parse(localStorage.getItem('ps99h:'+k))||[]}catch(e){return[]}},set(k,a){try{localStorage.setItem('ps99h:'+k,JSON.stringify(a))}catch(e){}}};
+function snap(d){if(d.pts==null)return[];
+const now=Math.floor(Date.now()/1000),a=H.get(d.key).filter(s=>now-s[0]<93600);
+if(!a.length||now-a[a.length-1][0]>=55){const m={};d.rows.forEach(r=>m[r.id]=r.p);a.push([now,d.pts,d.rank,m]);if(a.length>1600)a.splice(0,a.length-1600);H.set(d.key,a)}
+return a}
+function gain(a,h){const last=a[a.length-1],t=last[0]-h*3600;let ref=a[0];for(const s of a){if(s[0]<=t)ref=s;else break}return[last[1]-ref[1],last[0]-ref[0],ref]}
+const COL=['#ffd23f','#ff9ec7','#3ddc84','#6cc8ff'],CW=340,CH=200;
+let RG=0,CM='tot',LAST=null,CHD=null;
+const sg=v=>(v<0?'':'+')+fmt(v);
+const pc=(x,m)=>{x=Math.max(0,Math.min(m||99.9,Math.round(x*10)/10));return x%1?x.toFixed(1):''+x};
+const iid=s=>{const m=/\d+/.exec(s||'');return m?m[0]:''};
+const logo=(ic,name,c)=>{const id=iid(ic);return '<span class="lg '+(c||'')+'"><b>'+esc((String(name)[0]||'?').toUpperCase())+'</b>'+(id?'<img data-id="'+id+'" src="https://ps99.biggamesapi.io/image/'+id+'" alt="" loading="lazy">':'')+'</span>'};
+function interp(a,get,t,gap){for(let i=0;i<a.length-1;i++){const s=a[i],e=a[i+1];if(s[0]<=t&&t<=e[0]){const x=get(s),y=get(e);if(x==null||y==null||e[0]-s[0]>gap)return null;return x+(y-x)*(t-s[0])/Math.max(1,e[0]-s[0])}}return null}
+function series(a,get,hrs){const now=a[a.length-1][0],t0=Math.max(a[0][0],now-hrs*3600),span=now-t0,k=Math.min(36,Math.max(3,Math.floor(span/120))),step=span/k,gap=Math.max(900,step*3),v=[];
+for(let j=0;j<=k;j++)v.push(interp(a,get,t0+step*j,gap));
+return v.slice(1).map((q,j)=>[t0+step*(j+1),v[j]!=null&&q!=null?Math.max(0,(q-v[j])/(step/3600)):null])}
+const smooth=p=>p.map((q,i)=>{if(q[1]==null)return q;const w=[p[i-1],q,p[i+1]].filter(x=>x&&x[1]!=null);return[q[0],w.reduce((s,x)=>s+x[1],0)/w.length]});
+const nice=m=>{const e=Math.pow(10,Math.floor(Math.log10(m))),f=m/e;return(f<=1?1:f<=2?2:f<=5?5:10)*e};
+function curve(p,T,B){let s='M'+p[0][0].toFixed(1)+' '+p[0][1].toFixed(1);const cl=y=>Math.min(Math.max(y,T),B).toFixed(1);
+for(let i=0;i<p.length-1;i++){const a=p[i-1]||p[i],b=p[i],c=p[i+1],d=p[i+2]||c;
+s+='C'+(b[0]+(c[0]-a[0])/6).toFixed(1)+' '+cl(b[1]+(c[1]-a[1])/6)+' '+(c[0]-(d[0]-b[0])/6).toFixed(1)+' '+cl(c[1]-(d[1]-b[1])/6)+' '+c[0].toFixed(1)+' '+c[1].toFixed(1)}
+return s}
+function ctl(hrs,kind){return '<div class="seg">'+[1,6,24].map(h=>'<button data-r="'+h+'" aria-pressed="'+(h===hrs)+'">'+h+' hour'+(h>1?'s':'')+'</button>').join('')+'</div><div class="seg"><button data-m="tot" aria-pressed="'+(CM==='tot')+'">'+kind+' total</button><button data-m="pl" aria-pressed="'+(CM==='pl')+'">Top players</button></div>'}
+function chartHtml(a,d){
+const sp=a.length>1?a[a.length-1][0]-a[0][0]:0;
+if(a.length<3||sp<240){CHD=null;return '<svg class="ch" viewBox="0 0 '+CW+' '+CH+'"><line x1="48" x2="330" y1="170" y2="170" stroke="#3a3a3a"/><path d="M48 150C100 118 140 160 190 130S280 108 330 98" fill="none" stroke="#3a3a3a" stroke-width="3" stroke-dasharray="6 6"/><text x="189" y="76" text-anchor="middle">Collecting data</text></svg><p class="cap">The chart starts after about 4 minutes. Keep this page open and it fills in.</p>'}
+const hrs=RG||(sp<=3900?1:sp<=22200?6:24);
+const mk=(c,n,r,get)=>{const raw=series(a,get,hrs);return{c,n,r,raw,pts:smooth(raw)}};
+const ser=CM==='pl'?d.rows.slice(0,4).map((r,i)=>mk(COL[i],nm(r),r,s=>s[3][r.id]==null?null:s[3][r.id])):[mk(COL[0],d.kind,null,s=>s[1])];
+const all=[].concat(...ser.map(q=>q.pts.map(p=>p[1]).filter(v=>v!=null)));
+if(!all.length)return ctl(hrs,d.kind)+'<p class="st">Not enough data in this range yet. Try a longer one.</p>';
+const mx=nice(Math.max(1,...all)),l=48,t=18,r=10,b=26,pw=CW-l-r,ph=CH-t-b,x0=ser[0].pts[0][0],x1=ser[0].pts[ser[0].pts.length-1][0];
+const X=tm=>l+(tm-x0)/(x1-x0||1)*pw,Y=v=>t+ph-v/mx*ph,hm=tm=>new Date(tm*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
+CHD={ser,X,Y};
+let g='<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+COL[0]+'" stop-opacity=".4"/><stop offset="1" stop-color="'+COL[0]+'" stop-opacity="0"/></linearGradient></defs><text x="'+l+'" y="11">points per hour</text>';
+[0,.25,.5,.75,1].forEach(f=>{const y=Y(mx*f);g+='<line x1="'+l+'" x2="'+(CW-r)+'" y1="'+y+'" y2="'+y+'" stroke="'+(f?'#242424':'#3a3a3a')+'"/><text x="'+(l-6)+'" y="'+(y+4)+'" text-anchor="end">'+fmt(mx*f)+'</text>'});
+[0,.33,.66,1].forEach(f=>{const tm=x0+(x1-x0)*f;g+='<text x="'+X(tm)+'" y="'+(CH-8)+'" text-anchor="'+(f===0?'start':f===1?'end':'middle')+'">'+(f===1?'now':hm(tm))+'</text>'});
+ser.forEach(q=>{let run=[];const runs=[];q.pts.forEach(p=>{if(p[1]==null){if(run.length)runs.push(run);run=[]}else run.push([X(p[0]),Y(p[1])])});if(run.length)runs.push(run);
+runs.forEach(rn=>{const c1=curve(rn,t,t+ph);if(ser.length===1&&rn.length>1)g+='<path d="'+c1+'L'+rn[rn.length-1][0].toFixed(1)+' '+(t+ph)+'L'+rn[0][0].toFixed(1)+' '+(t+ph)+'Z" fill="url(#ga)"/>';g+='<path d="'+c1+'" fill="none" stroke="'+q.c+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'});
+const lp=q.pts.filter(p=>p[1]!=null).pop();if(lp)g+='<circle cx="'+X(lp[0]).toFixed(1)+'" cy="'+Y(lp[1]).toFixed(1)+'" r="4.5" fill="'+q.c+'" stroke="#000" stroke-width="2"/>'});
+g+='<line id="gl" y1="'+t+'" y2="'+(t+ph)+'" stroke="#fff" opacity=".5" style="display:none"/>'+ser.map((q,i)=>'<circle id="gd'+i+'" r="5.5" fill="'+q.c+'" stroke="#fff" stroke-width="2" style="display:none"/>').join('');
+const v1=ser[0].raw.map(p=>p[1]).filter(v=>v!=null),sum=ser.length===1&&v1.length?'<div class="sum"><div class="cell"><small>Now</small><b>+'+fmt(v1[v1.length-1])+'</b></div><div class="cell"><small>Average</small><b>+'+fmt(v1.reduce((s,v)=>s+v,0)/v1.length)+'</b></div><div class="cell"><small>Peak</small><b>+'+fmt(Math.max(...v1))+'</b></div></div>':'';
+const leg=ser.length>1?'<div class="leg">'+ser.map(q=>'<span class="lgd">'+av(q.r).replace('class="av"','class="av sm" style="border:2px solid '+q.c+'"')+'<span style="color:'+q.c+'">'+esc(q.n)+'</span></span>').join('')+'</div>':'';
+return ctl(hrs,d.kind)+sum+'<svg class="ch" viewBox="0 0 '+CW+' '+CH+'" role="img" aria-label="Points per hour chart">'+g+'</svg><p class="cap" id="cap">Touch or drag on the chart to see exact numbers. Gaps mean the page was closed.</p>'+leg}
+const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+const ldS=k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){return{}}};
+const SMP={League:ldS('ps99g:League'),Clan:ldS('ps99g:Clan')},SV={League:0,Clan:0},SS={League:{v:-1},Clan:{v:-1}},FC={};
+let crawling=false,cn=0,cf=0;
+const LIM={League:2000,Clan:1000};
+function savS(){['League','Clan'].forEach(k=>{try{localStorage.setItem('ps99g:'+k,JSON.stringify(SMP[k]))}catch(e){}})}
+document.addEventListener('visibilitychange',()=>{if(document.hidden)savS()});
+function lb(arr,x){let lo=0,hi=arr.length;while(lo<hi){const m=(lo+hi)>>1;if(arr[m]<x)lo=m+1;else hi=m}return lo}
+const RK={},FS={};
+function ub(arr,x){let lo=0,hi=arr.length;while(lo<hi){const m=(lo+hi)>>1;if(arr[m]<=x)lo=m+1;else hi=m}return lo}
+function sstat(k){if(FS[k])return FS[k];const S=SS[k],a=k==='League'?L:C;if(S.v===SV[k]&&S.len===a.length)return S;
+const names=a.slice(0,LIM[k]).map(x=>String(x[0]).toLowerCase()),arr=[];let cov=0,sh=null,nl=0,done=0;
+names.forEach(nm=>{const e=SMP[k][nm];if(e)done++;if(e&&e.p.length){cov++;for(const v of e.p)arr.push(v)}});
+arr.sort((x,y)=>x-y);
+if(k==='League'){sh={1:[[]],2:[[],[]],3:[[],[],[]],4:[[],[],[],[]]};
+names.forEach(nm=>{const e=SMP.League[nm];if(e&&e.p.length&&e.p.length<=4){const q=e.p.slice().sort((x,y)=>y-x),sum=q.reduce((t,v)=>t+v,0);if(sum>0){nl++;q.forEach((v,i)=>sh[q.length][i].push(v/sum))}}});
+for(const q in sh)sh[q].forEach(z=>z.sort((x,y)=>x-y))}
+Object.assign(S,{arr,n:arr.length,cov,done,tot:names.length,sh,nl,v:SV[k],len:a.length});return S}
+const popL=()=>{let n=0;for(let i=0;i<Math.min(2000,L.length);i++)n+=Math.max(1,L[i][4]||L[i][2]||1);return n};
+function lbelow(p,s){let below=0,N=0;
+for(let j=0;j<Math.min(2000,L.length);j++){const x=L[j],c=Math.max(1,x[4]||x[2]||1),e=SMP.League[String(x[0]).toLowerCase()];
+if(e&&e.p.length){N+=e.p.length;for(const v of e.p)if(v<p)below++}
+else{const k=Math.min(4,c),t=x[1]>0?p/x[1]:0,ar=s.sh[k];N+=c;for(let i=0;i<k;i++){const z=ar[i];below+=z.length?lb(z,t)/z.length:(1/k<t?1:0)}}}
+return{below,N}}
+function rinfo(kind,p,id){const s=sstat(kind),ex=GP[id];
+if(s.tot>0&&s.done>=s.tot&&s.n>0){const rank=s.n-ub(s.arr,p)+1;return{rank,pct:Math.max(0,(1-rank/s.n)*100),est:false,N:s.n,s}}
+if(kind==='League'){const N=popL();
+if(ex&&N)return{rank:ex,pct:Math.max(0,(1-ex/N)*100),est:false,N,s};
+if(s.nl<12||!N)return{rank:0,pct:null,est:true,N:0,s};
+const q=lbelow(p,s),rank=Math.max(Math.round(q.N-q.below),p<GT&&GN?GN+1:1);
+return{rank,pct:q.below/q.N*100,est:true,N:q.N,s}}
+const cov=s.n>=120&&s.cov>0,N=cov?Math.round(s.n*s.tot/s.cov):0;
+if(ex&&N)return{rank:ex,pct:Math.max(0,(1-ex/N)*100),est:false,N,s};
+if(cov){const fb=lb(s.arr,p)/s.n,rank=Math.max(Math.round((1-fb)*N)+1,p<GT&&GN?GN+1:1);return{rank,pct:fb*100,est:true,N,s}}
+return ex?{rank:ex,pct:null,est:false,N:0,s}:{rank:0,pct:null,est:true,N:0,s}}
+let t0=Date.now();
+const fmtETA=ms=>{const m=Math.ceil(ms/60000);return m<1?'under a minute':m<60?m+' min':Math.floor(m/60)+' h '+(m%60)+' min'};
+const scanText=k=>{const s=sstat(k),w=k==='League'?'leagues':'clans';
+if(s.file)return 'Exact ranks from a full scan of '+s.tot.toLocaleString()+' '+w+', finished '+ago(Date.now()/1000-s.file)+'.';
+const pct=Math.round(s.done/Math.max(1,s.tot)*100),left=s.tot-s.done,rate=cn>4?(Date.now()-t0)/cn:1000;
+return (k==='League'?'Global rank among '+popL().toLocaleString()+' players in the top 2,000 leagues. ':'')+(s.done>=s.tot&&s.tot?'Full scan finished: all '+s.tot.toLocaleString()+' '+w+' counted, so ranks are exact.':'Full scan: '+s.done.toLocaleString()+' of '+s.tot.toLocaleString()+' '+w+' ('+pct+'%), about '+fmtETA(left*rate)+' left. Numbers marked ~ are estimates until it finishes.')+'<div class="bar"><i style="width:'+pct+'%"></i></div>'};
+async function loadRanks(){try{const r=await fetch('ranks.json',{cache:'no-store'});if(!r.ok)return;const j=await r.json();
+['League','Clan'].forEach(k=>{const f=j[k];if(f&&f.points&&f.points.length>50&&Date.now()/1000-(j.updated||0)<172800){const n=f.names||f.points.length;f.points.sort((a,b)=>a-b);FS[k]={arr:f.points,n:f.points.length,cov:n,done:n,tot:n,sh:null,nl:999,file:j.updated}}});
+const el=$('scan');if(el)el.innerHTML=scanText(el.dataset.k);shareUI()}catch(e){}}
+function shareUI(){const e=$('shst');if(!e)return;const parts=[],ok=[];
+['League','Clan'].forEach(k=>{const s=sstat(k),w=k==='League'?'leagues':'clans';
+if(s.file)parts.push(w+': loaded from the shared file');else{parts.push(w+': '+s.done.toLocaleString()+' of '+s.tot.toLocaleString()+' scanned');if(s.tot>0&&s.done>=s.tot)ok.push(k)}});
+e.textContent=parts.join(', ')+(ok.length?'. Ready to download.':'. The download unlocks when a scan finishes.');$('shbtn').disabled=!ok.length}
+function dlRanks(){const out={updated:Math.floor(Date.now()/1000)};
+['League','Clan'].forEach(k=>{const s=sstat(k);if(!s.file&&s.tot>0&&s.done>=s.tot)out[k]={names:s.tot,points:s.arr}});
+const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(out)],{type:'application/json'}));a.download='ranks.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
+async function crawl(){if(crawling)return;crawling=true;t0=Date.now();const Q={League:[],Clan:[]};
+for(;;){try{
+if(!live||document.hidden){await sleep(2500);continue}
+let k=null;
+for(const kk of [mode,mode==='League'?'Clan':'League']){if(FS[kk])continue;const a=kk==='League'?L:C;
+if(!Q[kk].length){const now=Date.now();Q[kk]=a.slice(0,LIM[kk]).map(x=>String(x[0])).filter(n=>{const e=SMP[kk][n.toLowerCase()];return !e||now-e.t>1.08e7}).sort(()=>Math.random()-.5)}
+if(Q[kk].length){k=kk;break}}
+if(!k){await sleep(20000);continue}
+const name=Q[k].pop(),key=name.toLowerCase();
+try{const j=await jget((k==='League'?'/v1/leagues/':'/api/clan/')+encodeURIComponent(name));if(j.status!=='ok')throw 0;
+const d=j.data,rows=k==='League'?(d.PointContributions||[]):((d.Contribution&&d.Contribution.Battle)||[]);
+SMP[k][key]={t:Date.now(),p:rows.map(x=>Math.round(x.Points))};SV[k]++;cf=0}
+catch(e){cf++;Q[k].unshift(name);FC[key]=(FC[key]||0)+1;if(FC[key]>4){Q[k].shift();SMP[k][key]={t:Date.now(),p:[]};SV[k]++}await sleep(Math.min(90000,10000*cf));continue}
+cn++;if(cn%15===0)savS();
+if(cn%6===0){const el=$('scan');if(el)el.innerHTML=scanText(el.dataset.k);shareUI()}
+await sleep(window.CRAWL_MS||600)}catch(e){await sleep(15000)}}}
+const nm=r=>{const u=U[r.id];return u?'@'+u[0]:String(r.n)===String(r.id)?'User '+r.id:r.n};
+const av=r=>{const t=nm(r).replace(/^(@|User )/,'');return '<span class="av"><b>'+esc((t[0]||'?').toUpperCase())+'</b><img src="'+esc(IM[r.id]||'https://www.roblox.com/headshot-thumbnail/image?userId='+r.id+'&width=150&height=150&format=png')+'" alt="" loading="lazy"></span>'};
+function render(d,a){LAST={a,d};const tot=d.kind==='League'?LT:CT,pill=d.i>=0&&tot?'<span class="pill">Better than '+pc((tot-d.rank)/tot*100)+'% of '+tot.toLocaleString()+' '+(d.kind==='League'?'leagues':'clans')+'</span>':'';
+const now=Math.floor(Date.now()/1000),last=a[a.length-1]||[0,0,0,{}],G=[1,6,12,24].map(h=>a.length>1?gain(a,h):null),g1=G[0],g24=G[3];
+const pph=g1&&g1[1]>=120?g1[0]/(g1[1]/3600):null;
+let ct='Collecting',cc='';
+if(g24&&g24[2][2]&&last[2]){const r=g24[2][2]-last[2];ct=r>0?'Up '+r:r<0?'Down '+(-r):'No change';cc=r>0?'up':r<0?'dn':'';if(g24[1]<86000)ct+=' ('+dur(g24[1])+')'}
+const cells=[['Points',d.pts==null?'n/a':fmt(d.pts)],['Points per hour',pph==null?'Collecting':sg(pph)],['Average per member',d.pts==null||!d.mem?'n/a':fmt(d.pts/d.mem)],['Members',d.mem+' of '+d.cap]];
+const mx=Math.max(1,...G.map(x=>x?Math.abs(x[0]):0)),lab=['1 hour','6 hours','12 hours','24 hours'];
+const gains=[1,6,12,24].map((h,k)=>{const x=G[k];return '<div class="gr"><span>'+lab[k]+'</span><div><b>'+(x?sg(x[0])+(x[1]<h*3600-120?' <small>('+dur(x[1])+' so far)</small>':''):'Collecting')+'</b><div class="bar"><i style="width:'+(x?Math.max(2,Math.abs(x[0])/mx*100):0)+'%"></i></div></div></div>'}).join('');
+const A=d.i>0?d.list[d.i-1]:null,B=d.i>=0?d.list[d.i+1]:null,ok=d.pts!=null&&d.i>=0,me=ok?d.list[d.i][1]:0;
+const nb=(T,lab,val)=>T&&ok?'<div class="cell nb">'+logo(T[3],T[0],'lgs')+'<div><small>'+lab+' '+esc(T[0])+'</small><b>'+val+'</b></div></div>':'<div class="cell"><small>'+(!ok?'Gap unavailable':lab==='To pass'&&d.i===0?'You are first':'Nobody here')+'</small></div>';
+const gap=nb(A,'To pass','+'+fmt(Math.max(0,(A?A[1]:0)-me)))+nb(B,'Ahead of',fmt(Math.max(0,me-(B?B[1]:0))));
+const top=Math.max(1,...d.rows.map(r=>r.p));
+const war=d.kind==='League'?'league':'clan',pcs=x=>Math.min(99.9,Math.max(0,x)).toFixed(1);
+const mem=d.rows.map((r,k)=>{const m0=g1&&g1[2][3]?g1[2][3][r.id]:null,m1=last[3][r.id],pp=m0!=null&&m1!=null&&g1[1]>=120?(m1-m0)/(g1[1]/3600):null,u=U[r.id],sh=d.sum?pc(r.p/d.sum*100,100):null,ri=rinfo(d.kind,r.p,r.id);
+const best=ri.pct!=null?'Better than '+(ri.est?'~':'')+pcs(ri.pct)+'% of '+war+' war players (rank '+(ri.est?'~':'')+'#'+ri.rank.toLocaleString()+')':ri.rank?'Global rank #'+ri.rank.toLocaleString()+' (exact)':'Working out the global rank ('+ri.s.cov.toLocaleString()+' of '+ri.s.tot.toLocaleString()+' '+(d.kind==='League'?'leagues':'clans')+' scanned)...';
+return '<div class="mem'+(OPEN.has(String(r.id))?' open':'')+'" data-id="'+r.id+'" tabindex="0">'+av(r)+'<div><a href="https://www.roblox.com/users/'+r.id+'/profile">'+esc(nm(r))+'</a>'+(u&&u[1]!==u[0]?'<em>'+esc(u[1])+'</em>':'')+'<div class="bar"><i style="width:'+Math.max(2,r.p/top*100)+'%"></i></div><small>'+fmt(r.p)+' points'+(pp==null?'':', '+sg(pp)+'/hr')+(r.t?', last '+ago(now-r.t):'')+'</small><span class="pill">'+best+'</span>'
++'<div class="det"><div class="cell"><small>Share of team points</small><b>'+(sh==null?'n/a':sh+'%')+'</b></div><div class="cell"><small>Global rank</small><b>'+(ri.rank?(ri.est?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' of '+ri.N.toLocaleString():''):'Scanning...')+'</b></div><div class="cell"><small>Based on</small><b>'+(ri.rank?(ri.est?'Estimate, '+ri.s.cov.toLocaleString()+' of '+ri.s.tot.toLocaleString()+' scanned':'Exact rank'):'Scan in progress')+'</b></div></div></div><b class="rn">#'+(k+1)+'</b></div>'}).join('')||'<p class="st">No contributor data.</p>';
+return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div><h2>'+esc(d.name)+'</h2><p class="meta">'+(d.owner?'Owner: '+esc(d.owner)+'. ':'')+d.mem+' of '+d.cap+' members.</p>'+pill+'</div></div>'
++'<div class="hd"><div><small>'+d.kind+' rank</small><span class="big">'+(d.i>=0?'#'+d.rank:'n/a')+'</span></div><div><small>Rank change, 24h</small><span class="big sm '+cc+'">'+ct+'</span></div></div>'
++'<div class="grid">'+cells.map(c=>'<div class="cell"><small>'+c[0]+'</small><b>'+c[1]+'</b></div>').join('')+'</div>'
++'<h3>Points gained</h3>'+gains+'<h3>Gap to the next teams</h3><div class="grid">'+gap+'</div>'
++'<h3>Contributors</h3><p class="st" style="margin:0 0 4px">Tap a contributor for details.</p>'+mem+'<div class="st" id="scan" data-k="'+d.kind+'">'+scanText(d.kind)+'</div>'+'<h3>Points per hour</h3><div id="chw">'+chartHtml(a,d)+'</div>'
++(d.i<0?'<p class="st">Not in the top 2,000, so rank and gaps are unavailable.</p>':'')+(d.extra?'<p class="st">'+esc(d.extra)+'</p>':'')
++'<p class="st">Updated '+new Date().toLocaleTimeString()+'. Gains and the chart build up while this page is open on your device.</p></section>'}
+async function paint(show){
+const name=S[mode],k=mode;if(!name){$('dash').innerHTML='';return}
+if(show)$('dash').innerHTML='<p class="st">Loading '+esc(name)+'...</p>';
+try{const d=await(k==='League'?dataL(name):dataC(name));const ids=d.rows.map(r=>r.id);
+await Promise.race([Promise.all([names(ids),pics(ids),gplay(k)]),new Promise(z=>setTimeout(z,5000))]);
+if(k!==mode||name!==S[mode])return;
+$('dash').innerHTML=render(d,snap(d))+(ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'')}
+catch(e){if(k===mode)$('dash').innerHTML='<section class="card"><b>Could not find '+esc(name)+'.</b><p class="st">Check the spelling, or live data may be unavailable right now.</p></section>'}}
+function board(){const a=mode==='League'?L:C,k=Math.min(BN,a.length);$('th').textContent='Top '+(a.length?k:10)+' '+(mode==='League'?'leagues':'clans');
+$('top').innerHTML=a.length?a.slice(0,k).map((x,i)=>'<button class="rk" data-n="'+esc(x[0])+'"><b>#'+(i+1)+'</b>'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span><i>'+fmt(x[1])+'</i></button>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">Loading...</p>'}
+function setMode(m){mode=m;BN=10;$('sg').innerHTML='';S.mode=m;save();$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');
+$('q').value=S[m]||'';$('q').placeholder=m==='League'?'Example: dmcc':'Example: UN0';$('ql').textContent='Your '+m.toLowerCase()+' name';board();$('dash').innerHTML='';if(S[m]&&live)paint(true)}
+async function tick(full){try{await pull(full);$('st').textContent='Live data loaded at '+new Date().toLocaleTimeString()+'. It updates every minute.';board();crawl();shareUI();if(S[mode])paint(false)}
+catch(e){if(!live)$('st').textContent='Live data could not load here. Try again, or open the site from your own link.'}}
+async function go(){const v=$('q').value.trim();if(!v){$('q').focus();return}$('sg').innerHTML='';S[mode]=v;save();await ready;await paint(true);$('dash').scrollIntoView({behavior:'smooth',block:'start'})}
+$('tL').onclick=()=>setMode('League');$('tC').onclick=()=>setMode('Clan');$('go').onclick=go;
+$('q').onkeydown=e=>{if(e.key==='Enter')go()};
+$('top').onclick=e=>{if(e.target.id==='more'){BN+=25;board();return}const b=e.target.closest('.rk');if(b){$('q').value=b.dataset.n;go()}};
+document.addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;if(i.dataset.id&&!i.dataset.t){i.dataset.t=1;i.src='/ps99api/image/'+i.dataset.id}else i.style.display='none'},true);
+document.addEventListener('load',e=>{if(e.target.tagName==='IMG')e.target.parentNode.classList.add('ok')},true);
+document.addEventListener('click',e=>{const b=e.target.closest('.seg button');if(!b||!LAST)return;if(b.dataset.r)RG=+b.dataset.r;if(b.dataset.m)CM=b.dataset.m;$('chw').innerHTML=chartHtml(LAST.a,LAST.d)});
+const chHit=e=>{const s=e.target.closest&&e.target.closest('.ch');if(!s||!CHD)return;const R=s.getBoundingClientRect(),x=(e.clientX-R.left)/R.width*CW,p=CHD.ser[0].pts;let bi=0,bd=1e9;p.forEach((q,i)=>{const dx=Math.abs(CHD.X(q[0])-x);if(dx<bd){bd=dx;bi=i}});
+const tm=p[bi][0],g=$('gl');g.setAttribute('x1',CHD.X(tm));g.setAttribute('x2',CHD.X(tm));g.style.display='';
+CHD.ser.forEach((q,i)=>{const c=$('gd'+i),v=q.pts[bi][1];if(v==null){c.style.display='none'}else{c.setAttribute('cx',CHD.X(tm));c.setAttribute('cy',CHD.Y(v));c.style.display=''}});
+$('cap').innerHTML=new Date(tm*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+': '+CHD.ser.map(q=>q.pts[bi][1]==null?'no data':'<span style="color:'+q.c+'">'+(CHD.ser.length>1?esc(q.n)+' ':'')+'+'+fmt(q.pts[bi][1])+'/hr</span>').join(', ')};
+document.addEventListener('pointermove',chHit);document.addEventListener('pointerdown',chHit);
+document.addEventListener('click',e=>{const m=e.target.closest('.mem');if(!m||e.target.closest('a'))return;const id=m.dataset.id;OPEN.has(id)?OPEN.delete(id):OPEN.add(id);m.classList.toggle('open')});
+document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('mem')){e.preventDefault();e.target.click()}});
+function sugg(){const q=$('q').value.trim().toLowerCase(),a=mode==='League'?L:C;if(!q||!a.length){$('sg').innerHTML='';return}
+const m=[];for(let i=0;i<a.length&&m.length<6;i++)if(String(a[i][0]).toLowerCase().startsWith(q))m.push(i);
+for(let i=0;i<a.length&&m.length<6;i++)if(!m.includes(i)&&String(a[i][0]).toLowerCase().includes(q))m.push(i);
+$('sg').innerHTML=m.map(i=>'<button class="sg" data-n="'+esc(a[i][0])+'">'+logo(a[i][3],a[i][0])+'<span>'+esc(a[i][0])+'</span><i>#'+(i+1)+', '+fmt(a[i][1])+'</i></button>').join('')}
+$('q').oninput=sugg;$('sg').onclick=e=>{const b=e.target.closest('.sg');if(b){$('q').value=b.dataset.n;$('sg').innerHTML='';go()}};
+const ready=(loadRanks(),setMode(S.mode==='Clan'?'Clan':'League'),tick(true));
+const FIRST=!ldS('ps99v').x;
+$('ldp').textContent=FIRST?'First visit: loading the top 2,000 leagues and clans. This takes a few seconds.':'Loading the latest leaderboards...';
+setTimeout(()=>{const e=$('ldslow');if(e&&$('ld'))e.hidden=false},15000);
+function ldDone(){const el=$('ld');if(!el)return;
+if(live){try{localStorage.setItem('ps99v',JSON.stringify({x:1}))}catch(e){}el.classList.add('out');setTimeout(()=>el.remove(),450);return}
+$('ldh').textContent="Couldn't load the data";$('ldp').textContent='The game servers did not answer. Check your connection and try again.';$('ldbtns').hidden=false;$('ldslow').hidden=true}
+ready.then(ldDone);
+$('shbtn').onclick=dlRanks;
+$('ldretry').onclick=()=>{$('ldh').textContent='Loading all API data';$('ldp').textContent='Trying again...';$('ldbtns').hidden=true;lp=0;cp=0;ldUpd();tick(true).then(ldDone)};
+$('ldopen').onclick=()=>{const el=$('ld');if(el){el.classList.add('out');setTimeout(()=>el.remove(),450)}};
+setInterval(()=>{if(!document.hidden&&live){n++;tick(n%5===0)}},60000);
+</script>
+</body></html>
