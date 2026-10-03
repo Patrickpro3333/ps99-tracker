@@ -191,7 +191,7 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 <section class="card" id="find">
 <div class="tabs" role="group" aria-label="What to look up"><button class="tab" id="tL" aria-pressed="true">League</button><button class="tab" id="tC" aria-pressed="false">Clan</button><button class="tab" id="tP" aria-pressed="false">Player</button></div>
 <label for="q" id="ql">League name</label>
-<input id="q" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Example: dmcc">
+<input id="q" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Example: UN00">
 <div id="sg"></div>
 <button class="go" id="go">Show stats</button>
 <div class="recent" id="recent"></div>
@@ -235,7 +235,7 @@ const BASE=['https://ps99.biggamesapi.io','/ps99api'];
 const RQ=[];let RP=0;
 async function slot(lim){for(;;){const now=Date.now();while(RQ.length&&now-RQ[0]>=60000)RQ.shift();if(now>=RP&&RQ.length<lim){RQ.push(now);return}
 await new Promise(r=>setTimeout(r,Math.max(50,RP-now,RQ.length>=lim?60000-(now-RQ[0])+20:0)))}}
-async function jget(p,bg){let st=0;for(const b of BASE){await slot(bg?76:90);const c=new AbortController(),t=setTimeout(()=>c.abort(),25000);try{const r=await fetch(b+p,{signal:c.signal});if(r.ok){if(BASE[0]!==b)BASE.unshift(BASE.splice(BASE.indexOf(b),1)[0]);return await r.json()}st=r.status;if(st===429){RP=Date.now()+30000;break}}catch(e){}finally{clearTimeout(t)}}throw st}
+async function jget(p,bg){let st=0;for(const b of BASE){await slot(bg?76:90);const c=new AbortController(),t=setTimeout(()=>c.abort(),25000);try{const r=await fetch(b+p,{signal:c.signal});if(r.ok){if(BASE[0]!==b)BASE.unshift(BASE.splice(BASE.indexOf(b),1)[0]);return await r.json()}st=r.status;if(st===429){RP=Date.now()+30000;break}if(GONE(st))break}catch(e){}finally{clearTimeout(t)}}throw st}
 const GONE=e=>e===400||e===404;
 // Browser storage holds about 5 MB. When it is full, the saved history of the teams and players
 // looked at longest ago is cleared to make room, instead of the save silently failing.
@@ -282,8 +282,10 @@ const save=()=>store('ps99s',JSON.stringify(S));
 // there, so every rank shown is still the team's real position.
 async function pages(path,rows,max,cb){const n=Math.ceil(max/100),get=p=>jget(path+'&page='+p);let got=0;
 const res=await Promise.all(Array.from({length:n},(_,i)=>get(i+1).catch(()=>get(i+1)).catch(()=>null).then(j=>{if(cb)cb(++got);return j})));
-const out=[];let total=0;
-for(let i=0;i<n;i++){const j=res[i],a=j&&rows(j.data);if(!a||!a.length)break;if(!i)total=(j.data&&j.data.total)||0;a.forEach(x=>out.push([x.Name,x.Points,x.Members,x.Icon,x.ContributorCount]))}
+// Pages are cached by the API at slightly different moments, so a team near a page edge can show on two
+// pages; only its first (higher) place is kept, like history.py does.
+const out=[],seen=new Set();let total=0;
+for(let i=0;i<n;i++){const j=res[i],a=j&&rows(j.data);if(!a||!a.length)break;if(!i)total=(j.data&&j.data.total)||0;a.forEach(x=>{const k=String(x.Name).toLowerCase();if(!seen.has(k)){seen.add(k);out.push([x.Name,x.Points,x.Members,x.Icon,x.ContributorCount])}})}
 return{rows:out.slice(0,max),total}}
 let lp=0,cp=0;
 const ldUpd=()=>{const b=$('ldbar');if(!b)return;b.style.width=Math.max(3,Math.min(100,Math.round((lp+cp)/40*100)))+'%';$('lddet').textContent='Leagues '+Math.min(lp,20)+' of 20 pages, clans '+Math.min(cp,20)+' of 20 pages'};
@@ -299,17 +301,17 @@ LT=a.total||LT;if(ct&&ct.data)CT=ct.data;live=true;if(full)saveLists()}
 // The saved team's lookup starts while the leaderboards load, so its stats show the moment they arrive.
 const PF={};
 function prefetch(k,name){const p=(k==='League'?'/v1/leagues/':'/api/clan/')+encodeURIComponent(name);if(!PF[p])PF[p]={at:Date.now(),pr:jget(p)};PF[p].pr.catch(()=>{})}
-const take=p=>{const f=PF[p];delete PF[p];return f&&Date.now()-f.at<20000?f.pr.catch(()=>jget(p)):jget(p)};
+const take=p=>{const f=PF[p];delete PF[p];return f&&Date.now()-f.at<20000?f.pr.catch(e=>GONE(e)?Promise.reject(e):jget(p)):jget(p)};
 async function dataL(name){const j=await take('/v1/leagues/'+encodeURIComponent(name));if(j.status!=='ok')throw 0;const d=j.data,i=L.findIndex(x=>String(x[0]).toLowerCase()===d.Name.toLowerCase());
 SMP.League[d.Name.toLowerCase()]={t:Date.now(),p:(d.PointContributions||[]).map(x=>Math.round(x.Points))};SV.League++;return{kind:'League',key:'l:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:d.Points,mem:(d.Members||[]).length+1,cap:d.MemberCapacity,oid:d.Owner&&typeof d.Owner==='object'?d.Owner.UserID:d.Owner,owner:d.Owner&&d.Owner.DisplayName,members:(d.Members||[]).map(m=>m.UserID).concat(d.Owner&&typeof d.Owner==='object'?d.Owner.UserID:d.Owner),i,list:L,rank:i+1,sum:(d.PointContributions||[]).reduce((s,x)=>s+x.Points,0),nAll:(d.PointContributions||[]).length,rows:(d.PointContributions||[]).slice().sort((a,b)=>b.Points-a.Points).map(x=>({id:x.UserID,n:x.DisplayName,p:x.Points,t:x.Timestamp}))}}
 async function dataC(name){const j=await take('/api/clan/'+encodeURIComponent(name));if(j.status!=='ok')throw 0;const d=j.data,i=C.findIndex(x=>String(x[0]).toLowerCase()===d.Name.toLowerCase());
 let bid='';try{bid=await battle()}catch(e){}const cb=cpts(d,bid),bp=bid&&d.Battles&&d.Battles[bid],who=new Set((d.Members||[]).map(m=>m.UserID)),got=new Set(cb.map(x=>x.UserID));if(d.Owner)who.add(d.Owner);
 if(bid||d.Contribution){SMP.Clan[d.Name.toLowerCase()]={t:Date.now(),p:cb.map(x=>Math.round(x.Points))};SV.Clan++}return{kind:'Clan',key:'c:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:bp&&bp.Points!=null?bp.Points:i>=0?C[i][1]:null,mem:who.size,cap:d.MemberCapacity,oid:d.Owner,members:[...who],i,list:C,rank:i+1,
 sum:cb.reduce((s,x)=>s+x.Points,0),nAll:cb.length,rows:cb.slice().sort((a,b)=>b.Points-a.Points).map(x=>({id:x.UserID,n:'Player '+x.UserID,p:x.Points,t:0})).concat(bid||d.Contribution?[...who].filter(id=>!got.has(id)).map(id=>({id,n:'Player '+id,p:0,t:0,z:1})):[]),
-extra:(bid?'Clan war: '+(BREC&&BREC.id===bid?BREC.title:bid)+'. ':'')+'Clan level '+d.GuildLevel+'. Clan battle medals: '+(d.GoldMedals||0)+' gold, '+(d.SilverMedals||0)+' silver, '+(d.BronzeMedals||0)+' bronze, '+(d.GoodMedals||0)+' good.'}}
+extra:(bid?'Clan war: '+(BREC&&BREC.id===bid?BREC.title:bid)+'. ':'')+(d.GuildLevel!=null?'Clan level '+d.GuildLevel+'. ':'')+'Clan battle medals: '+(d.GoldMedals||0)+' gold, '+(d.SilverMedals||0)+' silver, '+(d.BronzeMedals||0)+' bronze, '+(d.GoodMedals||0)+' good.'}}
 async function near(d){if(d.i<100||Date.now()-LISTT<30000)return d;const k=d.kind,p=Math.floor(d.i/100)+1,st=(p-1)*100,lc=x=>String(x[0]).toLowerCase();
 try{const j=await jget((k==='League'?'/v1/leagues?':'/api/clans?')+'pageSize=100&sort=Points&sortOrder=desc&page='+p),r=(k==='League'?j.data&&j.data.leagues:j.data)||[];if(!r.length)return d;
-const rows=r.map(x=>[x.Name,x.Points,x.Members,x.Icon,x.ContributorCount]),s=new Set(rows.map(lc)),a=k==='League'?L:C,rest=a.filter((x,i)=>(i<st||i>=st+100)&&!s.has(lc(x))),out=rest.slice(0,st).concat(rows,rest.slice(st));
+const rows=r.map(x=>[x.Name,x.Points,x.Members,x.Icon,x.ContributorCount]).filter((x,i,q)=>q.findIndex(y=>lc(y)===lc(x))===i),s=new Set(rows.map(lc)),a=k==='League'?L:C,rest=a.filter((x,i)=>(i<st||i>=st+100)&&!s.has(lc(x))),out=rest.slice(0,st).concat(rows,rest.slice(st));
 if(k==='League')L=out;else C=out;d.list=out;d.i=out.findIndex(x=>lc(x)===d.name.toLowerCase());d.rank=d.i+1}catch(e){}return d}
 const H={get(k){try{return JSON.parse(localStorage.getItem('ps99h:'+k))||[]}catch(e){return[]}},set(k,a){store('ps99h:'+k,JSON.stringify(a))}};
 function snap(d){if(d.pts==null)return[];
@@ -365,6 +367,7 @@ const mk=(c,n,r,get)=>{const raw=series(a,get,hrs);return{c,n,r,raw,pts:smooth(r
 const ser=CM==='pl'?d.rows.filter(r=>!r.z).slice(0,4).map((r,i)=>mk(COL[i],nm(r),r,s=>s[3]&&s[3][r.id]!=null?s[3][r.id]:null)):[mk(COL[0],d.kind,null,s=>s[1])];
 const all=[].concat(...ser.map(q=>q.pts.map(p=>p[1]).filter(v=>v!=null)));
 if(!all.length)return ctl(hrs,d.kind)+'<p class="st">Not enough data in this range yet. Try a longer one.</p>';
+if(!all.some(v=>v>=1)){CHD=null;return ctl(hrs,d.kind)+'<p class="st">No points gained in this range.</p>'}
 const mx=nice(Math.max(1,...all)),l=48,t=18,r=10,b=26,pw=CW-l-r,ph=CH-t-b,x0=ser[0].pts[0][0],x1=ser[0].pts[ser[0].pts.length-1][0];
 const X=tm=>l+(tm-x0)/(x1-x0||1)*pw,Y=v=>t+ph-v/mx*ph,hm=tm=>new Date(tm*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
 CHD={ser,X,Y};
@@ -484,7 +487,7 @@ return '<div class="mem'+(open?' open':'')+(k>=LIMIT&&!all?' hid':'')+'" data-id
 +'<div class="det">'+(u&&u[1]!==u[0]?'<p class="st">Display name: '+esc(u[1])+'</p>':'')
 +(r.z?'<p class="st">No points'+(kind==='Clan'?' in this clan war':'')+' yet.</p>'
 :'<div class="cell"><small>Share of '+war+' points</small><b>'+(sh==null?'n/a':sh+'%')+'</b></div><div class="cell"><small>Global rank</small><b>'+(ri.rank?(ri.est||ri.rEst?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' of '+(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString():''):'Working it out')+'</b></div>'
-+'<p class="st">'+(ri.pct!=null?'Better than '+(ri.est||ri.nEst||ri.rEst?'~':'')+pcs(ri.pct)+'% of '+war+' war players. ':'')+(ri.rank?'Based on: '+basis(ri)+'.':'')+(r.t?' Last points '+ago(now-r.t)+'.':'')+'</p>')
++'<p class="st">'+(ri.pct!=null?'Better than '+(ri.est||ri.nEst||ri.rEst?'~':'')+pcs(ri.pct)+'% of '+war+' war players. ':'')+(ri.rank?'Based on: '+basis(ri)+'.':'')+(r.t?' Last earned points '+ago(now-r.t)+'.':'')+'</p>')
 +'<div class="acts"><button class="more" data-open="Player" data-n="'+esc(u?u[0]:r.id)+'">Player stats</button><a class="more" href="https://www.roblox.com/users/'+r.id+'/profile" target="_blank" rel="noopener">Roblox profile</a></div></div></div>'}).join('')||'<p class="st">No contributor data.</p>';
 const own=d.oid?nm({id:d.oid,n:d.owner||d.oid}):d.owner||'',lost=kind==='Clan'&&d.pts!=null&&d.pts-d.sum>d.pts*0.005;
 return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2><p class="meta">'+(kind==='Clan'&&BREC?esc(BREC.title):kind)+(own?' · Owner '+esc(own):'')+'</p></div><button class="share" data-share>Share</button></div>'
@@ -541,10 +544,16 @@ async function pnear(kind,s,id,pm){const g=GPX[kind],ri=s.ri,p=s.p;if(!ri||!ri.r
 if(ri.src==='live'){const o=g.list.filter(q=>String(q.id)!==String(id)),ah=o.filter(q=>q.p>p).pop(),be=o.find(q=>q.p<=p);return{a:ah&&{id:ah.id,r:ri.rank-1},b:be&&{id:be.id,r:ri.rank+1},live:1}}
 const st=sstat(kind),C=pm&&pm.rankChunk,N=pm&&pm.ranked&&pm.ranked[kind];if(!st.file||!C||!N)return null;
 const f=p<g.T?scanScale(st,g):1,pos=st.n-ub(st.arr,p/f),k=kind.toLowerCase(),last=Math.ceil(N/C)-1;
-const c0=Math.min(last,Math.max(0,Math.floor((pos-2)/C))),c1=Math.min(last,Math.floor((pos+1)/C)),get=i=>rawj('data-ranks/players/rank/'+k+'/'+i+'.json').catch(()=>null);
-const ch=await Promise.all([get(c0),c1!==c0?get(c1):null]),list=[].concat(ch[0]||[],ch[1]||[]);if(!list.length)return null;
+// The scan's own counts can differ a little from the ranking files (a player who changed teams is counted
+// in both), so the files on each side of the guess are read too, and a neighbour only shows when the files
+// read reach past the player's points on that side: never someone far away.
+const c=Math.min(last,Math.max(0,Math.floor(pos/C))),cs=[c-1,c,c+1].filter(i=>i>=0&&i<=last);
+const ch=await Promise.all(cs.map(i=>rawj('data-ranks/players/rank/'+k+'/'+i+'.json').catch(()=>null)));if(ch.some(x=>!x))return null;
+const list=[].concat(...ch).filter(e=>String(e[0])!==String(id));if(!list.length)return null;
 // Their places sit right next to the player's own rank, so the three numbers always line up.
-let ah=null,be=null;list.forEach(e=>{if(String(e[0])===String(id))return;if(e[1]*f>p)ah={id:e[0],r:ri.rank-1};else if(!be)be={id:e[0],r:ri.rank+1}});return{a:ah,b:be,live:0}}
+let ah=null,be=null;list.forEach(e=>{if(e[1]*f>p)ah={id:e[0],r:ri.rank-1};else if(!be)be={id:e[0],r:ri.rank+1}});
+const top=cs[0]===0,end=cs[cs.length-1]===last;
+return{a:ah&&(be||end)?ah:null,b:be&&(ah||top)?be:null,live:0}}
 function prank(s,nb){const ri=s.ri;if(!ri||!ri.rank)return '<div class="pr"><div class="prm"><small>GLOBAL RANK</small><b>...</b><small>Working it out</small></div></div>';
 const tl=ri.est||ri.nEst||ri.rEst?'~':'',ap=ri.pct!=null?Math.max(0,Math.min(100,ri.pct)):null;
 const side=(x,lab)=>'<div class="prn">'+(x?'<small>'+(nb.live?'':'~')+'#'+x.r.toLocaleString()+' · '+lab+'</small>'+pav(x.id)+'<span>'+esc(U[x.id]?(U[x.id][1]!==U[x.id][0]?U[x.id][1]+' ('+U[x.id][0]+')':U[x.id][0]):'User '+x.id)+'</span>':'<small>'+lab+'</small><span class="st">'+(nb===undefined?'Loading':'-')+'</span>')+'</div>';
@@ -554,6 +563,7 @@ return '<div class="pr"><div class="prt">'+side(nb&&nb.b,'Behind')+'<div class="
 +(tl||nb&&!nb.live&&(nb.a||nb.b)?'<small class="prx">~ means an estimate.</small>':'')+'</div>'}
 function pchart(H){const v=H.map(h=>h[1]).filter(x=>x!=null);
 if(v.length<2)return '<p class="st">No hourly points yet. The chart fills in the same way as the boxes above.</p>';
+if(!v.some(x=>x>=1))return '<p class="st">No points earned in the last '+H.length+' hour'+(H.length>1?'s':'')+'.</p>';
 const W=340,Hh=200,l=46,r=14,t=28,b=24,pw=W-l-r,ph=Hh-t-b,mx=nice(Math.max(1,...v)),n=H.length,X=i=>l+(n<2?pw:i*pw/(n-1)),Y=x=>t+ph-x/mx*ph,avg=v.reduce((s,x)=>s+x,0)/v.length;
 let g='<defs><linearGradient id="pl" x1="0" x2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#ffd23f"/></linearGradient><linearGradient id="pa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd23f" stop-opacity=".35"/><stop offset="1" stop-color="#ffd23f" stop-opacity="0"/></linearGradient></defs>';
 for(let k=0;k<=5;k++){const y=Y(mx*k/5);g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#242424"/><text x="'+(l-6)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end">'+fmt(mx*k/5)+'</text>'}
@@ -630,19 +640,20 @@ $('top').innerHTML=g.list.length?g.list.slice(0,k).map((x,i)=>{const u=U[x.id];r
 if(!g.at){if(Date.now()-(g.tr||0)>30000){g.tr=Date.now();gplay('League').then(()=>{if(mode==='Player'&&GPX.League.at)board()})}return}
 const ids=g.list.slice(0,k).map(x=>x.id).filter(i=>!TRIED.has(i)&&(!U[i]||!IM[i]));ids.forEach(i=>TRIED.add(i));
 if(ids.length)Promise.all([names(ids),pics(ids)]).then(()=>{if(mode==='Player')boardPlayers()})}
-function board(){if(mode==='Player')return boardPlayers();const a=mode==='League'?L:C,k=Math.min(BN,a.length),w=$('war');$('th').textContent='Top '+(a.length?k:10)+' '+(mode==='League'?'leagues':'clans');
+function exPH(){const a=mode==='League'?L:mode==='Clan'?C:null;$('q').placeholder='Example: '+(a?a.length?a[0][0]:mode==='League'?'UN00':'UN0':'JOHNMAN1990')}
+function board(){exPH();if(mode==='Player')return boardPlayers();const a=mode==='League'?L:C,k=Math.min(BN,a.length),w=$('war');$('th').textContent='Top '+(a.length?k:10)+' '+(mode==='League'?'leagues':'clans');
 if(mode==='Clan'&&BREC){w.textContent='Current clan war: '+BREC.title+(BREC.end>Date.now()?', ends '+new Date(BREC.end).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'')+'.';w.hidden=false}else w.hidden=true;
 $('top').innerHTML=a.length?a.slice(0,k).map((x,i)=>'<button class="rk" data-n="'+esc(x[0])+'"><b>#'+(i+1)+'</b>'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span><i>'+fmt(x[1])+'</i></button>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">Loading...</p>'}
-function setMode(m){mode=m;BN=10;$('sg').innerHTML='';S.mode=m;save();$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');$('tP').setAttribute('aria-pressed',m==='Player');
-$('q').value=S[m]||'';$('q').placeholder=m==='League'?'Example: dmcc':m==='Clan'?'Example: UN0':'Example: JOHNMAN1990';$('ql').textContent=m==='Player'?'Roblox username':m+' name';showRecent();board();$('dash').innerHTML='';setURL();if(S[m]&&live)paint(true)}
+function setMode(m,np){mode=m;BN=10;$('sg').innerHTML='';S.mode=m;save();$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');$('tP').setAttribute('aria-pressed',m==='Player');
+$('q').value=S[m]||'';exPH();$('ql').textContent=m==='Player'?'Roblox username':m+' name';showRecent();board();$('dash').innerHTML='';setURL();if(S[m]&&live&&!np)paint(true)}
 // One refresh at a time: a slow one is never doubled up by the next minute's.
 let TK=null,LASTTICK=0;const tick=full=>TK||(TK=tick0(full).finally(()=>{TK=null}));
 async function tick0(full){LASTTICK=Date.now();try{const b=battle().catch(()=>{});if(!full)await b;const nw=WARNEW;WARNEW=false;await Promise.all([pull(full||nw),b]);
 $('st').textContent=nw?'A new clan war just started ('+BREC.title+'). Clan points, ranks and history start over.':'Live. Updated '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+', every minute.';board();crawl();if(S[mode])paint(false)}
 catch(e){if(!live)$('st').textContent='Live data could not load here. Try again, or open the site from your own link.';else if(!LISTT)$('st').textContent='Showing the leaderboards from your last visit. Live data could not load right now, trying again every minute.'}}
-async function go(){const v=$('q').value.trim();if(!v){$('q').focus();return}$('sg').innerHTML='';S[mode]=v;save();if(!live)await ready;await paint(true);$('dash').scrollIntoView({behavior:'smooth',block:'start'})}
+async function go(){const v=$('q').value.trim();if(!v){$('q').focus();return}$('sg').innerHTML='';S[mode]=v;save();setURL();if(!live)await ready;await paint(true);$('dash').scrollIntoView({behavior:'smooth',block:'start'})}
 $('tL').onclick=()=>setMode('League');$('tC').onclick=()=>setMode('Clan');$('tP').onclick=()=>setMode('Player');$('go').onclick=go;
-document.addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(!b)return;setMode(b.dataset.open);$('q').value=b.dataset.n;go()});
+document.addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(!b)return;setMode(b.dataset.open,true);$('q').value=b.dataset.n;go()});
 $('q').onkeydown=e=>{if(e.key==='Enter')go()};
 $('top').onclick=e=>{if(e.target.id==='more'){BN+=25;board();return}const b=e.target.closest('.rk');if(b){$('q').value=b.dataset.n;go()}};
 document.addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;if(i.dataset.id&&!i.dataset.t){i.dataset.t=1;i.src='/ps99api/image/'+i.dataset.id}else i.style.display='none'},true);
