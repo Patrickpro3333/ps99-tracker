@@ -157,7 +157,7 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 <li><b>Gains</b> are points added in the last 1, 6, 12, and 24 hours. They fill in the longer this page stays open.</li>
 <li><b>Gap</b> is how many points you need to pass the team above you, and how far ahead you are of the team below.</li>
 <li><b>Contributors</b> shows who added the most points.</li>
-<li>Only the top 2,000 teams get a rank here. Better than % compares a contributor with every player in the top 2,000 leagues (or the top 2,000 clans for clan war). Those numbers come from a full scan of every one of those teams, run twice a day. If that scan is missing or more than 2 days old, the page scans in the background instead, with a progress bar and time left, and ranks marked with ~ are estimates until it finishes. Players in the official top players list always get their exact live rank.</li></ul></details>
+<li>Only the top 2,000 teams get a rank here. Better than % compares a contributor with every player in the top 2,000 leagues (or the top 2,000 clans for clan war). Those numbers come from a full scan of every one of those teams, run every 3 hours. If that scan is missing or more than 2 days old, the page scans in the background instead, with a progress bar and time left, and ranks marked with ~ are estimates until it finishes. Players in the official top players list always get their exact live rank.</li></ul></details>
 <details class="card help" id="share"><summary>For the site owner: share the scan with everyone</summary>
 <p class="st" style="margin-top:0">The scan is saved only in this browser. To make it global, download the finished scan as a file, name it ranks.json, and upload it next to index.html. Every visitor then gets exact numbers with no waiting.</p>
 <p class="st" id="shst">Checking scan progress...</p>
@@ -181,7 +181,12 @@ return m+(Math.round(a)>=1000?'1.0k':''+Math.round(a))};
 const ago=s=>s<90?'now':s<5400?Math.round(s/60)+'m ago':s<172800?Math.round(s/3600)+'h ago':Math.round(s/86400)+'d ago';
 const dur=s=>s<5400?Math.round(s/60)+'m':Math.round(s/3600)+'h';
 const BASE=['https://ps99.biggamesapi.io','/ps99api'];
-async function jget(p){let st=0;for(const b of BASE){const c=new AbortController(),t=setTimeout(()=>c.abort(),25000);try{const r=await fetch(b+p,{signal:c.signal});if(r.ok){if(BASE[0]!==b)BASE.unshift(BASE.splice(BASE.indexOf(b),1)[0]);return await r.json()}st=r.status}catch(e){}finally{clearTimeout(t)}}throw st}
+// The API allows under 100 requests per minute per IP. Every request goes through one sliding-window limiter:
+// lookups may use up to 90 per minute, the background scan only up to 76, so lookups are never stuck behind it.
+const RQ=[];let RP=0;
+async function slot(lim){for(;;){const now=Date.now();while(RQ.length&&now-RQ[0]>=60000)RQ.shift();if(now>=RP&&RQ.length<lim){RQ.push(now);return}
+await new Promise(r=>setTimeout(r,Math.max(50,RP-now,RQ.length>=lim?60000-(now-RQ[0])+20:0)))}}
+async function jget(p,bg){let st=0;for(const b of BASE){await slot(bg?76:90);const c=new AbortController(),t=setTimeout(()=>c.abort(),25000);try{const r=await fetch(b+p,{signal:c.signal});if(r.ok){if(BASE[0]!==b)BASE.unshift(BASE.splice(BASE.indexOf(b),1)[0]);return await r.json()}st=r.status;if(st===429){RP=Date.now()+30000;break}}catch(e){}finally{clearTimeout(t)}}throw st}
 const GONE=e=>e===400||e===404;
 const U=(()=>{try{return JSON.parse(localStorage.getItem('ps99u'))||{}}catch(e){return{}}})(),IM={},X={};
 const RB={u:['https://users.roblox.com','/rbx','https://users.roproxy.com'],t:['https://thumbnails.roblox.com','/rbxt','https://thumbnails.roproxy.com']};
@@ -312,7 +317,7 @@ let t0=Date.now();
 const fmtETA=ms=>{const m=Math.ceil(ms/60000);return m<1?'under a minute':m<60?m+' min':Math.floor(m/60)+' h '+(m%60)+' min'};
 const scanText=k=>{const s=sstat(k),w=k==='League'?'leagues':'clans';
 if(s.file)return 'Exact ranks from a full scan of '+s.tot.toLocaleString()+' '+w+', finished '+ago(Date.now()/1000-s.file)+'.';
-const pct=Math.round(s.done/Math.max(1,s.tot)*100),left=s.tot-s.done,rate=cn>4?(Date.now()-t0)/cn:1000;
+const pct=Math.round(s.done/Math.max(1,s.tot)*100),left=s.tot-s.done,rate=cn>8?(Date.now()-t0)/cn:800;
 return (k==='League'?'Global rank among '+popL().toLocaleString()+' players in the top 2,000 leagues. ':'')+(s.done>=s.tot&&s.tot?'Full scan finished: all '+s.tot.toLocaleString()+' '+w+' counted, so ranks are exact.':'Full scan: '+s.done.toLocaleString()+' of '+s.tot.toLocaleString()+' '+w+' ('+pct+'%), about '+fmtETA(left*rate)+' left. Numbers marked ~ are estimates until it finishes.')+'<div class="bar"><i style="width:'+pct+'%"></i></div>'};
 async function loadRanks(){try{const r=await fetch('ranks.json',{cache:'no-store'});if(!r.ok)return;const j=await r.json();
 ['League','Clan'].forEach(k=>{const f=j[k];if(f&&f.points&&f.points.length>50&&Date.now()/1000-(j.updated||0)<172800){const n=f.names||f.points.length;f.points.sort((a,b)=>a-b);FS[k]={arr:f.points,n:f.points.length,cov:n,done:n,tot:n,sh:null,nl:999,file:j.updated}}});
@@ -324,23 +329,27 @@ e.textContent=parts.join(', ')+(ok.length?'. Ready to download.':'. The download
 function dlRanks(){const out={updated:Math.floor(Date.now()/1000)};
 ['League','Clan'].forEach(k=>{const s=sstat(k);if(!s.file&&s.tot>0&&s.done>=s.tot)out[k]={names:s.tot,points:s.arr}});
 const a=document.createElement('a');a.href=URL.createObjectURL(new Blob([JSON.stringify(out)],{type:'application/json'}));a.download='ranks.json';document.body.appendChild(a);a.click();a.remove();setTimeout(()=>URL.revokeObjectURL(a.href),4000)}
-async function crawl(){if(crawling)return;crawling=true;t0=Date.now();const Q={League:[],Clan:[]};
+const Q={League:[],Clan:[]},INF=new Set();
+// Two workers share the queue so the scan keeps the limiter busy even when a request is slow.
+async function crawl(){if(crawling)return;crawling=true;t0=Date.now();worker();worker()}
+async function worker(){
 for(;;){try{
 if(!live||document.hidden){await sleep(2500);continue}
 let k=null;
 for(const kk of [mode,mode==='League'?'Clan':'League']){if(FS[kk])continue;const a=kk==='League'?L:C;
-if(!Q[kk].length){const now=Date.now();Q[kk]=a.slice(0,LIM[kk]).map(x=>String(x[0])).filter(n=>{const e=SMP[kk][n.toLowerCase()];return !e||now-e.t>1.08e7}).sort(()=>Math.random()-.5)}
+if(!Q[kk].length){const now=Date.now();Q[kk]=a.slice(0,LIM[kk]).map(x=>String(x[0])).filter(n=>{const key=n.toLowerCase(),e=SMP[kk][key];return !INF.has(kk+key)&&(!e||now-e.t>1.08e7)}).sort(()=>Math.random()-.5)}
 if(Q[kk].length){k=kk;break}}
 if(!k){await sleep(20000);continue}
-const name=Q[k].pop(),key=name.toLowerCase();
-try{const j=await jget((k==='League'?'/v1/leagues/':'/api/clan/')+encodeURIComponent(name));if(j.status!=='ok')throw 404;
+const name=Q[k].pop(),key=name.toLowerCase();INF.add(k+key);
+try{const j=await jget((k==='League'?'/v1/leagues/':'/api/clan/')+encodeURIComponent(name),true);if(j.status!=='ok')throw 404;
 const d=j.data,rows=k==='League'?(d.PointContributions||[]):cpts(d,d.Contribution?'':await battle());
 SMP[k][key]={t:Date.now(),p:rows.map(x=>Math.round(x.Points))};SV[k]++;cf=0}
-catch(e){if(GONE(e)){SMP[k][key]={t:Date.now(),p:[]};SV[k]++;await sleep(window.CRAWL_MS||1000);continue}
-cf++;FC[key]=(FC[key]||0)+1;if(FC[key]<=4)Q[k].unshift(name);await sleep(Math.min(90000,10000*cf));continue}
+catch(e){if(GONE(e)){SMP[k][key]={t:Date.now(),p:[]};SV[k]++;continue}
+cf++;FC[key]=(FC[key]||0)+1;if(FC[key]<=4)Q[k].unshift(name);await sleep(e===429?30000:Math.min(90000,10000*cf));continue}
+finally{INF.delete(k+key)}
 cn++;if(cn%15===0)savS();
 if(cn%6===0){const el=$('scan');if(el)el.innerHTML=scanText(el.dataset.k);shareUI()}
-await sleep(window.CRAWL_MS||1000)}catch(e){await sleep(15000)}}}
+}catch(e){await sleep(15000)}}}
 const nm=r=>{const u=U[r.id];return u?'@'+u[0]:String(r.n)===String(r.id)?'User '+r.id:r.n};
 const av=r=>{const t=nm(r).replace(/^(@|User )/,'');return '<span class="av"><b>'+esc((t[0]||'?').toUpperCase())+'</b><img src="'+esc(IM[r.id]||'https://www.roblox.com/headshot-thumbnail/image?userId='+r.id+'&width=150&height=150&format=png')+'" alt="" loading="lazy"></span>'};
 function render(d,a){LAST={a,d};const tot=d.kind==='League'?LT:CT,pill=d.i>=0&&tot?'<span class="pill">Better than '+pc((tot-d.rank)/tot*100)+'% of '+tot.toLocaleString()+' '+(d.kind==='League'?'leagues':'clans')+'</span>':'';
