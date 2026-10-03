@@ -80,9 +80,10 @@ t = int(time.time())
 meta_path = os.path.join(a.dir, "h", "meta.json")
 meta = load(meta_path) or {}
 # Netlify starts this job every hour on the hour. GitHub's own schedule (:37) is only a backup, so it
-# runs only when Netlify missed an hour; a Netlify run only skips a repeat within 10 minutes.
+# runs only when Netlify missed an hour (no snapshot in 45 minutes, so the :37 backup can keep an hourly
+# rhythm on its own); a Netlify run only skips a repeat within 10 minutes.
 since = t - (meta.get("lastRun") or {}).get("t", 0)
-if since < (4200 if os.environ.get("GITHUB_EVENT_NAME") == "schedule" else 600):
+if since < (2700 if os.environ.get("GITHUB_EVENT_NAME") == "schedule" else 600):
     print(f"The last snapshot was {since} seconds ago, so this run is skipped.")
     output(False)
     sys.exit(0)
@@ -97,10 +98,11 @@ for kind in KINDS:
             continue
         for i, x in enumerate(rows):
             name, pts = str(x.get("Name") or "").lower(), x.get("Points")
-            # Names aren't unique; keep the higher one, like the API's own name lookup.
-            # Rank comes from the page position, so a failed page never shifts other ranks.
+            # A team can show on two pages (the API caches pages at slightly different moments); keep the
+            # higher place, like index.html does. The rank counts the teams kept, as index.html does, plus
+            # 100 for each failed page before it, so a failed page never moves the teams after it up.
             if name and name not in now and isinstance(pts, (int, float)):
-                now[name] = [t, pts, pi * 100 + i + 1]
+                now[name] = [t, pts, len(now) + 1 + 100 * failed]
     print(f"{kind}: {len(now)} teams, {failed} pages failed", flush=True)
     if not now:
         continue
