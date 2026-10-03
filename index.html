@@ -44,7 +44,7 @@
 {"@type":"Question","name":"How do I check my league rank in Pet Simulator 99?","acceptedAnswer":{"@type":"Answer","text":"Pick League, type your league name, and tap Show stats. If your league is in the top 2,000 you get its rank, points and gap to the next league."}},
 {"@type":"Question","name":"How do I check my clan rank?","acceptedAnswer":{"@type":"Answer","text":"Pick Clan, type your clan name, and tap Show stats. You also see who contributed the most points and how fast your clan is gaining."}},
 {"@type":"Question","name":"How often does the leaderboard update?","acceptedAnswer":{"@type":"Answer","text":"The top 100 and the team you look up refresh every minute, and the full top 2,000 every 5 minutes, from the official BIG Games public API. Points per hour, gains and the chart use snapshots the site saves every hour and keeps for 24 hours."}},
-{"@type":"Question","name":"What does \"Top 2%\" mean?","acceptedAnswer":{"@type":"Answer","text":"Only 2 in 100 players have more points. It compares a player with every player in the top 2,000 leagues, or the top 2,000 clans for the clan war. A ~ means it is an estimate while the scan of those teams is still running."}},
+{"@type":"Question","name":"What does \"better than 98%\" mean?","acceptedAnswer":{"@type":"Answer","text":"The player has more points than 98 in 100 players. It compares a player with every player in the top 2,000 leagues, or the top 2,000 clans for the clan war. A ~ means it is an estimate while the scan of those teams is still running."}},
 {"@type":"Question","name":"How do I look up a player?","acceptedAnswer":{"@type":"Answer","text":"Pick Player, type their Roblox username or user ID, and tap Show stats. You see their points, rank and share of points in their league and in the clan war, as long as their league or clan is in the top 2,000."}},
 {"@type":"Question","name":"Is this an official tool?","acceptedAnswer":{"@type":"Answer","text":"No. It is fan-made and not affiliated with BIG Games or Roblox."}}]}]}</script>
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lilita+One&display=swap" onload="this.onload=null;this.rel='stylesheet'">
@@ -85,12 +85,13 @@ h3{font-size:22px;line-height:1.1;margin:22px 0 8px;color:var(--y)}
 .gr b{font-weight:700}
 .bar{height:10px;border-radius:99px;background:#262626;overflow:hidden;margin-top:5px}
 .bar i{display:block;height:100%;background:var(--g);border-radius:99px}
-.mem{display:grid;grid-template-columns:34px 40px minmax(0,1fr) auto;gap:10px;align-items:center;min-height:56px;padding:8px 0;border-top:1px solid var(--ed);cursor:pointer}
+.mem{display:grid;grid-template-columns:34px 40px minmax(0,1fr);gap:10px;align-items:center;min-height:56px;padding:8px 0;border-top:1px solid var(--ed);cursor:pointer}
 .mem .rn{font:400 16px "Lilita One",Impact,sans-serif;color:var(--mut);text-align:center}
 .mem .av{width:40px;height:40px;font-size:18px}
 .mi{min-width:0}.mn{display:block;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mi small{display:block;font-size:14px}
 .mi .bar{height:4px;margin-top:4px}
-.chip{padding:4px 9px;border-radius:10px;background:#262626;color:var(--y);font-size:13px;font-weight:700;white-space:nowrap}
+.ml{display:flex;flex-wrap:wrap;align-items:center;gap:3px 8px}.ml small{display:inline}
+.chip{display:inline-block;padding:2px 8px;border-radius:10px;background:#262626;color:var(--y);font-size:13px;font-weight:700;white-space:nowrap}
 .mem.hid{display:none}
 .mem .det{grid-column:1/-1;display:none;padding:2px 0 6px}.mem.open .det{display:block}.mem.open{background:#0b0b0b}
 .det .st{margin:0 0 8px}
@@ -172,7 +173,8 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 <section class="card"><h2 id="th">Top 10 leagues</h2><p class="st" id="war" style="margin:0 0 6px;color:var(--y)" hidden></p><p class="st" style="margin:0 0 6px">Tap one to see its stats.</p><div id="top"></div></section>
 <details class="card help"><summary>How to read the stats</summary><ul>
 <li><b>Rank</b> is the place on the leaderboard. #1 is the best.</li>
-<li><b>Top 2%</b> means only 2 in 100 are ahead. For players it compares with every player in the top 2,000 leagues, or the top 2,000 clans for the clan war. A ~ means it is an estimate for now.</li>
+<li><b>Better than 98%</b> means a player has more points than 98 in 100 players in the top 2,000 leagues, or the top 2,000 clans for the clan war. A ~ means it is an estimate for now.</li>
+<li><b>Top 2.6%</b> next to a rank means only 2.6 in 100 leagues or clans are ahead.</li>
 <li><b>Points per hour</b> is how fast points are coming in right now.</li>
 <li><b>Points gained</b> are the points added in the last 1, 6, 12 and 24 hours.</li>
 <li><b>Close rivals</b> shows how much is needed to pass the team above, and how far ahead the team is of the one below.</li>
@@ -183,7 +185,7 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 <details class="faq"><summary>How do I check my league rank in Pet Simulator 99?</summary><p>Pick League, type your league name, and tap Show stats. If your league is in the top 2,000 you get its rank, points and gap to the next league.</p></details>
 <details class="faq"><summary>How do I check my clan rank?</summary><p>Pick Clan, type your clan name, and tap Show stats. You also see who contributed the most points and how fast your clan is gaining.</p></details>
 <details class="faq"><summary>How often does the leaderboard update?</summary><p>The top 100 and the team you look up refresh every minute, and the full top 2,000 every 5 minutes, from the official BIG Games public API. Points per hour, gains and the chart use snapshots the site saves every hour and keeps for 24 hours.</p></details>
-<details class="faq"><summary>What does "Top 2%" mean?</summary><p>Only 2 in 100 players have more points. It compares a player with every player in the top 2,000 leagues, or the top 2,000 clans for the clan war. A ~ means it is an estimate while the scan of those teams is still running.</p></details>
+<details class="faq"><summary>What does "better than 98%" mean?</summary><p>The player has more points than 98 in 100 players. It compares a player with every player in the top 2,000 leagues, or the top 2,000 clans for the clan war. A ~ means it is an estimate while the scan of those teams is still running.</p></details>
 <details class="faq"><summary>How do I look up a player?</summary><p>Pick Player, type their Roblox username or user ID, and tap Show stats. You see their points, rank and share of points in their league and in the clan war, as long as their league or clan is in the top 2,000.</p></details>
 <details class="faq"><summary>Is this an official tool?</summary><p>No. It is fan-made and not affiliated with BIG Games or Roblox.</p></details></section>
 <footer><p>Fan-made and unofficial. Data comes from the <a href="https://github.com/BIG-Games-LLC/ps99-public-api-docs">BIG Games public API</a>. Pet Simulator 99 belongs to BIG Games, and Roblox is a trademark of Roblox Corporation.</p></footer>
@@ -367,8 +369,15 @@ for(let j=0;j<Math.min(2000,L.length);j++){const x=L[j],c=Math.max(1,x[4]||x[2]|
 if(e&&e.p.length){N+=e.p.length;for(const v of e.p)if(v<p)below++}
 else{const k=Math.min(4,c),t=x[1]>0?p/x[1]:0,ar=s.sh[k];N+=c;for(let i=0;i<k;i++){const z=ar[i];below+=z.length?lb(z,t)/z.length:(1/k<t?1:0)}}}
 return{below,N}}
-function rinfo(kind,p,id){const s=sstat(kind),g=GPX[kind],ex=g.P[id],GT=g.T,GN=g.N;
-if(s.tot>0&&s.done>=s.tot&&s.n>0){const rank=ex||s.n-ub(s.arr,p)+1;return{rank,pct:Math.max(0,(1-rank/s.n)*100),est:false,N:s.n,s,src:ex?'live':s.file?'file':'scan'}}
+// The official top list can be a few minutes behind live points, so a listed player is placed among the
+// list's other players by their live points; a player who has dropped below the list falls back to the scan.
+const liveRank=(g,p,id)=>{let r=1;for(const q of g.list)if(String(q.id)!==String(id)&&q.p>p)r++;return r};
+const scanScale=(s,g)=>{if(!g.N||s.n<=g.N)return 1;const nth=s.arr[s.n-g.N];return nth>0&&g.T>nth?g.T/nth:1};
+function rinfo(kind,p,id){const s=sstat(kind),g=GPX[kind],GT=g.T,GN=g.N,ex=g.P[id]&&p>=GT?liveRank(g,p,id):0;
+if(s.tot>0&&s.done>=s.tot&&s.n>0){if(ex)return{rank:ex,pct:Math.max(0,(1-ex/s.n)*100),est:false,N:s.n,s,src:'live'};
+// Below the live top list: points grow between scans (fast early in a clan war), so the scan is scaled to
+// live points using the list, whose lowest score is the live N-th best. At least N players are ahead anyway.
+const f=p<GT?scanScale(s,g):1,sr=s.n-ub(s.arr,p/f)+1,lo=p<GT&&GN?GN+1:1,rank=Math.max(sr,lo);return{rank,pct:Math.max(0,(1-rank/s.n)*100),est:false,rEst:f>1.05||sr<lo,N:s.n,s,src:s.file?'file':'scan'}}
 if(kind==='League'){const N=popL();
 if(ex&&N)return{rank:ex,pct:Math.max(0,(1-ex/N)*100),est:false,N,s,src:'live'};
 if(s.nl<12||!N)return{rank:0,pct:null,est:true,N:0,s};
@@ -433,14 +442,13 @@ const riv=(T,lab,val,none)=>T&&ok?'<div class="cell nb">'+logo(T[3],T[0],'lgs')+
 const gap=riv(A,'Needed to pass','+'+fmt(Math.max(0,(A?A[1]:0)-me)),'Already #1')+riv(B,'Ahead of','by '+fmt(Math.max(0,me-(B?B[1]:0))),'Nobody behind');
 const top=Math.max(1,...d.rows.map(r=>r.p)),tp=d.pts!=null?d.pts:d.sum,all=SHOWALL.has(d.key),pcs=x=>Math.min(99.9,Math.max(0,x)).toFixed(1);
 const mem=d.rows.map((r,k)=>{const m0=r0&&r0[3]?r0[3][r.id]:null,m1=lastL&&lastL[3]?lastL[3][r.id]:null,pp=m0!=null&&m1!=null&&lastL[0]-r0[0]>=120?(m1-m0)/((lastL[0]-r0[0])/3600):null,u=U[r.id],sh=tp?pc(r.p/tp*100,100):null,ri=r.z?null:rinfo(kind,r.p,r.id),open=OPEN.has(String(r.id));
-const chip=!ri?'':ri.pct!=null?(ri.est||ri.nEst?'~':'')+topPct(ri.pct):ri.rank?'#'+ri.rank.toLocaleString():'';
+const chip=!ri?'':ri.pct!=null?'Better than '+(ri.est||ri.nEst||ri.rEst?'~':'')+pcs(ri.pct)+'%':ri.rank?'Rank #'+ri.rank.toLocaleString():'';
 return '<div class="mem'+(open?' open':'')+(k>=LIMIT&&!all?' hid':'')+'" data-id="'+r.id+'" tabindex="0" role="button" aria-expanded="'+open+'"><b class="rn">'+(r.z?'-':'#'+(k+1))+'</b>'+av(r)
-+'<div class="mi"><span class="mn">'+esc(nm(r))+'</span><small>'+(r.z?'No points yet':fmt(r.p)+(pp==null?'':' · '+sg(pp)+'/hr'))+'</small><div class="bar"><i style="width:'+(r.z?0:Math.max(2,r.p/top*100))+'%"></i></div></div>'
-+(chip?'<span class="chip">'+chip+'</span>':'<span></span>')
++'<div class="mi"><span class="mn">'+esc(nm(r))+'</span><div class="ml"><small>'+(r.z?'No points yet':fmt(r.p)+(pp==null?'':' · '+sg(pp)+'/hr'))+'</small>'+(chip?'<span class="chip">'+chip+'</span>':'')+'</div><div class="bar"><i style="width:'+(r.z?0:Math.max(2,r.p/top*100))+'%"></i></div></div>'
 +'<div class="det">'+(u&&u[1]!==u[0]?'<p class="st">Display name: '+esc(u[1])+'</p>':'')
 +(r.z?'<p class="st">No points'+(kind==='Clan'?' in this clan war':'')+' yet.</p>'
-:'<div class="cell"><small>Share of '+war+' points</small><b>'+(sh==null?'n/a':sh+'%')+'</b></div><div class="cell"><small>Global rank</small><b>'+(ri.rank?(ri.est?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' of '+(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString():''):'Working it out')+'</b></div>'
-+'<p class="st">'+(ri.pct!=null?'Better than '+(ri.est||ri.nEst?'~':'')+pcs(ri.pct)+'% of '+war+' war players. ':'')+(ri.rank?'Based on: '+basis(ri)+'.':'')+(r.t?' Last points '+ago(now-r.t)+'.':'')+'</p>')
+:'<div class="cell"><small>Share of '+war+' points</small><b>'+(sh==null?'n/a':sh+'%')+'</b></div><div class="cell"><small>Global rank</small><b>'+(ri.rank?(ri.est||ri.rEst?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' of '+(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString():''):'Working it out')+'</b></div>'
++'<p class="st">'+(ri.pct!=null?'Better than '+(ri.est||ri.nEst||ri.rEst?'~':'')+pcs(ri.pct)+'% of '+war+' war players. ':'')+(ri.rank?'Based on: '+basis(ri)+'.':'')+(r.t?' Last points '+ago(now-r.t)+'.':'')+'</p>')
 +'<div class="acts"><button class="more" data-open="Player" data-n="'+esc(u?u[0]:r.id)+'">Player stats</button><a class="more" href="https://www.roblox.com/users/'+r.id+'/profile" target="_blank" rel="noopener">Roblox profile</a></div></div></div>'}).join('')||'<p class="st">No contributor data.</p>';
 const own=d.oid?nm({id:d.oid,n:d.owner||d.oid}):d.owner||'',lost=kind==='Clan'&&d.pts!=null&&d.pts-d.sum>d.pts*0.005;
 return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2><p class="meta">'+(kind==='Clan'&&BREC?esc(BREC.title):kind)+(own?' · Owner '+esc(own):'')+'</p></div><button class="share" data-share>Share</button></div>'
@@ -474,10 +482,10 @@ if(!d)return '<h3>'+W+'</h3><p class="st">In '+esc(t.name)+', but its data could
 const rows=d.rows.filter(r=>!r.z),i=rows.findIndex(r=>String(r.id)===String(id)),r=rows[i],p=r?r.p:0,tp=d.pts!=null?d.pts:d.sum,member=(d.members||[]).some(m=>String(m)===String(id));
 const open='<button class="more" data-open="'+kind+'" data-n="'+esc(d.name)+'">Open '+esc(d.name)+'</button>';
 if(!r&&!member)return '<h3>'+W+'</h3><p class="st">Was in '+esc(d.name)+' at the last scan, but is not a member any more and has no points left there.</p>'+open;
-const ri=r?rinfo(kind,p,id):null,best=!r?'':ri.pct!=null?'Better than '+(ri.est||ri.nEst?'~':'')+pcs(ri.pct)+'% of '+war+' war players':ri.rank?'Global rank #'+ri.rank.toLocaleString()+' (exact)':'Working out the global rank...';
+const ri=r?rinfo(kind,p,id):null,best=!r?'':ri.pct!=null?'Better than '+(ri.est||ri.nEst||ri.rEst?'~':'')+pcs(ri.pct)+'% of '+war+' war players':ri.rank?'Global rank #'+ri.rank.toLocaleString()+' (exact)':'Working out the global rank...';
 const cells=[[kind==='League'?'League':'Clan',esc(d.name)+(d.i>=0?' (#'+d.rank+')':'')],[kind==='League'?'Points':'Points this war',r?fmt(p):'None yet'],['Rank in '+war,r?'#'+(i+1)+' of '+rows.length:'n/a'],['Share of '+war+' points',r&&tp?pc(p/tp*100,100)+'%':'n/a']];
 return '<h3>'+W+'</h3><div class="grid">'+cells.map(c=>'<div class="cell"><small>'+c[0]+'</small><b>'+c[1]+'</b></div>').join('')+'</div>'
-+(r?'<span class="pill">'+best+'</span><p class="st">'+(ri.rank?'Global rank '+(ri.est?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' of '+(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString():'')+'. Based on: '+basis(ri)+'.':'')+(r.t?' Last points '+ago(Date.now()/1000-r.t)+'.':'')+'</p>'
++(r?'<span class="pill">'+best+'</span><p class="st">'+(ri.rank?'Global rank '+(ri.est||ri.rEst?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' of '+(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString():'')+'. Based on: '+basis(ri)+'.':'')+(r.t?' Last points '+ago(Date.now()/1000-r.t)+'.':'')+'</p>'
 :'<p class="st">A member, but no points'+(kind==='Clan'?' in this clan war':'')+' yet.</p>')
 +(member?'':'<p class="st">Not a member any more; these are the points left in this '+war+'.</p>')+open}
 function renderPlayer(id,lt,ld,ct,cd,pm){const u=U[id],img=IM[id];
