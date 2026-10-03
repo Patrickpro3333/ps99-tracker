@@ -1,45 +1,40 @@
-# PS99 Tracker with an automatic global scan
+# PS99 Tracker
 
 Live site: https://petsim99tracker.netlify.app/
 
-GitHub scans the top leagues and clans every 3 hours and saves the result as `ranks.json`.
-Netlify redeploys the site with the new file. Every visitor then sees exact
-"Better than X%" numbers instantly, with no waiting for the in-page scan.
+A static site on Netlify. All the data work runs on GitHub Actions (free for public repos) and is
+saved to two data branches that the page reads straight from GitHub:
 
-## Setup (about 10 minutes, one time)
+| Job | When | Saves to | Used for |
+|---|---|---|---|
+| `history.py` (`.github/workflows/history.yml`) | about every 15 minutes | `data-history` branch | points per hour, gains, rank change and the chart, instantly for every visitor |
+| `scan.py` (`.github/workflows/scan.yml`) | every 3 hours, about 45 minutes per run | `data-ranks` branch (`ranks.json`) | exact "Better than X%" player ranks with no waiting |
 
-1. Create a free GitHub account and a new PUBLIC repository (public repos get free Actions minutes).
-2. Upload every file from this folder, including the hidden `.github` folder
-   (drag the whole folder into the repository's "Upload files" page).
-3. In the repo go to Settings > Actions > General > Workflow permissions,
-   choose "Read and write permissions", and save.
-4. Go to the Actions tab, open "Scan PS99 leaderboards", and press "Run workflow".
-   The first run takes about 45 minutes. After that it runs by itself every 3 hours.
-5. In Netlify choose Add new site > Import an existing project > GitHub, pick the repo,
-   leave the build command empty, and deploy. Each new `ranks.json` redeploys the site.
+Data never goes on `main`. Every commit to `main` is a Netlify production deploy, and on the
+Free plan each one costs 15 of the 300 monthly credits (about 20 deploys a month). So only commit
+to `main` when the site itself changes, and batch changes into one commit.
 
-If your site address changes, update the address in `index.html` (canonical and share tags),
-`robots.txt`, and `sitemap.xml`.
+Both data branches are a single commit that is force-pushed on every run, so the repository
+doesn't grow. GitHub can start scheduled runs late or skip one when it's busy; the page shows how
+old the data is and leaves a gap in the chart where a snapshot is missing.
 
-## Server history (Netlify Functions + Blobs)
+## Setup (one time)
 
-Points per hour, gains, rank change and the chart work the moment someone opens a team, because
-the site keeps its own 24 hour history:
+1. Create a PUBLIC GitHub repository (public repos get free Actions minutes) and upload every
+   file, including the hidden `.github` folder.
+2. In the repo go to Settings > Actions > General > Workflow permissions, choose
+   "Read and write permissions", and save.
+3. In the Actions tab, run "Save PS99 history" and "Scan PS99 leaderboards" once by hand.
+   After that they run on their own.
+4. In Netlify choose Add new site > Import an existing project > GitHub, pick the repo, leave the
+   build command empty, and deploy. Keep branch deploys off so the data branches never build.
 
-- `netlify/functions/snapshot.mjs` runs every 15 minutes. It reads the top 2,000 leagues and clans
-  (40 requests) and saves each team's points and rank to Netlify Blobs, keeping 24 hours.
-- `netlify/functions/history.mjs` serves one team's history at
-  `/api/history?kind=league&name=UN00` (or `kind=clan`). `/api/history?status` shows when the
-  snapshot job last ran.
-- The page merges that with the snapshots it takes itself every minute while open, and falls back
-  to its own data if the function is down.
-
-Nothing needs setting up in Netlify: `netlify.toml` and `package.json` in this repo are enough.
-Scheduled functions only run on the published site. To run one right away, open the site in
-Netlify > Functions > snapshot > Run now.
+If the repository or its owner changes, update `RAW` in `index.html`. If the site address
+changes, update it in `index.html` (canonical and share tags), `robots.txt` and `sitemap.xml`.
 
 ## Without GitHub
 
-Run `python3 scan.py` on your computer (about 45 minutes), then put the `ranks.json` it
-creates next to `index.html` and redeploy. You can also open the site, wait for its own scan
-to finish, and use the "Download ranks.json" button in the "For the site owner" box.
+Run `python3 scan.py` on your computer (about 45 minutes), then put the `ranks.json` it creates
+next to `index.html` and redeploy. You can also open the site, wait for its own scan to finish,
+and use the "Download ranks.json" button in the "For the site owner" box. The page uses
+`ranks.json` from the `data-ranks` branch first, and the copy next to `index.html` otherwise.

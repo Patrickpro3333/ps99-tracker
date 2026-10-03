@@ -1,0 +1,39 @@
+name: Save PS99 history
+
+# About every 15 minutes (GitHub can start scheduled runs late or skip one when busy;
+# the site shows those gaps). Off the top of the hour, when GitHub is busiest.
+on:
+  schedule:
+    - cron: "7,22,37,52 * * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ps99-history
+  cancel-in-progress: false
+
+jobs:
+  snapshot:
+    runs-on: ubuntu-latest
+    timeout-minutes: 10
+    steps:
+      - uses: actions/checkout@v4
+      - name: Load the saved history
+        run: |
+          repo="https://github.com/${GITHUB_REPOSITORY}.git"
+          rc=0; git ls-remote --exit-code --heads "$repo" data-history > /dev/null || rc=$?
+          if [ "$rc" -eq 0 ]; then git clone -q --depth 1 --branch data-history "$repo" hist
+          elif [ "$rc" -eq 2 ]; then mkdir -p hist  # first run: the branch doesn't exist yet
+          else exit 1; fi                           # never start over just because GitHub didn't answer
+      - name: Take a snapshot of the top 2,000 leagues and clans
+        run: python3 history.py --dir hist
+      - name: Save it to the data-history branch
+        env:
+          GITHUB_TOKEN: ${{ github.token }}
+        run: |
+          # One commit with no parents, force-pushed, so the branch never piles up old copies.
+          cd hist && rm -rf .git && git init -q && git checkout -q --orphan data-history && git add -A
+          git -c user.name="ps99-data-bot" -c user.email="ps99-data-bot@users.noreply.github.com" commit -qm "History snapshot"
+          git push -qf "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:data-history
