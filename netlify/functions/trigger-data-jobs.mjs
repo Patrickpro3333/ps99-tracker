@@ -1,8 +1,8 @@
 // Starts the GitHub Actions that save the site's data. GitHub's own scheduler skipped most runs,
-// so Netlify's scheduler presses the button instead: history every 15 minutes, the ranks scan every 3 hours.
+// so Netlify's scheduler presses the button instead: history every hour, the ranks scan every 3 hours.
 // The jobs skip themselves if they ran recently, so GitHub's schedule can stay on as a backup.
 // Needs GH_DISPATCH_TOKEN: a fine-grained GitHub token for this repository only, with Actions: read and write.
-export const config = { schedule: '*/15 * * * *' }
+export const config = { schedule: '0 * * * *' }
 
 const REPO = 'Patrickpro3333/ps99-tracker'
 

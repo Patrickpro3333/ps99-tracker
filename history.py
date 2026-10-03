@@ -3,19 +3,19 @@
 PS99 Tracker history snapshot.
 
 Reads the top 2,000 leagues and clans (40 list requests) and adds one snapshot of each
-team's points and rank to 24 hours of history kept in --dir:
+team's points and rank to the history kept in --dir (25 hours, so a 24-hour gain always has a start):
 
   h/league/<bucket>.json and h/clan/<bucket>.json   {"<lowercase name>": [[unixSeconds, points, rank], ...]}
   h/meta.json                                        when each kind was last saved
 
-GitHub Actions runs this about every 15 minutes (.github/workflows/history.yml) and saves the
-folder to the data-history branch, which index.html reads. Needs only Python 3.
+GitHub Actions runs this every hour (.github/workflows/history.yml, started by Netlify) and saves
+the folder to the data-history branch, which index.html reads. Needs only Python 3.
 """
 import argparse, json, os, sys, time, urllib.error, urllib.request
 from concurrent.futures import ThreadPoolExecutor
 
 API = os.environ.get("PS99_API", "https://ps99.biggamesapi.io")
-KEEP = 24 * 3600 + 1200  # 24 hours, plus a spare snapshot so the 24h gain has a start point
+KEEP = 25 * 3600 + 1200  # hourly snapshots: 24 hours plus one spare (and 20 minutes for a late run)
 BUCKETS = 128
 PAGES = 20  # 20 pages of 100 = top 2,000
 KINDS = {
@@ -79,9 +79,10 @@ a = ap.parse_args()
 t = int(time.time())
 meta_path = os.path.join(a.dir, "h", "meta.json")
 meta = load(meta_path) or {}
-# Netlify starts this job every 15 minutes and GitHub's own schedule is a backup, so skip if one just ran.
+# Netlify starts this job every hour on the hour. GitHub's own schedule (:37) is only a backup, so it
+# runs only when Netlify missed an hour; a Netlify run only skips a repeat within 10 minutes.
 since = t - (meta.get("lastRun") or {}).get("t", 0)
-if since < 600:
+if since < (4200 if os.environ.get("GITHUB_EVENT_NAME") == "schedule" else 600):
     print(f"The last snapshot was {since} seconds ago, so this run is skipped.")
     output(False)
     sys.exit(0)

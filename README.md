@@ -7,7 +7,7 @@ saved to two data branches that the page reads straight from GitHub:
 
 | Job | When | Saves to | Used for |
 |---|---|---|---|
-| `history.py` (`.github/workflows/history.yml`) | about every 15 minutes | `data-history` branch | points per hour, gains, rank change and the chart, instantly for every visitor |
+| `history.py` (`.github/workflows/history.yml`) | every hour | `data-history` branch | points per hour, gains, rank change and the chart, instantly for every visitor |
 | `scan.py` (`.github/workflows/scan.yml`) | every 3 hours, about 45 minutes per run | `data-ranks` branch (`ranks.json`) | exact "Better than X%" player ranks with no waiting |
 
 Data never goes on `main`. Every commit to `main` is a Netlify production deploy, and on the
@@ -21,11 +21,11 @@ is missing.
 ### What starts the jobs
 
 GitHub's own scheduler skipped most runs, so Netlify starts them instead:
-`netlify/functions/trigger-data-jobs.mjs` is a Netlify scheduled function that runs every 15
-minutes and asks GitHub to run the history job (and the scan every 3 hours). It only makes one or
-two small API calls, so it costs a few Netlify credits a month. GitHub's schedules stay on as a
-backup, and both jobs skip themselves if they ran recently (history: last 10 minutes; scan:
-finished in the last hour), so a backup run never does the work twice.
+`netlify/functions/trigger-data-jobs.mjs` is a Netlify scheduled function that runs every hour
+on the hour and asks GitHub to run the history job (and the scan every 3 hours). It only makes one
+or two small API calls, so it costs about a credit a month. GitHub's schedules stay on as a
+backup that only does the work when Netlify missed (history: no snapshot in the last 70 minutes;
+scan: none finished in the last hour), so snapshots stay on the hour and nothing runs twice.
 
 The function needs a Netlify environment variable `GH_DISPATCH_TOKEN`: a fine-grained GitHub
 token with access to this repository only and the permission "Actions: Read and write". When the
