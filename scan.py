@@ -58,16 +58,30 @@ def top(path, key, n):
     return names[:n]
 
 
+stopped = False
+
+
 def scan(kind, names, detail, pick):
-    pts = []
-    for i, name in enumerate(names, 1):
-        d = get(detail + urllib.parse.quote(name, safe=""))
-        if d:
-            pts += [round(x["Points"]) for x in pick(d)]
-        if i % 25 == 0 or i == len(names):
-            print(f"{kind}: {i}/{len(names)} scanned, {len(pts)} players", flush=True)
+    global stopped
+    pts, i = [], 0
+    try:
+        for i, name in enumerate(names, 1):
+            d = get(detail + urllib.parse.quote(name, safe=""))
+            if d:
+                pts += [round(x["Points"]) for x in pick(d)]
+            if i % 25 == 0 or i == len(names):
+                print(f"{kind}: {i}/{len(names)} scanned, {len(pts)} players", flush=True)
+    except KeyboardInterrupt:
+        print("Stopped early, saving what was scanned so far.")
+        stopped, i = True, max(0, i - 1)
     pts.sort()
-    return {"names": len(names), "points": pts}
+    return {"names": i, "points": pts}
+
+
+def clan_points(d, battle):
+    # Clan battle points live under Battles[<active battle>]; older API versions used Contribution.Battle.
+    b = (d.get("Battles") or {}).get(battle) or {}
+    return b.get("PointContributions") or (d.get("Contribution") or {}).get("Battle") or []
 
 
 out = {"updated": 0}
@@ -75,11 +89,15 @@ try:
     print("Reading the top leagues...", flush=True)
     out["League"] = scan("League", top("/v1/leagues?sort=Points&sortOrder=desc", "leagues", a.leagues),
                          "/v1/leagues/", lambda d: d.get("PointContributions") or [])
-    print("Reading the top clans...", flush=True)
-    out["Clan"] = scan("Clan", top("/api/clans?sort=Points&sortOrder=desc", None, a.clans),
-                       "/api/clan/", lambda d: (d.get("Contribution") or {}).get("Battle") or [])
+    if not stopped:
+        battle = (get("/api/activeClanBattle") or {}).get("configName")
+        print("Reading the top clans for", battle or "the current clan battle", flush=True)
+        out["Clan"] = scan("Clan", top("/api/clans?sort=Points&sortOrder=desc", None, a.clans),
+                           "/api/clan/", lambda d: clan_points(d, battle))
 except KeyboardInterrupt:
     print("Stopped early, saving what was scanned so far.")
+if not any(len((out.get(k) or {}).get("points") or []) > 50 for k in ("League", "Clan")):
+    sys.exit("Scan found almost no players, so " + a.out + " was not written. The API may be down.")
 out["updated"] = int(time.time())
 with open(a.out, "w") as f:
     json.dump(out, f, separators=(",", ":"))

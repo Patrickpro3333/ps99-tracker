@@ -177,10 +177,13 @@ try{localStorage.setItem('ps99u',JSON.stringify(U))}catch(e){}}
 async function pics(ids){const need=ids.filter(i=>!IM[i]);if(!need.length)return;
 try{const j=await rj('t','/v1/users/avatar-headshot?userIds='+need.join(',')+'&size=150x150&format=Png&isCircular=false');(j.data||[]).forEach(x=>{if(x.imageUrl)IM[x.targetId]=x.imageUrl})}catch(e){}}
 let L=[],C=[],live=false,LT=0,CT=0,n=0,mode='League',BN=10,GP={},GN=0,GT=0,GPT=0,GK='',GS=[],GTOT=0,AVG=[],CUM=[];const OPEN=new Set();
+let BID='',BIDT=0;
+async function battle(){if(BID&&Date.now()-BIDT<600000)return BID;const j=await jget('/api/activeClanBattle'),id=j.data&&j.data.configName;if(!id)throw 0;BID=id;BIDT=Date.now();return id}
+const cpts=(d,id)=>{const b=id&&d.Battles&&d.Battles[id];return(b&&b.PointContributions)||(d.Contribution&&d.Contribution.Battle)||[]};
 async function gplay(k){if(GK===k&&Date.now()-GPT<180000)return;
 try{let pl=[],tc=0;
 if(k==='League'){const j=await jget('/v1/leagues/players');pl=((j.data&&j.data.players)||[]).map(q=>[q.UserID,q.Points])}
-else{const b=await jget('/api/activeClanBattle'),id=b.data&&b.data.configName;if(!id)throw 0;const j=await jget('/v1/clans/battles/'+encodeURIComponent(id));pl=((j.data&&j.data.topPlayers)||[]).map(q=>[q.userId,q.points]);tc=(j.data&&j.data.stats&&j.data.stats.totalContributors)||0}
+else{const id=await battle();const j=await jget('/v1/clans/battles/'+encodeURIComponent(id));pl=((j.data&&j.data.topPlayers)||[]).map(q=>[q.userId,q.points]);tc=(j.data&&j.data.stats&&j.data.stats.totalContributors)||0}
 GP={};pl.forEach((q,i)=>{GP[q[0]]=i+1});GS=pl.map(q=>q[1]);GN=pl.length;GT=pl.length?pl[pl.length-1][1]:0;GTOT=tc;GPT=Date.now();GK=k}catch(e){GP={};GS=[];GN=0;GT=0;GTOT=0;GK=''}}
 const S=(()=>{try{return JSON.parse(localStorage.getItem('ps99s'))||{}}catch(e){return{}}})();
 const save=()=>{try{localStorage.setItem('ps99s',JSON.stringify(S))}catch(e){}};
@@ -192,14 +195,16 @@ const ldUpd=()=>{const b=$('ldbar');if(!b)return;b.style.width=Math.max(3,Math.m
 async function pull(full){
 const m=full?2000:100,[a,b]=await Promise.all([pages('/v1/leagues?pageSize=100&sort=Points&sortOrder=desc',d=>d.leagues,m,full?(q=>{lp=q;ldUpd()}):null),pages('/api/clans?pageSize=100&sort=Points&sortOrder=desc',d=>d,m,full?(q=>{cp=q;ldUpd()}):null)]);
 if(!a.rows.length||!b.rows.length)throw 0;
-if(full){L=a.rows;C=b.rows}else{L=a.rows.concat(L.slice(100));C=b.rows.concat(C.slice(100))}
+const fresh=(r,old)=>{const s=new Set(r.map(x=>String(x[0]).toLowerCase()));return r.concat(old.slice(100).filter(x=>!s.has(String(x[0]).toLowerCase())))};
+if(full){L=a.rows;C=b.rows}else{L=fresh(a.rows,L);C=fresh(b.rows,C)}
 LT=a.total||LT;if(full){try{CT=(await jget('/api/clansTotal')).data||CT}catch(e){}}live=true}
 async function dataL(name){const j=await jget('/v1/leagues/'+encodeURIComponent(name));if(j.status!=='ok')throw 0;const d=j.data,i=L.findIndex(x=>String(x[0]).toLowerCase()===d.Name.toLowerCase());
-SMP.League[d.Name.toLowerCase()]={t:Date.now(),p:(d.PointContributions||[]).map(x=>Math.round(x.Points))};SV.League++;return{kind:'League',key:'l:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:d.Points,mem:(d.Members||[]).length+1,cap:d.MemberCapacity,owner:d.Owner&&d.Owner.DisplayName,i,list:L,rank:i+1,sum:(d.PointContributions||[]).reduce((s,x)=>s+x.Points,0),nAll:(d.PointContributions||[]).length,rows:(d.PointContributions||[]).slice(0,10).map(x=>({id:x.UserID,n:x.DisplayName,p:x.Points,t:x.Timestamp}))}}
+SMP.League[d.Name.toLowerCase()]={t:Date.now(),p:(d.PointContributions||[]).map(x=>Math.round(x.Points))};SV.League++;return{kind:'League',key:'l:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:d.Points,mem:(d.Members||[]).length+1,cap:d.MemberCapacity,owner:d.Owner&&d.Owner.DisplayName,oid:typeof d.Owner==='number'?d.Owner:null,i,list:L,rank:i+1,sum:(d.PointContributions||[]).reduce((s,x)=>s+x.Points,0),nAll:(d.PointContributions||[]).length,rows:(d.PointContributions||[]).slice(0,10).map(x=>({id:x.UserID,n:x.DisplayName,p:x.Points,t:x.Timestamp}))}}
 async function dataC(name){const j=await jget('/api/clan/'+encodeURIComponent(name));if(j.status!=='ok')throw 0;const d=j.data,i=C.findIndex(x=>String(x[0]).toLowerCase()===d.Name.toLowerCase());
-SMP.Clan[d.Name.toLowerCase()]={t:Date.now(),p:((d.Contribution&&d.Contribution.Battle)||[]).map(x=>Math.round(x.Points))};SV.Clan++;return{kind:'Clan',key:'c:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:i<0?null:C[i][1],mem:(d.Members||[]).length,cap:d.MemberCapacity,owner:'player '+d.Owner,i,list:C,rank:i+1,
-sum:((d.Contribution&&d.Contribution.Battle)||[]).reduce((s,x)=>s+x.Points,0),nAll:((d.Contribution&&d.Contribution.Battle)||[]).length,rows:((d.Contribution&&d.Contribution.Battle)||[]).slice().sort((a,b)=>b.Points-a.Points).slice(0,10).map(x=>({id:x.UserID,n:'Player '+x.UserID,p:x.Points,t:0})),
-extra:'Clan level '+d.GuildLevel+', '+d.GoldMedals+' gold, '+d.SilverMedals+' silver, '+d.BronzeMedals+' bronze medals.'}}
+let bid='';try{bid=await battle()}catch(e){}const cb=cpts(d,bid),bp=bid&&d.Battles&&d.Battles[bid];
+if(bid||d.Contribution){SMP.Clan[d.Name.toLowerCase()]={t:Date.now(),p:cb.map(x=>Math.round(x.Points))};SV.Clan++}return{kind:'Clan',key:'c:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:i>=0?C[i][1]:bp&&bp.Points!=null?bp.Points:null,mem:(d.Members||[]).length,cap:d.MemberCapacity,oid:d.Owner,i,list:C,rank:i+1,
+sum:cb.reduce((s,x)=>s+x.Points,0),nAll:cb.length,rows:cb.slice().sort((a,b)=>b.Points-a.Points).slice(0,10).map(x=>({id:x.UserID,n:'Player '+x.UserID,p:x.Points,t:0})),
+extra:'Clan level '+d.GuildLevel+', '+(d.GoldMedals||0)+' gold, '+(d.SilverMedals||0)+' silver, '+(d.BronzeMedals||d.GoodMedals||0)+' bronze medals.'}}
 const H={get(k){try{return JSON.parse(localStorage.getItem('ps99h:'+k))||[]}catch(e){return[]}},set(k,a){try{localStorage.setItem('ps99h:'+k,JSON.stringify(a))}catch(e){}}};
 function snap(d){if(d.pts==null)return[];
 const now=Math.floor(Date.now()/1000),a=H.get(d.key).filter(s=>now-s[0]<93600);
@@ -305,7 +310,7 @@ if(Q[kk].length){k=kk;break}}
 if(!k){await sleep(20000);continue}
 const name=Q[k].pop(),key=name.toLowerCase();
 try{const j=await jget((k==='League'?'/v1/leagues/':'/api/clan/')+encodeURIComponent(name));if(j.status!=='ok')throw 0;
-const d=j.data,rows=k==='League'?(d.PointContributions||[]):((d.Contribution&&d.Contribution.Battle)||[]);
+const d=j.data,rows=k==='League'?(d.PointContributions||[]):cpts(d,d.Contribution?'':await battle());
 SMP[k][key]={t:Date.now(),p:rows.map(x=>Math.round(x.Points))};SV[k]++;cf=0}
 catch(e){cf++;Q[k].unshift(name);FC[key]=(FC[key]||0)+1;if(FC[key]>4){Q[k].shift();SMP[k][key]={t:Date.now(),p:[]};SV[k]++}await sleep(Math.min(90000,10000*cf));continue}
 cn++;if(cn%15===0)savS();
@@ -330,7 +335,8 @@ const mem=d.rows.map((r,k)=>{const m0=g1&&g1[2][3]?g1[2][3][r.id]:null,m1=last[3
 const best=ri.pct!=null?'Better than '+(ri.est?'~':'')+pcs(ri.pct)+'% of '+war+' war players (rank '+(ri.est?'~':'')+'#'+ri.rank.toLocaleString()+')':ri.rank?'Global rank #'+ri.rank.toLocaleString()+' (exact)':'Working out the global rank ('+ri.s.cov.toLocaleString()+' of '+ri.s.tot.toLocaleString()+' '+(d.kind==='League'?'leagues':'clans')+' scanned)...';
 return '<div class="mem'+(OPEN.has(String(r.id))?' open':'')+'" data-id="'+r.id+'" tabindex="0">'+av(r)+'<div><a href="https://www.roblox.com/users/'+r.id+'/profile">'+esc(nm(r))+'</a>'+(u&&u[1]!==u[0]?'<em>'+esc(u[1])+'</em>':'')+'<div class="bar"><i style="width:'+Math.max(2,r.p/top*100)+'%"></i></div><small>'+fmt(r.p)+' points'+(pp==null?'':', '+sg(pp)+'/hr')+(r.t?', last '+ago(now-r.t):'')+'</small><span class="pill">'+best+'</span>'
 +'<div class="det"><div class="cell"><small>Share of team points</small><b>'+(sh==null?'n/a':sh+'%')+'</b></div><div class="cell"><small>Global rank</small><b>'+(ri.rank?(ri.est?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' of '+ri.N.toLocaleString():''):'Scanning...')+'</b></div><div class="cell"><small>Based on</small><b>'+(ri.rank?(ri.est?'Estimate, '+ri.s.cov.toLocaleString()+' of '+ri.s.tot.toLocaleString()+' scanned':'Exact rank'):'Scan in progress')+'</b></div></div></div><b class="rn">#'+(k+1)+'</b></div>'}).join('')||'<p class="st">No contributor data.</p>';
-return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div><h2>'+esc(d.name)+'</h2><p class="meta">'+(d.owner?'Owner: '+esc(d.owner)+'. ':'')+d.mem+' of '+d.cap+' members.</p>'+pill+'</div></div>'
+const own=d.owner||(d.oid?nm({id:d.oid,n:d.oid}):'');
+return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div><h2>'+esc(d.name)+'</h2><p class="meta">'+(own?'Owner: '+esc(own)+'. ':'')+d.mem+' of '+d.cap+' members.</p>'+pill+'</div></div>'
 +'<div class="hd"><div><small>'+d.kind+' rank</small><span class="big">'+(d.i>=0?'#'+d.rank:'n/a')+'</span></div><div><small>Rank change, 24h</small><span class="big sm '+cc+'">'+ct+'</span></div></div>'
 +'<div class="grid">'+cells.map(c=>'<div class="cell"><small>'+c[0]+'</small><b>'+c[1]+'</b></div>').join('')+'</div>'
 +'<h3>Points gained</h3>'+gains+'<h3>Gap to the next teams</h3><div class="grid">'+gap+'</div>'
@@ -341,7 +347,7 @@ async function paint(show){
 const name=S[mode],k=mode;if(!name){$('dash').innerHTML='';return}
 if(show)$('dash').innerHTML='<p class="st">Loading '+esc(name)+'...</p>';
 try{const d=await(k==='League'?dataL(name):dataC(name));const ids=d.rows.map(r=>r.id);
-await Promise.race([Promise.all([names(ids),pics(ids),gplay(k)]),new Promise(z=>setTimeout(z,5000))]);
+await Promise.race([Promise.all([names(d.oid?ids.concat(d.oid):ids),pics(ids),gplay(k)]),new Promise(z=>setTimeout(z,5000))]);
 if(k!==mode||name!==S[mode])return;
 $('dash').innerHTML=render(d,snap(d))+(ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'')}
 catch(e){if(k===mode)$('dash').innerHTML='<section class="card"><b>Could not find '+esc(name)+'.</b><p class="st">Check the spelling, or live data may be unavailable right now.</p></section>'}}
@@ -381,6 +387,6 @@ ready.then(ldDone);
 $('shbtn').onclick=dlRanks;
 $('ldretry').onclick=()=>{$('ldh').textContent='Loading all API data';$('ldp').textContent='Trying again...';$('ldbtns').hidden=true;lp=0;cp=0;ldUpd();tick(true).then(ldDone)};
 $('ldopen').onclick=()=>{const el=$('ld');if(el){el.classList.add('out');setTimeout(()=>el.remove(),450)}};
-setInterval(()=>{if(!document.hidden&&live){n++;tick(n%5===0)}},60000);
+setInterval(()=>{if(!document.hidden){n++;tick(!live||n%5===0).then(()=>{if(live)ldDone()})}},60000);
 </script>
 </body></html>
