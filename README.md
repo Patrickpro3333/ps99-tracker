@@ -15,8 +15,22 @@ Free plan each one costs 15 of the 300 monthly credits (about 20 deploys a month
 to `main` when the site itself changes, and batch changes into one commit.
 
 Both data branches are a single commit that is force-pushed on every run, so the repository
-doesn't grow. GitHub can start scheduled runs late or skip one when it's busy; the page shows how
-old the data is and leaves a gap in the chart where a snapshot is missing.
+doesn't grow. The page shows how old the data is and leaves a gap in the chart where a snapshot
+is missing.
+
+### What starts the jobs
+
+GitHub's own scheduler skipped most runs, so Netlify starts them instead:
+`netlify/functions/trigger-data-jobs.mjs` is a Netlify scheduled function that runs every 15
+minutes and asks GitHub to run the history job (and the scan every 3 hours). It only makes one or
+two small API calls, so it costs a few Netlify credits a month. GitHub's schedules stay on as a
+backup, and both jobs skip themselves if they ran recently (history: last 10 minutes; scan:
+finished in the last hour), so a backup run never does the work twice.
+
+The function needs a Netlify environment variable `GH_DISPATCH_TOKEN`: a fine-grained GitHub
+token with access to this repository only and the permission "Actions: Read and write". When the
+token expires, create a new one, update the variable and redeploy. Netlify's function log shows
+"started" or the error for every run.
 
 ## Setup (one time)
 
@@ -25,9 +39,10 @@ old the data is and leaves a gap in the chart where a snapshot is missing.
 2. In the repo go to Settings > Actions > General > Workflow permissions, choose
    "Read and write permissions", and save.
 3. In the Actions tab, run "Save PS99 history" and "Scan PS99 leaderboards" once by hand.
-   After that they run on their own.
 4. In Netlify choose Add new site > Import an existing project > GitHub, pick the repo, leave the
-   build command empty, and deploy. Keep branch deploys off so the data branches never build.
+   build command empty. Keep branch deploys off so the data branches never build.
+5. Before the first deploy, add the `GH_DISPATCH_TOKEN` environment variable (see above), then
+   deploy. From then on the jobs run on their own.
 
 If the repository or its owner changes, update `RAW` in `index.html`. If the site address
 changes, update it in `index.html` (canonical and share tags), `robots.txt` and `sitemap.xml`.
