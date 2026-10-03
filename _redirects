@@ -1,3 +1,5 @@
 /ps99api/*  https://ps99.biggamesapi.io/:splat  200
 /rbx/*  https://users.roblox.com/:splat  200
 /rbxt/*  https://thumbnails.roblox.com/:splat  200
+/netlify/*  /404.html  404!
+/node_modules/*  /404.html  404!

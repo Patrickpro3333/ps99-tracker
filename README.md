@@ -21,6 +21,23 @@ Netlify redeploys the site with the new file. Every visitor then sees exact
 If your site address changes, update the address in `index.html` (canonical and share tags),
 `robots.txt`, and `sitemap.xml`.
 
+## Server history (Netlify Functions + Blobs)
+
+Points per hour, gains, rank change and the chart work the moment someone opens a team, because
+the site keeps its own 24 hour history:
+
+- `netlify/functions/snapshot.mjs` runs every 15 minutes. It reads the top 2,000 leagues and clans
+  (40 requests) and saves each team's points and rank to Netlify Blobs, keeping 24 hours.
+- `netlify/functions/history.mjs` serves one team's history at
+  `/api/history?kind=league&name=UN00` (or `kind=clan`). `/api/history?status` shows when the
+  snapshot job last ran.
+- The page merges that with the snapshots it takes itself every minute while open, and falls back
+  to its own data if the function is down.
+
+Nothing needs setting up in Netlify: `netlify.toml` and `package.json` in this repo are enough.
+Scheduled functions only run on the published site. To run one right away, open the site in
+Netlify > Functions > snapshot > Run now.
+
 ## Without GitHub
 
 Run `python3 scan.py` on your computer (about 45 minutes), then put the `ranks.json` it
