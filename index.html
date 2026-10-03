@@ -247,7 +247,7 @@ return[last[1]-s[1],last[0]-s[0],s]}
 // Saved history: GitHub Actions (history.py) snapshots the top 2,000 about every 15 minutes, keeps 24 hours,
 // and saves it to the data-history branch. Data lives on GitHub so updates never cost a Netlify deploy.
 const RAW='https://raw.githubusercontent.com/Patrickpro3333/ps99-tracker/';
-async function rawj(p){const ac=new AbortController(),t=setTimeout(()=>ac.abort(),8000);try{const r=await fetch(RAW+p,{signal:ac.signal});return r.ok?await r.json():null}finally{clearTimeout(t)}}
+async function rawj(p){const ac=new AbortController(),t=setTimeout(()=>ac.abort(),8000);try{const r=await fetch(RAW+p,{signal:ac.signal,cache:'no-cache'});return r.ok?await r.json():null}finally{clearTimeout(t)}}
 // Same FNV-1a as history.py, so the page knows which file holds a team.
 const hbk=n=>{let h=0x811c9dc5;for(const ch of n){h^=ch.codePointAt(0);h=Math.imul(h,16777619)>>>0}return h%128};
 const HS={};
