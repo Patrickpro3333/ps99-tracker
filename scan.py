@@ -95,6 +95,7 @@ try:
         print("Reading the top clans for", battle or "the current clan battle", flush=True)
         out["Clan"] = scan("Clan", top("/api/clans?sort=Points&sortOrder=desc", None, a.clans),
                            "/api/clan/", lambda d: clan_points(d, battle))
+        out["Clan"]["battle"] = battle  # the page ignores a clan scan from an earlier war
 except KeyboardInterrupt:
     print("Stopped early, saving what was scanned so far.")
 if not any(len((out.get(k) or {}).get("points") or []) > 50 for k in ("League", "Clan")):
