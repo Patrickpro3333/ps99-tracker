@@ -1,7 +1,8 @@
 name: Save PS99 history
 
-# About every 15 minutes (GitHub can start scheduled runs late or skip one when busy;
-# the site shows those gaps). Off the top of the hour, when GitHub is busiest.
+# Started every 15 minutes by Netlify (netlify/functions/trigger-data-jobs.mjs), because GitHub's
+# scheduler skipped most runs. GitHub's schedule stays as a backup, off the top of the hour when
+# GitHub is busiest; history.py skips a run if a snapshot was saved in the last 10 minutes.
 on:
   schedule:
     - cron: "7,22,37,52 * * * *"
@@ -28,8 +29,10 @@ jobs:
           elif [ "$rc" -eq 2 ]; then mkdir -p hist  # first run: the branch doesn't exist yet
           else exit 1; fi                           # never start over just because GitHub didn't answer
       - name: Take a snapshot of the top 2,000 leagues and clans
+        id: snap
         run: python3 history.py --dir hist
       - name: Save it to the data-history branch
+        if: steps.snap.outputs.saved == 'true'
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |

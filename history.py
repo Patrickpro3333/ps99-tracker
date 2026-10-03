@@ -65,6 +65,13 @@ def save(path, obj):
         json.dump(obj, f, separators=(",", ":"))
 
 
+def output(saved):
+    # Tells the workflow whether there is a new snapshot to publish (only under GitHub Actions).
+    if os.environ.get("GITHUB_OUTPUT"):
+        with open(os.environ["GITHUB_OUTPUT"], "a") as f:
+            f.write(f"saved={'true' if saved else 'false'}\n")
+
+
 ap = argparse.ArgumentParser()
 ap.add_argument("--dir", default="hist")
 a = ap.parse_args()
@@ -72,6 +79,12 @@ a = ap.parse_args()
 t = int(time.time())
 meta_path = os.path.join(a.dir, "h", "meta.json")
 meta = load(meta_path) or {}
+# Netlify starts this job every 15 minutes and GitHub's own schedule is a backup, so skip if one just ran.
+since = t - (meta.get("lastRun") or {}).get("t", 0)
+if since < 600:
+    print(f"The last snapshot was {since} seconds ago, so this run is skipped.")
+    output(False)
+    sys.exit(0)
 saved = 0
 for kind in KINDS:
     with ThreadPoolExecutor(4) as ex:  # 4 at a time, 20 pages per kind: far below 100 per minute
@@ -116,4 +129,5 @@ if not saved:
     sys.exit("No data from the API, so the history was left unchanged.")
 meta["lastRun"] = {"t": t, "seconds": round(time.time() - t, 1)}
 save(meta_path, meta)
+output(True)
 print("Saved snapshot", t)

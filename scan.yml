@@ -1,9 +1,17 @@
 name: Scan PS99 leaderboards
 
+# Started every 3 hours by Netlify (netlify/functions/trigger-data-jobs.mjs), because GitHub's
+# scheduler skipped its runs. GitHub's schedule stays as a backup; a run skips the scan if the last
+# one finished under an hour ago. When starting it by hand, tick "force" to scan anyway.
 on:
   schedule:
     - cron: "23 */3 * * *"
   workflow_dispatch:
+    inputs:
+      force:
+        description: Scan even if the last scan finished less than an hour ago
+        type: boolean
+        default: false
 
 permissions:
   contents: write
@@ -13,7 +21,24 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      run: ${{ steps.fresh.outputs.run }}
+    steps:
+      - name: Check when the last scan finished
+        id: fresh
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          when=$(gh api "repos/${GITHUB_REPOSITORY}/commits/data-ranks" --jq '.commit.committer.date' 2>/dev/null || true)
+          age=$(( $(date +%s) - $(date -d "${when:-1970-01-01T00:00:00Z}" +%s) ))
+          echo "The last scan finished $age seconds ago."
+          if [ "$age" -gt 3600 ]; then echo "run=true" >> "$GITHUB_OUTPUT"; else echo "run=false" >> "$GITHUB_OUTPUT"; fi
+
   scan:
+    needs: check
+    if: needs.check.outputs.run == 'true' || inputs.force
     runs-on: ubuntu-latest
     timeout-minutes: 240
     steps:
