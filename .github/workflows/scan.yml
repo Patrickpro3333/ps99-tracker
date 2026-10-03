@@ -1,0 +1,32 @@
+name: Scan PS99 leaderboards
+
+on:
+  schedule:
+    - cron: "23 4,16 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: ps99-scan
+  cancel-in-progress: false
+
+jobs:
+  scan:
+    runs-on: ubuntu-latest
+    timeout-minutes: 240
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - name: Scan the top leagues and clans
+        run: python scan.py --leagues 2000 --clans 2000 --rate 60 --out ranks.json
+      - name: Save ranks.json
+        run: |
+          git config user.name "ps99-scan-bot"
+          git config user.email "ps99-scan-bot@users.noreply.github.com"
+          git add ranks.json
+          git diff --cached --quiet || git commit -m "Update ranks.json"
+          git push
