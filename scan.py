@@ -7,11 +7,11 @@ Put ranks.json next to index.html on your site and every visitor gets exact
 "Better than X%" numbers instantly, with no waiting for the in-page scan.
 
 Usage:   python3 scan.py
-Options: --leagues 2000 --clans 2000 --rate 60 --out ranks.json
-Needs only Python 3 (standard library). The API allows 100 requests per minute
-per IP, so the default is 60 per minute: about 70 minutes for 2,000 leagues and
-2,000 clans (one request per team plus the list pages). Run it again whenever you
-want fresh numbers.
+Options: --leagues 2000 --clans 2000 --rate 90 --out ranks.json
+Needs only Python 3 (standard library). The API allows under 100 requests per
+minute per IP, so the default is 90 per minute: about 45 minutes for 2,000 leagues
+and 2,000 clans (one request per team plus the list pages). Run it again whenever
+you want fresh numbers.
 """
 import argparse, json, os, sys, time, urllib.error, urllib.parse, urllib.request
 
@@ -19,7 +19,7 @@ API = os.environ.get("PS99_API", "https://ps99.biggamesapi.io")
 ap = argparse.ArgumentParser()
 ap.add_argument("--leagues", type=int, default=2000)
 ap.add_argument("--clans", type=int, default=2000)
-ap.add_argument("--rate", type=float, default=60, help="max requests per minute")
+ap.add_argument("--rate", type=float, default=90, help="max requests per minute (the API allows under 100)")
 ap.add_argument("--out", default="ranks.json")
 a = ap.parse_args()
 gap = 60.0 / a.rate
