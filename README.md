@@ -1,5 +1,7 @@
 # PS99 Tracker with an automatic global scan
 
+Live site: https://petsim99tracker.netlify.app/
+
 GitHub scans the top leagues and clans twice a day and saves the result as `ranks.json`.
 Netlify redeploys the site with the new file. Every visitor then sees exact
 "Better than X%" numbers instantly, with no waiting for the in-page scan.
@@ -21,6 +23,6 @@ If your site address changes, update the address in `index.html` (canonical and 
 
 ## Without GitHub
 
-Run `python3 scan.py` on your computer (about 35 minutes), then put the `ranks.json` it
+Run `python3 scan.py` on your computer (about 70 minutes), then put the `ranks.json` it
 creates next to `index.html` and redeploy. You can also open the site, wait for its own scan
 to finish, and use the "Download ranks.json" button in the "For the site owner" box.
