@@ -151,11 +151,11 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 <p class="st" id="st">Loading live data...</p>
 </section>
 <div id="dash" aria-live="polite"></div>
-<section class="card"><h2 id="th">Top 10 leagues</h2><p class="st" style="margin:0 0 6px">Tap one to see its stats. This list updates every minute.</p><div id="top"></div></section>
+<section class="card"><h2 id="th">Top 10 leagues</h2><p class="st" id="war" style="margin:0 0 6px;color:var(--y)" hidden></p><p class="st" style="margin:0 0 6px">Tap one to see its stats. This list updates every minute.</p><div id="top"></div></section>
 <details class="card help"><summary>How to read the stats</summary><ul>
 <li><b>Rank</b> is your place on the leaderboard. #1 is the best.</li>
 <li><b>Points per hour</b> is how fast points are coming in. It comes from snapshots the site saves about every 15 minutes, plus one every minute while this page is open.</li>
-<li><b>Gains</b> are points added in the last 1, 6, 12, and 24 hours, from the same snapshots. The site keeps snapshots for the top 2,000 teams only, so gains for other teams fill in while this page is open.</li>
+<li><b>Gains</b> are points added in the last 1, 6, 12, and 24 hours, from the same snapshots. The site keeps snapshots for the top 2,000 teams only, so gains for other teams fill in while this page is open. Clan points restart when a new clan war begins, so clan gains, rank change and the chart count from the start of the current war.</li>
 <li><b>Gap</b> is how many points you need to pass the team above you, and how far ahead you are of the team below.</li>
 <li><b>Contributors</b> shows who added the most points.</li>
 <li>Only the top 2,000 teams get a rank here. Better than % compares a contributor with every player in the top 2,000 leagues (or the top 2,000 clans for clan war). Those numbers come from a full scan of every one of those teams, run every 3 hours. If that scan is missing or more than 2 days old, the page scans in the background instead, with a progress bar and time left, and ranks marked with ~ are estimates until it finishes. Players in the official top players list always get their exact live rank.</li></ul></details>
@@ -201,8 +201,17 @@ try{localStorage.setItem('ps99u',JSON.stringify(U))}catch(e){}}
 async function pics(ids){const need=ids.filter(i=>!IM[i]);if(!need.length)return;
 try{const j=await rj('t','/v1/users/avatar-headshot?userIds='+need.join(',')+'&size=150x150&format=Png&isCircular=false');(j.data||[]).forEach(x=>{if(x.imageUrl)IM[x.targetId]=x.imageUrl})}catch(e){}}
 let L=[],C=[],live=false,LT=0,CT=0,n=0,mode='League',BN=10,GP={},GN=0,GT=0,GPT=0,GK='',GS=[],GTOT=0,AVG=[],CUM=[];const OPEN=new Set();
-let BID='',BIDT=0;
-async function battle(){if(BID&&Date.now()-BIDT<600000)return BID;const j=await jget('/api/activeClanBattle'),id=j.data&&j.data.configName;if(!id)throw 0;BID=id;BIDT=Date.now();return id}
+let BID='',BIDT=0,BREC=null,WARNEW=false;
+// The active clan war, checked every minute so a new war shows up right away.
+async function battle(){if(BID&&Date.now()-BIDT<60000)return BID;const j=await jget('/api/activeClanBattle'),d=j.data,id=d&&d.configName;if(!id)throw 0;
+const cfg=d.configData||{};BREC={id,title:String(cfg.Title||id).replace(/([a-z])([A-Z0-9])/g,'$1 $2'),start:Date.parse(d.dateCreated)||0,end:(cfg.FinishTime||0)*1000};
+if(id!==BID)warSeen(id,!!BID);BID=id;BIDT=Date.now();return id}
+// A new war restarts every clan's points, so this device's old-war scan is dropped and clan views start over.
+function warSeen(id,changed){let s='';try{s=localStorage.getItem('ps99war')||''}catch(e){}
+if(s!==id){SMP.Clan={};SV.Clan++;Q.Clan.length=0;savS();try{localStorage.setItem('ps99war',id)}catch(e){}}
+if(changed){WARNEW=true;GK='';for(const k in HS)if(k.startsWith('Clan:'))delete HS[k]}}
+// Clan points restart at zero when a new war begins, so clan history starts at the last such drop.
+const sinceReset=a=>{for(let i=a.length-1;i>0;i--)if(a[i][1]<a[i-1][1]*0.5)return a.slice(i);return a};
 const cpts=(d,id)=>{const b=id&&d.Battles&&d.Battles[id];return(b&&b.PointContributions)||(d.Contribution&&d.Contribution.Battle)||[]};
 async function gplay(k){if(GK===k&&Date.now()-GPT<180000)return;
 try{let pl=[],tc=0;
@@ -228,7 +237,7 @@ async function dataC(name){const j=await jget('/api/clan/'+encodeURIComponent(na
 let bid='';try{bid=await battle()}catch(e){}const cb=cpts(d,bid),bp=bid&&d.Battles&&d.Battles[bid],who=new Set((d.Members||[]).map(m=>m.UserID)),got=new Set(cb.map(x=>x.UserID));if(d.Owner)who.add(d.Owner);
 if(bid||d.Contribution){SMP.Clan[d.Name.toLowerCase()]={t:Date.now(),p:cb.map(x=>Math.round(x.Points))};SV.Clan++}return{kind:'Clan',key:'c:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:bp&&bp.Points!=null?bp.Points:i>=0?C[i][1]:null,mem:who.size,cap:d.MemberCapacity,oid:d.Owner,i,list:C,rank:i+1,
 sum:cb.reduce((s,x)=>s+x.Points,0),nAll:cb.length,rows:cb.slice().sort((a,b)=>b.Points-a.Points).map(x=>({id:x.UserID,n:'Player '+x.UserID,p:x.Points,t:0})).concat(bid||d.Contribution?[...who].filter(id=>!got.has(id)).map(id=>({id,n:'Player '+id,p:0,t:0,z:1})):[]),
-extra:'Clan level '+d.GuildLevel+'. Clan battle medals: '+(d.GoldMedals||0)+' gold, '+(d.SilverMedals||0)+' silver, '+(d.BronzeMedals||0)+' bronze, '+(d.GoodMedals||0)+' good.'}}
+extra:(bid?'Clan war: '+(BREC&&BREC.id===bid?BREC.title:bid)+'. ':'')+'Clan level '+d.GuildLevel+'. Clan battle medals: '+(d.GoldMedals||0)+' gold, '+(d.SilverMedals||0)+' silver, '+(d.BronzeMedals||0)+' bronze, '+(d.GoodMedals||0)+' good.'}}
 async function near(d){if(d.i<100)return d;const k=d.kind,p=Math.floor(d.i/100)+1,st=(p-1)*100,lc=x=>String(x[0]).toLowerCase();
 try{const j=await jget((k==='League'?'/v1/leagues?':'/api/clans?')+'pageSize=100&sort=Points&sortOrder=desc&page='+p),r=(k==='League'?j.data&&j.data.leagues:j.data)||[];if(!r.length)return d;
 const rows=r.map(x=>[x.Name,x.Points,x.Members,x.Icon,x.ContributorCount]),s=new Set(rows.map(lc)),a=k==='League'?L:C,rest=a.filter((x,i)=>(i<st||i>=st+100)&&!s.has(lc(x))),out=rest.slice(0,st).concat(rows,rest.slice(st));
@@ -310,7 +319,9 @@ document.addEventListener('visibilitychange',()=>{if(document.hidden)savS()});
 function lb(arr,x){let lo=0,hi=arr.length;while(lo<hi){const m=(lo+hi)>>1;if(arr[m]<x)lo=m+1;else hi=m}return lo}
 const RK={},FS={};
 function ub(arr,x){let lo=0,hi=arr.length;while(lo<hi){const m=(lo+hi)>>1;if(arr[m]<=x)lo=m+1;else hi=m}return lo}
-function sstat(k){if(FS[k])return FS[k];const S=SS[k],a=k==='League'?L:C;if(S.v===SV[k]&&S.len===a.length)return S;
+// The shared scan only counts for clans if it was taken during the current war.
+const fileFor=k=>{const f=FS[k];return f&&(k!=='Clan'||!BREC||(f.battle?f.battle===BREC.id:f.file*1000>=BREC.start))?f:null};
+function sstat(k){const F=fileFor(k);if(F)return F;const S=SS[k],a=k==='League'?L:C;if(S.v===SV[k]&&S.len===a.length)return S;
 const names=a.slice(0,LIM[k]).map(x=>String(x[0]).toLowerCase()),arr=[];let cov=0,sh=null,nl=0,done=0;
 names.forEach(nm=>{const e=SMP[k][nm];if(e)done++;if(e&&e.p.length){cov++;for(const v of e.p)arr.push(v)}});
 arr.sort((x,y)=>x-y);
@@ -343,7 +354,7 @@ if(s.file)return 'Exact ranks from a full scan of '+s.tot.toLocaleString()+' '+w
 const pct=Math.round(s.done/Math.max(1,s.tot)*100),left=s.tot-s.done,rate=cn>8?(Date.now()-t0)/cn:800;
 return (k==='League'?'Global rank among '+popL().toLocaleString()+' players in the top 2,000 leagues. ':'')+(s.done>=s.tot&&s.tot?'Full scan finished: all '+s.tot.toLocaleString()+' '+w+' counted, so ranks are exact.':'Full scan: '+s.done.toLocaleString()+' of '+s.tot.toLocaleString()+' '+w+' ('+pct+'%), about '+fmtETA(left*rate)+' left. Numbers marked ~ are estimates until it finishes.')+'<div class="bar"><i style="width:'+pct+'%"></i></div>'};
 async function loadRanks(){try{const j=(await rawj('data-ranks/ranks.json').catch(()=>null))||await fetch('ranks.json',{cache:'no-store'}).then(r=>r.ok?r.json():null);if(!j)return;
-['League','Clan'].forEach(k=>{const f=j[k];if(f&&f.points&&f.points.length>50&&Date.now()/1000-(j.updated||0)<172800){const n=f.names||f.points.length;f.points.sort((a,b)=>a-b);FS[k]={arr:f.points,n:f.points.length,cov:n,done:n,tot:n,sh:null,nl:999,file:j.updated}}});
+['League','Clan'].forEach(k=>{const f=j[k];if(f&&f.points&&f.points.length>50&&Date.now()/1000-(j.updated||0)<172800){const n=f.names||f.points.length;f.points.sort((a,b)=>a-b);FS[k]={arr:f.points,n:f.points.length,cov:n,done:n,tot:n,sh:null,nl:999,file:j.updated,battle:f.battle||''}}});
 const el=$('scan');if(el)el.innerHTML=scanText(el.dataset.k);shareUI()}catch(e){}}
 function shareUI(){const e=$('shst');if(!e)return;const parts=[],ok=[];
 ['League','Clan'].forEach(k=>{const s=sstat(k),w=k==='League'?'leagues':'clans';
@@ -359,7 +370,7 @@ async function worker(){
 for(;;){try{
 if(!live||document.hidden){await sleep(2500);continue}
 let k=null;
-for(const kk of [mode,mode==='League'?'Clan':'League']){if(FS[kk])continue;const a=kk==='League'?L:C;
+for(const kk of [mode,mode==='League'?'Clan':'League']){if(fileFor(kk))continue;const a=kk==='League'?L:C;
 if(!Q[kk].length){const now=Date.now();Q[kk]=a.slice(0,LIM[kk]).map(x=>String(x[0])).filter(n=>{const key=n.toLowerCase(),e=SMP[kk][key];return !INF.has(kk+key)&&(!e||now-e.t>1.08e7)}).sort(()=>Math.random()-.5)}
 if(Q[kk].length){k=kk;break}}
 if(!k){await sleep(20000);continue}
@@ -412,14 +423,16 @@ if(show)$('dash').innerHTML='<p class="st">Loading '+esc(name)+'...</p>';
 try{const hp=shist(k,name.toLowerCase()),d=await near(await(k==='League'?dataL(name):dataC(name)));const ids=d.rows.map(r=>r.id),ln=d.name.toLowerCase();
 await Promise.race([Promise.all([names(d.oid?ids.concat(d.oid):ids),pics(ids),gplay(k),ln===name.toLowerCase()?hp:shist(k,ln)]),new Promise(z=>setTimeout(z,5000))]);
 if(k!==mode||name!==S[mode])return;
-d.loc=snap(d);d.hs=HS[k+':'+ln];
-$('dash').innerHTML=render(d,merge(d.loc,d.hs&&d.hs.ok?d.hs.h:[]))+(ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'')}
+d.loc=snap(d);d.hs=HS[k+':'+ln];let a=merge(d.loc,d.hs&&d.hs.ok?d.hs.h:[]);if(k==='Clan'){d.loc=sinceReset(d.loc);a=sinceReset(a)}
+$('dash').innerHTML=render(d,a)+(ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'')}
 catch(e){if(k===mode)$('dash').innerHTML='<section class="card"><b>Could not find '+esc(name)+'.</b><p class="st">Check the spelling, or live data may be unavailable right now.</p></section>'}}
-function board(){const a=mode==='League'?L:C,k=Math.min(BN,a.length);$('th').textContent='Top '+(a.length?k:10)+' '+(mode==='League'?'leagues':'clans');
+function board(){const a=mode==='League'?L:C,k=Math.min(BN,a.length),w=$('war');$('th').textContent='Top '+(a.length?k:10)+' '+(mode==='League'?'leagues':'clans');
+if(mode==='Clan'&&BREC){w.textContent='Current clan war: '+BREC.title+(BREC.end>Date.now()?', ends '+new Date(BREC.end).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'')+'.';w.hidden=false}else w.hidden=true;
 $('top').innerHTML=a.length?a.slice(0,k).map((x,i)=>'<button class="rk" data-n="'+esc(x[0])+'"><b>#'+(i+1)+'</b>'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span><i>'+fmt(x[1])+'</i></button>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">Loading...</p>'}
 function setMode(m){mode=m;BN=10;$('sg').innerHTML='';S.mode=m;save();$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');
 $('q').value=S[m]||'';$('q').placeholder=m==='League'?'Example: dmcc':'Example: UN0';$('ql').textContent='Your '+m.toLowerCase()+' name';board();$('dash').innerHTML='';if(S[m]&&live)paint(true)}
-async function tick(full){try{await pull(full);$('st').textContent='Live data loaded at '+new Date().toLocaleTimeString()+'. It updates every minute.';board();crawl();shareUI();if(S[mode])paint(false)}
+async function tick(full){try{await battle().catch(()=>{});const nw=WARNEW;WARNEW=false;await pull(full||nw);
+$('st').textContent=nw?'A new clan war just started ('+BREC.title+'). Clan points, ranks and history start over.':'Live data loaded at '+new Date().toLocaleTimeString()+'. It updates every minute.';board();crawl();shareUI();if(S[mode])paint(false)}
 catch(e){if(!live)$('st').textContent='Live data could not load here. Try again, or open the site from your own link.'}}
 async function go(){const v=$('q').value.trim();if(!v){$('q').focus();return}$('sg').innerHTML='';S[mode]=v;save();await ready;await paint(true);$('dash').scrollIntoView({behavior:'smooth',block:'start'})}
 $('tL').onclick=()=>setMode('League');$('tC').onclick=()=>setMode('Clan');$('go').onclick=go;

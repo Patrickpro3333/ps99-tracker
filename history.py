@@ -118,6 +118,8 @@ for kind in KINDS:
                 nxt[name] = h
         for name, entry in by_bucket[b]:
             h = nxt.setdefault(name, [])
+            if kind == "clan" and h and entry[1] < h[-1][1] * 0.5:
+                h.clear()  # a new clan war restarted this clan's points; never mix two wars
             if h and entry[0] - h[-1][0] < 60:
                 h[-1] = entry  # a re-run must not add a second point for the same moment
             else:
