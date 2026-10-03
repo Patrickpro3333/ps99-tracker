@@ -6,3 +6,11 @@
   Cache-Control: public, max-age=604800
 /favicon.*
   Cache-Control: public, max-age=604800
+/site.webmanifest
+  Content-Type: application/manifest+json
+/ps99api/*
+  X-Robots-Tag: noindex
+/rbx/*
+  X-Robots-Tag: noindex
+/rbxt/*
+  X-Robots-Tag: noindex
