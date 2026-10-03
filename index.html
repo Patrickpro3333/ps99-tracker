@@ -103,6 +103,32 @@ h3{font-size:22px;line-height:1.1;margin:22px 0 8px;color:var(--y)}
 .notes{margin-top:16px;border-top:1px solid var(--ed)}.notes summary{cursor:pointer;min-height:48px;display:flex;align-items:center;color:var(--mut);font-weight:700}
 .fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;width:60px;height:60px;border:0;border-radius:50%;background:var(--y);color:#111;display:grid;place-items:center;box-shadow:0 6px 24px rgba(0,0,0,.6);cursor:pointer}
 .fab svg{width:28px;height:28px}
+.pc{position:relative;background:var(--pn);border:2px solid var(--ed);border-radius:18px;padding:20px 14px 14px;margin-bottom:16px;overflow:hidden}
+.pc::before{content:"";position:absolute;left:14px;right:14px;top:10px;height:4px;border-radius:4px;background:var(--y)}
+.pch{display:flex;gap:14px;align-items:center;margin:8px 0 12px}.pch h2{font-size:28px;margin:0 0 4px;overflow-wrap:anywhere}.pch .meta{margin:0}
+.pch .av.big{border:3px solid var(--y)}
+.tag{display:inline-block;margin-right:8px;padding:1px 9px;border:2px solid var(--y);border-radius:8px;background:#000;color:var(--y);font-weight:700;font-size:14px}
+.pct{margin:0 0 12px}
+.pcg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 10px}
+.pk{position:relative;min-width:0;background:#000;border:2px solid var(--ed);border-radius:14px;padding:10px 10px 12px;text-align:center}
+.pk small{display:block;color:var(--mut);font-size:13px;padding:0 26px}.pk b{display:block;font:400 28px/1.2 "Lilita One",Impact,sans-serif;color:var(--y);overflow-wrap:anywhere}.pk b small{display:inline;padding:0;font:400 12px "Atkinson Hyperlegible",system-ui,sans-serif}
+.pk.c3 b,.pk.c5 b{color:var(--g)}
+.ic{position:absolute;right:8px;top:8px;width:26px;height:26px;border-radius:8px;background:#262626;display:grid;place-items:center;color:var(--y)}.ic svg{width:16px;height:16px}
+.pk.c3 .ic,.pk.c5 .ic{color:var(--g)}
+.pr{grid-column:1/-1;background:#000;border:2px solid var(--ed);border-radius:14px;padding:12px}
+.prt{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:start;text-align:center}
+.prn{min-width:0;display:grid;justify-items:center;gap:4px}.prn small{color:var(--mut);font-size:12px}.prn span:last-child{max-width:100%;font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.av.pav{width:40px;height:40px;font-size:16px;border:2px solid var(--ed)}
+.prm small{display:block;color:var(--mut);font-size:12px;letter-spacing:.04em}.prm b{display:block;font:400 34px/1.1 "Lilita One",Impact,sans-serif;color:var(--y)}
+.prb{position:relative;height:8px;margin:12px 4px 8px;border-radius:8px;background:#262626}.prb i{display:block;height:100%;border-radius:8px;background:var(--g)}
+.prb em{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;border:3px solid var(--g)}
+.prx{display:block;margin-top:8px;text-align:center;color:var(--mut);font-size:12px}
+.prp{display:grid;grid-template-columns:1fr 1fr;text-align:center}.prp b{display:block;font:400 22px "Lilita One",Impact,sans-serif;color:var(--g)}.prp div+div b{color:var(--tx)}.prp small{color:var(--mut);font-size:13px}
+.pcc{background:#000;border:2px solid var(--ed);border-radius:14px;padding:12px;margin:0 0 10px}
+.pcch{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;margin-bottom:6px}.pcch b{display:block;font:400 20px "Lilita One",Impact,sans-serif;color:var(--y)}.pcch small{color:var(--mut);font-size:13px}
+.pleg{display:flex;gap:12px;align-items:center;font-size:13px;color:var(--mut)}.pleg span{display:inline-flex;align-items:center;gap:6px}.pleg .d{width:8px;height:8px;border-radius:50%;background:var(--y)}.pleg .ds{width:16px;border-top:2px dashed var(--mut)}
+.pchs{width:100%;height:auto;display:block}.pchs text{fill:#a8a8a8;font:10px "Atkinson Hyperlegible",system-ui,sans-serif}.pchs .pbv{fill:var(--y);font-weight:700}
+@media(min-width:640px){.pcg.pt{grid-template-columns:1fr 1.7fr}.pcg.pt .pk{grid-column:1}.pcg.pt .pr{grid-column:2;grid-row:1/3}.pcg.four{grid-template-columns:repeat(4,1fr)}}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;padding:10px 16px;border-radius:12px;background:#f5f5f5;color:#111;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.6)}
 .av{position:relative;width:52px;height:52px;border-radius:50%;background:#262626;display:grid;place-items:center;overflow:hidden;color:var(--y);font:400 22px "Lilita One",Impact,sans-serif}
 .ok b{visibility:hidden}
@@ -472,33 +498,91 @@ const key=q.toLowerCase();if(UIDS[key])return UIDS[key];let j;
 try{j=await rj('u','/v1/usernames/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usernames:[q],excludeBannedUsers:false})})}catch(e){throw 'roblox'}
 const u=j&&j.data&&j.data[0];if(!u)return null;U[u.id]=[u.name,u.displayName||u.name];try{localStorage.setItem('ps99u',JSON.stringify(U))}catch(e){}return UIDS[key]=u.id}
 async function teamOf(kind,id){const e=await rawj('data-ranks/players/'+kind.toLowerCase()+'/'+(id%256)+'.json').then(s=>s&&s[id],()=>null);
-if(e)return{name:e[0],cur:!!e[2],idx:true};
+if(e)return{name:e[0],cur:!!e[2],idx:true,hist:Array.isArray(e[3])?e[3]:[]};
 // Not in the scan's index (yet): the API's own samples cover the top 500 league players and the top 25 clans.
 try{if(kind==='League'){const j=await jget('/v1/leagues/players/'+id);if(j.data&&j.data.League)return{name:j.data.League.Name,cur:true}}
 else{const j=await jget('/v1/clans/players/'+id),p=j.data&&j.data.player;if(p&&p.Clan)return{name:p.Clan.Name,cur:true}}}catch(e){}return null}
-function teamPart(kind,t,d,id,pm){const war=kind==='League'?'league':'clan',W=kind==='League'?'League':'Clan war'+(BREC?': '+BREC.title:''),pcs=x=>Math.min(99.9,Math.max(0,x)).toFixed(1);
-if(!t)return '<h3>'+W+'</h3><p class="st">Not in a top 2,000 '+war+(pm?'':' as far as the official top lists show (the full scan has not run yet)')+'.</p>';
-if(!d)return '<h3>'+W+'</h3><p class="st">In '+esc(t.name)+', but its data could not load right now.</p>';
-const rows=d.rows.filter(r=>!r.z),i=rows.findIndex(r=>String(r.id)===String(id)),r=rows[i],p=r?r.p:0,tp=d.pts!=null?d.pts:d.sum,member=(d.members||[]).some(m=>String(m)===String(id));
-const open='<button class="more" data-open="'+kind+'" data-n="'+esc(d.name)+'">Open '+esc(d.name)+'</button>';
-if(!r&&!member)return '<h3>'+W+'</h3><p class="st">Was in '+esc(d.name)+' at the last scan, but is not a member any more and has no points left there.</p>'+open;
-const ri=r?rinfo(kind,p,id):null,best=!r?'':ri.pct!=null?'Better than '+(ri.est||ri.nEst||ri.rEst?'~':'')+pcs(ri.pct)+'% of '+war+' war players':ri.rank?'Global rank #'+ri.rank.toLocaleString()+' (exact)':'Working out the global rank...';
-const cells=[[kind==='League'?'League':'Clan',esc(d.name)+(d.i>=0?' (#'+d.rank+')':'')],[kind==='League'?'Points':'Points this war',r?fmt(p):'None yet'],['Rank in '+war,r?'#'+(i+1)+' of '+rows.length:'n/a'],['Share of '+war+' points',r&&tp?pc(p/tp*100,100)+'%':'n/a']];
-return '<h3>'+W+'</h3><div class="grid">'+cells.map(c=>'<div class="cell"><small>'+c[0]+'</small><b>'+c[1]+'</b></div>').join('')+'</div>'
-+(r?'<span class="pill">'+best+'</span><p class="st">'+(ri.rank?'Global rank '+(ri.est||ri.rEst?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' of '+(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString():'')+'. Based on: '+basis(ri)+'.':'')+(r.t?' Last points '+ago(Date.now()/1000-r.t)+'.':'')+'</p>'
-:'<p class="st">A member, but no points'+(kind==='Clan'?' in this clan war':'')+' yet.</p>')
-+(member?'':'<p class="st">Not a member any more; these are the points left in this '+war+'.</p>')+open}
-function renderPlayer(id,lt,ld,ct,cd,pm){const u=U[id],img=IM[id];
-return '<section class="card dash"><div class="top"><span class="av big"><b>'+esc((u?u[0][0]:'?').toUpperCase())+'</b>'+(img?'<img src="'+esc(img)+'" alt="">':'')+'</span><div style="min-width:0"><h2>'+esc(u?'@'+u[0]:'User '+id)+'</h2><p class="meta">'+(u&&u[1]!==u[0]?esc(u[1])+'. ':'')+'<a href="https://www.roblox.com/users/'+id+'/profile" target="_blank" rel="noopener" style="color:var(--mut)">Roblox profile</a></p></div><button class="share" data-share>Share</button></div>'
-+teamPart('League',lt,ld,id,pm)+teamPart('Clan',ct,cd,id,pm)
-+'<p class="st">'+(pm&&pm.updated?'Teams come from the full scan of the top 2,000 leagues and clans, '+ago(Date.now()/1000-pm.updated)+' (it runs every 3 hours). Points are live.':'Teams come from the official top player lists until the full scan has run. Points are live.')+'</p></section>'}
-async function paintPlayer(show){const q=S.Player,seq=++PSEQ,box=$('dash'),ok=()=>seq===PSEQ&&mode==='Player'&&S.Player===q;if(!q){box.innerHTML='';return}
+// Player card. Points over time come from the full scans (every 3 hours, saved per player for 24 hours),
+// this device while the card is open (every minute), and the live points now.
+const PKIND={};let PV=null;
+const ICO={star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',cup:'<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M10 17h4"/>',bars:'<path d="M6 20V10M12 20V4M18 20v-6"/>',bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>'};
+const ico=n=>'<i class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">'+ICO[n]+'</svg></i>';
+const pav=id=>{const u=U[id];return '<span class="av pav"><b>'+esc(((u?u[0]:'?')[0]||'?').toUpperCase())+'</b>'+(IM[id]?'<img src="'+esc(IM[id])+'" alt="" loading="lazy">':'')+'</span>'};
+function psnap(kind,id,p){const k='ps99p:'+kind+':'+id,now=Math.floor(Date.now()/1000);let a=[];try{a=JSON.parse(localStorage.getItem(k))||[]}catch(e){}
+a=a.filter(s=>now-s[0]<93600);if(!a.length||now-a[a.length-1][0]>=55){a.push([now,p]);try{localStorage.setItem(k,JSON.stringify(a))}catch(e){}}return a}
+// Points at any moment, read between the two snapshots around it; gaps over 4.5 hours (a missed scan) stay unknown.
+const pval=(a,t)=>{for(let i=0;i<a.length-1;i++){const s=a[i],e=a[i+1];if(s[0]<=t&&t<=e[0])return e[0]-s[0]>16200?null:s[1]+(e[1]-s[1])*(t-s[0])/Math.max(1,e[0]-s[0])}return a.length&&t>=a[a.length-1][0]?a[a.length-1][1]:null};
+function hourly(a){if(a.length<2)return[];const now=a[a.length-1][0],n=Math.min(24,Math.floor((now-Math.max(a[0][0],now-86400))/3600)),out=[];
+for(let h=n;h>=1;h--){const v1=pval(a,now-(h-1)*3600),v0=pval(a,now-h*3600);out.push([now-(h-1)*3600,v1!=null&&v0!=null?Math.max(0,v1-v0):null])}return out}
+function pstat(kind,t,d,id){const rows=d.rows.filter(r=>!r.z),i=rows.findIndex(r=>String(r.id)===String(id)),r=rows[i],p=r?r.p:0,tp=d.pts!=null?d.pts:d.sum;
+const member=(d.members||[]).some(m=>String(m)===String(id)),loc=r?psnap(kind,id,p):[];let a=merge(loc,t.hist||[]).map(s=>[s[0],s[1]]);if(kind==='Clan')a=sinceReset(a);
+const H=hourly(a),hv=H.map(h=>h[1]).filter(v=>v!=null),now=a.length?a[a.length-1][0]:0,from=a.length?Math.max(a[0][0],now-86400):0,v0=a.length?pval(a,from):null;
+return{kind,team:d.name,teamRank:d.i>=0?d.rank:null,size:d.rows.length,rank:r?i+1:null,has:!!r,member,p,share:r&&tp?p/tp*100:null,ri:r?rinfo(kind,p,id):null,last:r&&r.t,
+a,H,day:v0!=null&&a.length>1?p-v0:null,span:now-from,best:hv.length?Math.max(...hv):null,latest:hv.length?hv[hv.length-1]:null}}
+// Players just ahead and behind: exact from the live top list, otherwise from the full scan's ranking
+// (players/rank/<kind>/<n>.json), scaled to live points like the rank itself.
+async function pnear(kind,s,id){const g=GPX[kind],ri=s.ri,p=s.p;if(!ri||!ri.rank)return null;
+if(ri.src==='live'){const o=g.list.filter(q=>String(q.id)!==String(id)),ah=o.filter(q=>q.p>p).pop(),be=o.find(q=>q.p<=p);return{a:ah&&{id:ah.id,r:ri.rank-1},b:be&&{id:be.id,r:ri.rank+1},live:1}}
+const st=sstat(kind);if(!st.file)return null;const f=p<g.T?scanScale(st,g):1,pos=st.n-ub(st.arr,p/f),C=500,k=kind.toLowerCase();
+const c0=Math.max(0,Math.floor((pos-2)/C)),c1=Math.floor((pos+1)/C),get=i=>rawj('data-ranks/players/rank/'+k+'/'+i+'.json').catch(()=>null);
+const ch=await Promise.all([get(c0),c1!==c0?get(c1):null]),list=[].concat(ch[0]||[],ch[1]||[]);if(!list.length)return null;
+let ah=null,be=null;list.forEach((e,j)=>{if(String(e[0])===String(id))return;if(e[1]*f>p)ah={id:e[0],r:c0*C+j+1};else if(!be)be={id:e[0],r:c0*C+j+1}});return{a:ah,b:be,live:0}}
+function prank(s,nb){const ri=s.ri;if(!ri||!ri.rank)return '<div class="pr"><div class="prm"><small>GLOBAL RANK</small><b>...</b><small>Working it out</small></div></div>';
+const tl=ri.est||ri.nEst||ri.rEst?'~':'',ap=ri.pct!=null?Math.max(0,Math.min(100,ri.pct)):null;
+const side=(x,lab)=>'<div class="prn">'+(x?'<small>'+(nb.live?'':'~')+'#'+x.r.toLocaleString()+' · '+lab+'</small>'+pav(x.id)+'<span>'+esc(U[x.id]?(U[x.id][1]!==U[x.id][0]?U[x.id][1]+' ('+U[x.id][0]+')':U[x.id][0]):'User '+x.id)+'</span>':'<small>'+lab+'</small><span class="st">'+(nb===undefined?'Loading':'-')+'</span>')+'</div>';
+return '<div class="pr"><div class="prt">'+side(nb&&nb.b,'Behind')+'<div class="prm"><small>GLOBAL RANK</small><b>'+tl+'#'+ri.rank.toLocaleString()+'</b><small>of '+(ri.N?(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString():'?')+' players</small></div>'+side(nb&&nb.a,'Ahead')+'</div>'
++(ap!=null?'<div class="prb"><i style="width:'+ap.toFixed(2)+'%"></i><em style="left:'+ap.toFixed(2)+'%"></em></div><div class="prp"><div><b>'+tl+ap.toFixed(2)+'%</b><small>players behind</small></div><div><b>'+tl+(100-ap).toFixed(2)+'%</b><small>players ahead</small></div></div>':'')
++(nb===null?'<small class="prx">The players just ahead and behind show after the next full scan.</small>':'')+'</div>'}
+function pchart(H){const v=H.map(h=>h[1]).filter(x=>x!=null);
+if(v.length<2)return '<p class="st">This fills in as snapshots arrive: one at every full scan (every 3 hours), and one every minute while this page is open.</p>';
+const W=340,Hh=200,l=46,r=14,t=28,b=24,pw=W-l-r,ph=Hh-t-b,mx=nice(Math.max(1,...v)),n=H.length,X=i=>l+(n<2?pw:i*pw/(n-1)),Y=x=>t+ph-x/mx*ph,avg=v.reduce((s,x)=>s+x,0)/v.length;
+let g='<defs><linearGradient id="pl" x1="0" x2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#ffd23f"/></linearGradient><linearGradient id="pa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd23f" stop-opacity=".35"/><stop offset="1" stop-color="#ffd23f" stop-opacity="0"/></linearGradient></defs>';
+for(let k=0;k<=5;k++){const y=Y(mx*k/5);g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#242424"/><text x="'+(l-6)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end">'+fmt(mx*k/5)+'</text>'}
+let run=[];const runs=[];H.forEach((h,i)=>{if(h[1]==null){if(run.length)runs.push(run);run=[]}else run.push([X(i),Y(h[1])])});if(run.length)runs.push(run);
+runs.forEach(rn=>{if(rn.length<2){g+='<circle cx="'+rn[0][0].toFixed(1)+'" cy="'+rn[0][1].toFixed(1)+'" r="3" fill="#ffd23f"/>';return}const c=curve(rn,t,t+ph);
+g+='<path d="'+c+'L'+rn[rn.length-1][0].toFixed(1)+' '+(t+ph)+'L'+rn[0][0].toFixed(1)+' '+(t+ph)+'Z" fill="url(#pa)"/><path d="'+c+'" fill="none" stroke="url(#pl)" stroke-width="3" stroke-linecap="round"/>'});
+g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+Y(avg).toFixed(1)+'" y2="'+Y(avg).toFixed(1)+'" stroke="#a8a8a8" stroke-dasharray="5 5" opacity=".8"/>';
+let li=n-1;while(li>0&&H[li][1]==null)li--;const lx=X(li),ly=Y(H[li][1]),lt=fmt(H[li][1]),bw=lt.length*8+16,bx=Math.min(W-r-bw,Math.max(l,lx-bw/2));
+g+='<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="5" fill="#ffd23f" stroke="#000" stroke-width="2"/><rect x="'+bx.toFixed(1)+'" y="'+Math.max(2,ly-30).toFixed(1)+'" width="'+bw+'" height="20" rx="6" fill="#000" stroke="#2e2e2e"/><text class="pbv" x="'+(bx+bw/2).toFixed(1)+'" y="'+(Math.max(2,ly-30)+14).toFixed(1)+'" text-anchor="middle">'+lt+'</text>';
+g+='<text x="'+l+'" y="'+(Hh-6)+'">'+n+'h ago</text><text x="'+(W-r)+'" y="'+(Hh-6)+'" text-anchor="end" class="pbv">now</text>';
+return '<svg class="pchs" viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="Points earned per hour, last '+n+' hours">'+g+'</svg>'}
+function renderPlayer(V){const id=V.id,u=U[id],img=IM[id],kinds=['Clan','League'].filter(k=>V[k].t);
+let k=PKIND[id];if(!kinds.includes(k))k=kinds.includes('Clan')&&(!V.Clan.s||V.Clan.s.has||!kinds.includes('League'))?'Clan':kinds[0];
+const P=k?V[k]:null,s=P&&P.s,war=k==='League'?'league':'clan',title=k==='Clan'?(BREC?BREC.title:'Clan war'):'League';
+let h='<section class="pc"><div class="pch"><span class="av big">'+'<b>'+esc(((u?u[0]:'?')[0]||'?').toUpperCase())+'</b>'+(img?'<img src="'+esc(img)+'" alt="">':'')+'</span><div style="min-width:0"><h2>'+esc(u?u[0]:'User '+id)+'</h2>'
++'<p class="meta">'+(P&&P.d?'<span class="tag">['+esc(P.d.name)+']</span>':'')+esc(k?title:'Not in a top 2,000 team')+'</p>'+(u&&u[1]!==u[0]?'<p class="meta">'+esc(u[1])+'</p>':'')+'</div><button class="share" data-share>Share</button></div>';
+if(kinds.length>1)h+='<div class="seg pct">'+kinds.map(x=>'<button data-pk="'+x+'" aria-pressed="'+(x===k)+'">'+(x==='Clan'?'Clan war':'League')+'</button>').join('')+'</div>';
+if(!k)h+='<p class="st">Not in a top 2,000 league or clan'+(V.pm?'':' as far as the official top lists show (the full scan has not run yet)')+'.</p>';
+else if(!P.d)h+='<p class="st">In '+esc(P.t.name)+', but its data could not load right now.</p>';
+else if(!s.has&&!s.member)h+='<p class="st">Was in '+esc(P.d.name)+' at the last scan, but is not a member any more and has no points left there.</p>';
+else{const pp=x=>x==null?'Collecting':sg(x),so=s.span<86000&&s.day!=null?' <small>('+dur(s.span)+')</small>':'';
+h+='<div class="pcg pt"><div class="pk c1">'+ico('star')+'<small>'+(k==='Clan'?'War points':'League points')+'</small><b>'+(s.has?fmt(s.p):'0')+'</b></div>'
++'<div class="pk c5">'+ico('cup')+'<small>'+(k==='Clan'?'Clan':'League')+' rank · '+esc(P.d.name)+'</small><b>'+(s.rank?s.rank+'/'+s.size:'-')+'</b>'+(s.share!=null?'<small>'+pc(s.share,100)+'% of its points</small>':'')+'</div>'
++prank(s,P.nb)+'</div>'
++'<div class="pcg four"><div class="pk c1">'+ico('star')+'<small>Points · 24h</small><b>'+(s.day==null?'Collecting':fmt(s.day))+so+'</b></div>'
++'<div class="pk c2">'+ico('bars')+'<small>Average / hour</small><b>'+(s.day==null||s.span<3000?'Collecting':fmt(s.day/(s.span/3600)))+'</b></div>'
++'<div class="pk c3">'+ico('cup')+'<small>Best hour</small><b>'+(s.best==null?'Collecting':fmt(s.best))+'</b></div>'
++'<div class="pk c4">'+ico('bolt')+'<small>Latest hour</small><b>'+(s.latest==null?'Collecting':fmt(s.latest))+'</b></div></div>'
++'<div class="pcc"><div class="pcch"><div><b>Hourly performance</b><small>Points earned per hour · last '+(s.H.length||24)+' hours</small></div><div class="pleg"><span><i class="d"></i>Hourly points</span><span><i class="ds"></i>Average</span></div></div>'+pchart(s.H)+'</div>'
++(s.has?'':'<p class="st">A member, but no points'+(k==='Clan'?' in this clan war':'')+' yet.</p>')+(s.member?'':'<p class="st">Not a member any more; these are the points left in this '+war+'.</p>')
++'<p class="st">'+(s.ri&&s.ri.rank?'Global rank based on: '+basis(s.ri)+'. ':'')+'Points over time come from full scans (every 3 hours) and this device while the page is open'+(s.last?'; last points '+ago(Date.now()/1000-s.last):'')+'.</p>'}
+if(k&&P.d)h+='<button class="more" data-open="'+k+'" data-n="'+esc(P.d.name)+'">Open '+esc(P.d.name)+'</button>';
+h+='<p class="st">'+(V.pm&&V.pm.updated?'Teams come from the full scan of the top 2,000 leagues and clans, '+ago(Date.now()/1000-V.pm.updated)+'. Points are live.':'Teams come from the official top player lists until the full scan has run. Points are live.')+'</p></section>';
+return h}
+document.addEventListener('click',e=>{const b=e.target.closest('[data-pk]');if(!b||!PV)return;PKIND[PV.id]=b.dataset.pk;$('dash').innerHTML=renderPlayer(PV)});
+async function paintPlayer(show){const q=S.Player,seq=++PSEQ,box=$('dash'),ok=()=>seq===PSEQ&&mode==='Player';if(!q){box.innerHTML='';return}
 if(show)box.innerHTML='<p class="st">Looking up '+esc(q)+'...</p>';
 try{const id=await findUser(q);if(!ok())return;
 if(!id){box.innerHTML='<section class="card"><b>No Roblox user called '+esc(q.replace(/^@/,''))+'.</b><p class="st">Check the spelling of their username (not their display name), or type their user ID.</p></section>';return}
 const [lt,ct,pm]=await Promise.all([teamOf('League',id),teamOf('Clan',id),rawj('data-ranks/players/meta.json').catch(()=>null),pics([id]),names([id])]);
-const [ld,cd]=await Promise.all([lt?dataL(lt.name).catch(()=>null):null,ct?dataC(ct.name).catch(()=>null):null,gplay('League'),gplay('Clan')]);
-if(ok()){box.innerHTML=renderPlayer(id,lt,ld,ct,cd,pm);shown('Player',U[id]?U[id][0]:String(id))}}
+const [ld,cd]=await Promise.all([lt?dataL(lt.name).catch(()=>null):null,ct?dataC(ct.name).catch(()=>null):null,gplay('League'),gplay('Clan')]);if(!ok())return;
+const V={id,pm,League:{t:lt,d:ld},Clan:{t:ct,d:cd}};['League','Clan'].forEach(k=>{if(V[k].t&&V[k].d)V[k].s=pstat(k,V[k].t,V[k].d,id)});
+PV=V;box.innerHTML=renderPlayer(V);shown('Player',U[id]?U[id][0]:String(id));
+// The players just ahead and behind (with names and pictures) fill in on a second draw.
+const ks=['League','Clan'].filter(k=>V[k].s&&V[k].s.ri),nbs=await Promise.all(ks.map(k=>pnear(k,V[k].s,id).catch(()=>null)));ks.forEach((k,i)=>{V[k].nb=nbs[i]});
+const ids=[].concat(...nbs.filter(Boolean).map(x=>[x.a&&x.a.id,x.b&&x.b.id])).filter(Boolean);
+if(ids.length)await Promise.race([Promise.all([names(ids),pics(ids)]),new Promise(z=>setTimeout(z,4000))]);
+if(ok()&&PV===V)box.innerHTML=renderPlayer(V)}
 catch(e){if(ok())box.innerHTML='<section class="card"><b>'+(e==='roblox'?'Could not reach Roblox to look up that username.':'Could not load this player.')+'</b><p class="st">Try again in a moment, or type their user ID.</p></section>'}}
 async function paint(show){if(mode==='Player')return paintPlayer(show);
 const name=S[mode],k=mode,seq=++PSEQ;if(!name){$('dash').innerHTML='';return}
