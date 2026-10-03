@@ -62,6 +62,10 @@ def top(path, key, n):
             break
         names += [x["Name"] for x in rows]
         page += 1
+    # The API caches each page at a slightly different moment, so a team near a page edge can show on two
+    # pages. Scanning it twice would count its players twice, so only its first place is kept.
+    seen = set()
+    names = [x for x in names if not (x.lower() in seen or seen.add(x.lower()))]
     return names[:n]
 
 
@@ -123,10 +127,13 @@ def load_history(folder):
         return hist
     try:
         with open(os.path.join(folder, "players", "meta.json")) as f:
-            then = json.load(f).get("updated", 0)
+            meta = json.load(f)
     except (OSError, ValueError):
-        then = 0
+        meta = {}
+    then = meta.get("updated", 0)
     for kind in hist:
+        if kind == "Clan" and battle and meta.get("battle") != battle:
+            continue  # the previous scan was taken in another clan war; never mix two wars
         for i in range(PLAYER_SHARDS):
             try:
                 with open(os.path.join(folder, "players", kind.lower(), f"{i}.json")) as f:
