@@ -217,11 +217,11 @@ const fresh=(r,old)=>{const s=new Set(r.map(x=>String(x[0]).toLowerCase()));retu
 if(full){L=a.rows;C=b.rows}else{L=fresh(a.rows,L);C=fresh(b.rows,C)}
 LT=a.total||LT;if(full){try{CT=(await jget('/api/clansTotal')).data||CT}catch(e){}}live=true}
 async function dataL(name){const j=await jget('/v1/leagues/'+encodeURIComponent(name));if(j.status!=='ok')throw 0;const d=j.data,i=L.findIndex(x=>String(x[0]).toLowerCase()===d.Name.toLowerCase());
-SMP.League[d.Name.toLowerCase()]={t:Date.now(),p:(d.PointContributions||[]).map(x=>Math.round(x.Points))};SV.League++;return{kind:'League',key:'l:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:d.Points,mem:(d.Members||[]).length+1,cap:d.MemberCapacity,oid:d.Owner&&typeof d.Owner==='object'?d.Owner.UserID:d.Owner,owner:d.Owner&&d.Owner.DisplayName,i,list:L,rank:i+1,sum:(d.PointContributions||[]).reduce((s,x)=>s+x.Points,0),nAll:(d.PointContributions||[]).length,rows:(d.PointContributions||[]).slice(0,10).map(x=>({id:x.UserID,n:x.DisplayName,p:x.Points,t:x.Timestamp}))}}
+SMP.League[d.Name.toLowerCase()]={t:Date.now(),p:(d.PointContributions||[]).map(x=>Math.round(x.Points))};SV.League++;return{kind:'League',key:'l:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:d.Points,mem:(d.Members||[]).length+1,cap:d.MemberCapacity,oid:d.Owner&&typeof d.Owner==='object'?d.Owner.UserID:d.Owner,owner:d.Owner&&d.Owner.DisplayName,i,list:L,rank:i+1,sum:(d.PointContributions||[]).reduce((s,x)=>s+x.Points,0),nAll:(d.PointContributions||[]).length,rows:(d.PointContributions||[]).slice().sort((a,b)=>b.Points-a.Points).map(x=>({id:x.UserID,n:x.DisplayName,p:x.Points,t:x.Timestamp}))}}
 async function dataC(name){const j=await jget('/api/clan/'+encodeURIComponent(name));if(j.status!=='ok')throw 0;const d=j.data,i=C.findIndex(x=>String(x[0]).toLowerCase()===d.Name.toLowerCase());
 let bid='';try{bid=await battle()}catch(e){}const cb=cpts(d,bid),bp=bid&&d.Battles&&d.Battles[bid];
 if(bid||d.Contribution){SMP.Clan[d.Name.toLowerCase()]={t:Date.now(),p:cb.map(x=>Math.round(x.Points))};SV.Clan++}return{kind:'Clan',key:'c:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:bp&&bp.Points!=null?bp.Points:i>=0?C[i][1]:null,mem:(d.Members||[]).length,cap:d.MemberCapacity,oid:d.Owner,i,list:C,rank:i+1,
-sum:cb.reduce((s,x)=>s+x.Points,0),nAll:cb.length,rows:cb.slice().sort((a,b)=>b.Points-a.Points).slice(0,10).map(x=>({id:x.UserID,n:'Player '+x.UserID,p:x.Points,t:0})),
+sum:cb.reduce((s,x)=>s+x.Points,0),nAll:cb.length,rows:cb.slice().sort((a,b)=>b.Points-a.Points).map(x=>({id:x.UserID,n:'Player '+x.UserID,p:x.Points,t:0})),
 extra:'Clan level '+d.GuildLevel+'. Clan battle medals: '+(d.GoldMedals||0)+' gold, '+(d.SilverMedals||0)+' silver, '+(d.BronzeMedals||0)+' bronze, '+(d.GoodMedals||0)+' good.'}}
 async function near(d){if(d.i<100)return d;const k=d.kind,p=Math.floor(d.i/100)+1,st=(p-1)*100,lc=x=>String(x[0]).toLowerCase();
 try{const j=await jget((k==='League'?'/v1/leagues?':'/api/clans?')+'pageSize=100&sort=Points&sortOrder=desc&page='+p),r=(k==='League'?j.data&&j.data.leagues:j.data)||[];if(!r.length)return d;
@@ -230,7 +230,7 @@ if(k==='League')L=out;else C=out;d.list=out;d.i=out.findIndex(x=>lc(x)===d.name.
 const H={get(k){try{return JSON.parse(localStorage.getItem('ps99h:'+k))||[]}catch(e){return[]}},set(k,a){try{localStorage.setItem('ps99h:'+k,JSON.stringify(a))}catch(e){}}};
 function snap(d){if(d.pts==null)return[];
 const now=Math.floor(Date.now()/1000),a=H.get(d.key).filter(s=>now-s[0]<93600);
-if(!a.length||now-a[a.length-1][0]>=55){const m={};d.rows.forEach(r=>m[r.id]=r.p);a.push([now,d.pts,d.rank,m]);if(a.length>1600)a.splice(0,a.length-1600);H.set(d.key,a)}
+if(!a.length||now-a[a.length-1][0]>=55){const m={};d.rows.forEach(r=>m[r.id]=r.p);a.push([now,d.pts,d.rank,m]);a.forEach(s=>{if(!s[4]&&now-s[0]>4000){s[3]=Object.fromEntries(Object.entries(s[3]).sort((x,y)=>y[1]-x[1]).slice(0,10));s[4]=1}});if(a.length>1600)a.splice(0,a.length-1600);H.set(d.key,a)}
 return a}
 function gain(a,h){const last=a[a.length-1],t=last[0]-h*3600;let ref=a[0];for(const s of a){if(s[0]<=t)ref=s;else break}return[last[1]-ref[1],last[0]-ref[0],ref]}
 const COL=['#ffd23f','#ff9ec7','#3ddc84','#6cc8ff'],CW=340,CH=200;
@@ -365,7 +365,7 @@ return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+
 +'<div class="hd"><div><small>'+d.kind+' rank</small><span class="big">'+(d.i>=0?'#'+d.rank:'n/a')+'</span></div><div><small>Rank change, 24h</small><span class="big sm '+cc+'">'+ct+'</span></div></div>'
 +'<div class="grid">'+cells.map(c=>'<div class="cell"><small>'+c[0]+'</small><b>'+c[1]+'</b></div>').join('')+'</div>'
 +'<h3>Points gained</h3>'+gains+'<h3>Gap to the next teams</h3><div class="grid">'+gap+'</div>'
-+'<h3>Contributors</h3><p class="st" style="margin:0 0 4px">Tap a contributor for details.</p>'+mem+'<div class="st" id="scan" data-k="'+d.kind+'">'+scanText(d.kind)+'</div>'+'<h3>Points per hour</h3><div id="chw">'+chartHtml(a,d)+'</div>'
++'<h3>Contributors'+(d.nAll?' ('+d.nAll+')':'')+'</h3><p class="st" style="margin:0 0 4px">Tap a contributor for details.</p>'+mem+'<div class="st" id="scan" data-k="'+d.kind+'">'+scanText(d.kind)+'</div>'+'<h3>Points per hour</h3><div id="chw">'+chartHtml(a,d)+'</div>'
 +(d.i<0?'<p class="st">Not in the top 2,000, so rank and gaps are unavailable.</p>':'')+(d.extra?'<p class="st">'+esc(d.extra)+'</p>':'')
 +'<p class="st">Updated '+new Date().toLocaleTimeString()+'. Gains and the chart build up while this page is open on your device.</p></section>'}
 async function paint(show){
