@@ -57,7 +57,11 @@ def top(path, key, n):
     names, page = [], 1
     while len(names) < n:
         d = get(f"{path}&pageSize=100&page={page}")
-        rows = d if isinstance(d, list) else (d or {}).get(key)
+        if d is None:
+            # A failed page is not the end of the list. Writing a cut-short scan would replace good data
+            # and delete the history of every player it missed, so nothing is written and the last scan stays.
+            sys.exit(f"Could not read page {page} of {path}, so nothing was written.")
+        rows = d if isinstance(d, list) else d.get(key)
         if not rows:
             break
         names += [x["Name"] for x in rows]
@@ -141,7 +145,8 @@ def load_history(folder):
             except (OSError, ValueError):
                 continue
             for uid, e in shard.items():
-                hist[kind][uid] = e[3] if len(e) > 3 and isinstance(e[3], list) else ([[then, e[1]]] if then else [])
+                h = e[3] if len(e) > 3 and isinstance(e[3], list) else ([[then, e[1]]] if then else [])
+                hist[kind][uid] = (str(e[0]).lower(), h)  # the team, so a player who moved team starts fresh
     return hist
 
 
@@ -151,7 +156,8 @@ def write_players(folder):
     for kind, idx in players.items():
         shards, ranked = [{} for _ in range(PLAYER_SHARDS)], []
         for uid, (team, pts, cur, t) in idx.items():
-            h = [p for p in old[kind].get(str(uid), []) if t - HISTORY_KEEP <= p[0] < t - 60]
+            prev_team, prev = old[kind].get(str(uid), ("", []))
+            h = [p for p in prev if t - HISTORY_KEEP <= p[0] < t - 60] if prev_team == str(team).lower() else []
             if kind == "Clan" and h and pts < h[-1][1] * 0.5:
                 h = []  # a new clan war restarted this player's points; never mix two wars
             h.append([t, pts])
@@ -175,13 +181,17 @@ def write_players(folder):
 
 
 out, battle = {"updated": 0}, None
+battle = (get("/api/activeClanBattle") or {}).get("configName")
+if not battle:
+    # Without the war's name every clan's points come back empty and every clan player's history would be
+    # wiped, so nothing is written and the last good scan stays.
+    sys.exit("Could not read the current clan war, so nothing was written.")
 try:
     print("Reading the top leagues...", flush=True)
     out["League"] = scan("League", top("/v1/leagues?sort=Points&sortOrder=desc", "leagues", a.leagues),
                          "/v1/leagues/", lambda d: d.get("PointContributions") or [], league_members)
     if not stopped:
-        battle = (get("/api/activeClanBattle") or {}).get("configName")
-        print("Reading the top clans for", battle or "the current clan battle", flush=True)
+        print("Reading the top clans for", battle, flush=True)
         out["Clan"] = scan("Clan", top("/api/clans?sort=Points&sortOrder=desc", None, a.clans),
                            "/api/clan/", lambda d: clan_points(d, battle), clan_members)
         out["Clan"]["battle"] = battle  # the page ignores a clan scan from an earlier war

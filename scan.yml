@@ -50,7 +50,9 @@ jobs:
         run: |
           repo="https://github.com/${GITHUB_REPOSITORY}.git"
           rc=0; git ls-remote --exit-code --heads "$repo" data-ranks > /dev/null || rc=$?
-          if [ "$rc" -eq 0 ]; then git clone -q --depth 1 --branch data-ranks "$repo" prev; else mkdir -p prev; fi
+          if [ "$rc" -eq 0 ]; then git clone -q --depth 1 --branch data-ranks "$repo" prev
+          elif [ "$rc" -eq 2 ]; then mkdir -p prev  # first run: the branch doesn't exist yet
+          else exit 1; fi                           # never start over just because GitHub didn't answer
       - name: Scan the top leagues and clans
         run: python scan.py --leagues 2000 --clans 2000 --rate 90 --out ranks.json --players players --prev prev
       - name: Save ranks.json and the player index to the data-ranks branch
