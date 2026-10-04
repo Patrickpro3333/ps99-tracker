@@ -310,7 +310,7 @@ const m=full?2000:100,[a,b,ct]=await Promise.all([pages('/v1/leagues?pageSize=10
 const fresh=(r,old)=>{const s=new Set(r.map(x=>String(x[0]).toLowerCase()));return r.concat(old.filter(x=>!s.has(String(x[0]).toLowerCase())))};
 const done=full&&a.complete&&b.complete;if(full)LISTA=Date.now();
 // Points seen changing on this device's own refresh: then neither war is shown as paused.
-const moved=(r,old,k)=>{if(!old.length)return;const o=new Map(old.map(x=>[String(x[0]).toLowerCase(),x[1]]));if(r.some(x=>{const v=o.get(String(x[0]).toLowerCase());return v!=null&&v!==x[1]}))MOV[k]=Date.now()};
+const moved=(r,old,k)=>{const rec=Date.now()-PT[k]<300000;PT[k]=Date.now();if(!rec||!old.length)return;const o=new Map(old.map(x=>[String(x[0]).toLowerCase(),x[1]]));if(r.some(x=>{const v=o.get(String(x[0]).toLowerCase());return v!=null&&v!==x[1]}))MOV[k]=Date.now()};
 if(a.rows.length)moved(a.rows,L,'League');if(b.rows.length)moved(b.rows,C,'Clan');
 if(a.rows.length){L=full&&a.complete?a.rows:fresh(a.rows,L);LT=a.total||LT}if(b.rows.length){C=full&&b.complete?b.rows:fresh(b.rows,C);if(ct&&ct.data)CT=ct.data}
 if(!a.rows.length||!b.rows.length)throw 0;
@@ -362,7 +362,7 @@ const HS={},HSP={};
 const shist=(k,n)=>{const key=k+':'+n,c=HS[key];if(c&&Date.now()-c.at<(c.ok?180000:60000))return Promise.resolve(c);return HSP[key]||(HSP[key]=shist0(k,n).finally(()=>{delete HSP[key]}))};
 async function shist0(k,n){const key=k+':'+n;
 let r={at:Date.now(),ok:0,h:[],up:0};
-try{const kind=k==='League'?'league':'clan',[b,m]=await Promise.all([rawj('data-history/h/'+kind+'/'+hbk(n)+'.json').catch(()=>null),rawj('data-history/h/meta.json')]);
+try{const kind=k==='League'?'league':'clan',[b,m]=await Promise.all([rawj('data-history/h/'+kind+'/'+hbk(n)+'.json').catch(()=>null),hmeta()]);
 if(m&&m[kind])r={at:Date.now(),ok:1,h:(b&&b[n])||[],up:m[kind].t||0}}catch(e){}
 return HS[key]=r}
 // This device's snapshots win; a saved snapshot is only used where the device has none within 7.5 minutes.
@@ -558,8 +558,8 @@ const e=TOF[key]={at:Date.now(),ttl:300000,pr:teamOf(k,id)};e.pr.then(r=>{if(r&&
 // League war pause. The game has no "paused" flag, so two signals must agree: the newest time any player in the
 // official top 500 league players list earned points, and when any top-2,000 league's points last changed in
 // the hourly snapshots (history.py). Paused when neither has moved for 2 hours; it clears as soon as one does.
-let HMC=null,HMV=null;const hmeta=()=>{if(HMC&&Date.now()-HMC.at<HMC.ttl)return HMC.pr;const e=HMC={at:Date.now(),ttl:300000,pr:rawj('data-history/h/meta.json').catch(()=>null)};e.pr.then(r=>{if(r)HMV=r;else e.ttl=30000});return e.pr};
-const MOV={League:0,Clan:0};
+let HMC=null,HMV=null;const hmeta=()=>{if(HMC&&Date.now()-HMC.at<HMC.ttl)return HMC.pr;const e=HMC={at:Date.now(),ttl:180000,pr:rawj('data-history/h/meta.json').catch(()=>null)};e.pr.then(r=>{if(r)HMV=r;else e.ttl=30000});return e.pr};
+const MOV={League:0,Clan:0},PT={League:0,Clan:0};
 // The hourly snapshots say a war stood still: their own latest run saw no change, nothing changed for 2 hours,
 // the snapshots are recent (under 3 hours old), and (when nothing else can confirm it) two runs in a row saw no change.
 const still=(m,two)=>{const now=Date.now()/1000;return !!(m&&m.moved&&now-m.t<10800&&m.moved<m.t&&now-m.moved>7200&&(!two||m.t-m.moved>6600))};
@@ -569,7 +569,7 @@ if(nw>0)return now-nw>7200&&(!ok||still(m))?{t:nw}:null;return still(m,true)?{t:
 // The clan war has its own start and end times; a pause in the middle of a war is read from the snapshots.
 function cwar(){if(!BREC)return null;const now=Date.now(),m=HMV&&HMV.clan;
 if(BREC.end&&now>BREC.end)return{state:'ended',t:BREC.end/1000};if(BREC.begin&&now<BREC.begin)return{state:'upcoming',t:BREC.begin/1000};
-return now-MOV.Clan>7200000&&still(m,true)?{state:'paused',t:m.moved,least:!!m.still}:null}
+return now-MOV.Clan>7200000&&still(m,true)&&m.moved*1000>BREC.start?{state:'paused',t:m.moved,least:!!m.still}:null}
 const when=t=>new Date(Math.round(t/60)*60000).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
 const pwhen=p=>p.least?'for at least '+durf(Date.now()/1000-p.t):'since '+when(p.t);
 // What each part of the page says while a war is paused, over or not started yet.
@@ -728,7 +728,7 @@ $('q').value=S[m]||'';exPH();$('ql').textContent=m==='Player'?'Roblox username':
 // One refresh at a time: a slow one is never doubled up by the next minute's.
 let TK=null,LASTTICK=0;const tick=full=>TK||(TK=tick0(full).finally(()=>{TK=null}));
 async function tick0(full){LASTTICK=Date.now();try{const b=battle().catch(()=>{});if(!full)await b;const nw=WARNEW;WARNEW=false;await Promise.all([pull(full||nw),b]);
-$('st').textContent=nw?'A new clan war just started ('+BREC.title+'). Clan points, ranks and history start over.':'Live. Updated '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+', every minute.';board();crawl();if(nw||ranksOld())loadRanks();pzLoad();if(S[mode]&&DEAD!==mode+':'+String(S[mode]).toLowerCase())paint(false)}
+$('st').textContent=nw?(BREC.begin>Date.now()?'The next clan war ('+BREC.title+') was just announced. Clan points, ranks and history start over.':'A new clan war just started ('+BREC.title+'). Clan points, ranks and history start over.'):'Live. Updated '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+', every minute.';board();crawl();if(nw||ranksOld())loadRanks();pzLoad();if(S[mode]&&DEAD!==mode+':'+String(S[mode]).toLowerCase())paint(false)}
 catch(e){board();if(!live)$('st').textContent='Live data could not load here. Try again, or open the site from your own link.';else if(!LISTT)$('st').textContent='Showing the leaderboards from your last visit. Live data could not load right now, trying again every minute.'}}
 async function go(){const v=$('q').value.trim();if(!v){$('q').focus();return}$('sg').innerHTML='';S[mode]=v;save(mode);DEAD='';setURL();if(!live)await ready;await paint(true);$('dash').scrollIntoView({behavior:'smooth',block:'start'})}
 $('tL').onclick=()=>setMode('League');$('tC').onclick=()=>setMode('Clan');$('tP').onclick=()=>setMode('Player');$('go').onclick=go;
