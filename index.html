@@ -467,7 +467,7 @@ const scanText=k=>{const s=sstat(k),w=k==='League'?'leagues':'clans';
 if(s.file)return 'Exact ranks from a full scan of '+s.tot.toLocaleString()+' '+w+', finished '+ago(Date.now()/1000-s.file)+'.';
 const pct=Math.round(s.done/Math.max(1,s.tot)*100),left=s.tot-s.done,rate=cn>8?(Date.now()-t0)/cn:800;
 return (k==='League'?'Global rank among '+popL().toLocaleString()+' players in the top 2,000 leagues. ':'')+(s.done>=s.tot&&s.tot?'Full scan finished: all '+s.tot.toLocaleString()+' '+w+' counted, so ranks are exact.':'Full scan: '+s.done.toLocaleString()+' of '+s.tot.toLocaleString()+' '+w+' ('+pct+'%), about '+fmtETA(left*rate)+' left. Numbers marked ~ are estimates until it finishes.')+'<div class="bar"><i style="width:'+pct+'%"></i></div>'};
-let LRT=0;const ranksOld=()=>Date.now()-LRT>600000&&['League','Clan'].some(k=>!fileFor(k)||Date.now()/1000-FS[k].file>12600);
+let LRT=0;const ranksOld=()=>Date.now()-LRT>600000&&['League','Clan'].some(k=>!fileFor(k)||Date.now()/1000-FS[k].file>5400);
 async function loadRanks(){LRT=Date.now();try{const j=await rawj('data-ranks/ranks.json').catch(()=>null);if(!j)return;
 ['League','Clan'].forEach(k=>{const f=j[k];if(f&&f.points&&f.points.length>50&&Date.now()/1000-(j.updated||0)<172800){const n=f.names||f.points.length;f.points.sort((a,b)=>a-b);FS[k]={arr:f.points,n:f.points.length,cov:n,done:n,tot:n,sh:null,nl:999,file:j.updated,battle:f.battle||''}}});
 const el=$('scan');if(el)el.innerHTML=scanText(el.dataset.k);if(live&&S[mode]&&DEAD!==mode+':'+String(S[mode]).toLowerCase()&&($('chw')||mode==='Player'&&PV))paint(false)}catch(e){}}
@@ -540,7 +540,7 @@ return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+
 +'<p class="st">Updated '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+'.</p></details></section>'}
 let PSEQ=0,NOTESOPEN=false,DEAD='';
 document.addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList.contains('notes'))NOTESOPEN=e.target.open},true);
-// Player lookup. The 3-hourly scan saves which top-2,000 league and clan every player is in
+// Player lookup. The hourly scan saves which top-2,000 league and clan every player is in
 // (data-ranks/players/<kind>/<user ID % 256>.json); the player's points then come live from those teams.
 const UIDS=ldS('ps99uid');
 // A plain number is a user ID; "@123456" looks up the username 123456.
@@ -586,7 +586,7 @@ if(e)return{name:e[0],cur:!!e[2],idx:true,hist:Array.isArray(e[3])?e[3]:[]};
 // Not in the scan's index (yet): the API's own samples cover the top 500 league players and the top 25 clans.
 try{if(kind==='League'){const j=await jget('/v1/leagues/players/'+id);if(j.data&&j.data.League)return{name:j.data.League.Name,cur:true}}
 else{const j=await jget('/v1/clans/players/'+id),p=j.data&&j.data.player;if(p&&p.Clan)return{name:p.Clan.Name,cur:true}}}catch(e){}return sh?null:{unk:1}}
-// Player card. Points over time come from the full scans (every 3 hours, saved per player for 24 hours),
+// Player card. Points over time come from the full scans (every hour, saved per player for 24 hours),
 // this device while the card is open (every minute), and the live points now.
 const PKIND={};let PV=null;
 const ICO={star:'<path d="M12 3l2.7 5.6 6.1.9-4.4 4.3 1 6.1L12 17l-5.4 2.9 1-6.1-4.4-4.3 6.1-.9z"/>',cup:'<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M10 17h4"/>',bars:'<path d="M6 20V10M12 20V4M18 20v-6"/>',bolt:'<path d="M13 2 4 14h7l-1 8 9-12h-7z"/>'};
@@ -661,10 +661,10 @@ h+='<div class="pcg pt"><div class="pk c1">'+ico('star')+'<small>'+(k==='Clan'?'
 +'<div class="pk c2">'+ico('bars')+'<small>Average / hour</small><b>'+(avg==null?'-':fmt(avg))+'</b></div>'
 +'<div class="pk c3">'+ico('cup')+'<small>Best hour</small><b>'+(s.best==null?'-':fmt(s.best))+'</b></div>'
 +'<div class="pk c4">'+ico('bolt')+'<small>Latest hour</small><b>'+(s.latest==null?'-':fmt(s.latest))+'</b></div></div>'
-+(s.day==null||avg==null||s.best==null||s.latest==null?'<p class="st pnote">Boxes showing "-" fill in as points come in: at every full scan (every 3 hours), and every minute while this page is open.</p>':'')
++(s.day==null||avg==null||s.best==null||s.latest==null?'<p class="st pnote">Boxes showing "-" fill in as points come in: at every full scan (every hour), and every minute while this page is open.</p>':'')
 +'<div class="pcc"><div class="pcch"><div><b>Hourly performance</b><small>Points earned per hour · last '+(s.H.length===1?'hour':(s.H.length||24)+' hours')+'</small></div><div class="pleg"><span><i class="d"></i>Hourly points</span><span><i class="ds"></i>Average</span></div></div>'+pchart(s.H)+'</div>'
 +(s.has?'':'<p class="st">A member, but no points'+(k==='Clan'?' in this clan war':'')+' yet.</p>')+(s.member?'':'<p class="st">Not a member any more; these are the points left in this '+war+'.</p>')
-+'<p class="st">'+(s.ri&&s.ri.rank?'Global rank based on: '+basis(s.ri)+'. ':'')+'Points over time come from full scans (every 3 hours) and this device while the page is open.'+(s.last?' Last earned '+war+' points '+ago(Date.now()/1000-s.last)+'.':'')+'</p>'}
++'<p class="st">'+(s.ri&&s.ri.rank?'Global rank based on: '+basis(s.ri)+'. ':'')+'Points over time come from full scans (every hour) and this device while the page is open.'+(s.last?' Last earned '+war+' points '+ago(Date.now()/1000-s.last)+'.':'')+'</p>'}
 if(k&&P.d)h+='<button class="more" data-open="'+k+'" data-n="'+esc(P.d.name)+'">Open '+esc(P.d.name)+'</button>';
 h+='<p class="st">'+(V.pm&&V.pm.updated?'Teams come from the full scan of the top 2,000 leagues and clans, '+ago(Date.now()/1000-V.pm.updated)+'. Points are live.':'Teams come from the official top player lists until the full scan has run. Points are live.')+'</p></section>';
 return h}

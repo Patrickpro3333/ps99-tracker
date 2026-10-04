@@ -8,7 +8,7 @@ saved to two data branches that the page reads straight from GitHub:
 | Job | When | Saves to | Used for |
 |---|---|---|---|
 | `history.py` (`.github/workflows/history.yml`) | every hour | `data-history` branch | points per hour, gains, rank change and the chart, instantly for every visitor |
-| `scan.py` (`.github/workflows/scan.yml`) | every 3 hours, about 45 minutes per run | `data-ranks` branch (`ranks.json`, `players/`) | exact "Better than X%" player ranks with no waiting, and the player search (which top-2,000 league and clan each player is in) |
+| `scan.py` (`.github/workflows/scan.yml`) | every hour, about 20 minutes per run (45 when every team changed; teams whose points didn't change are reused) | `data-ranks` branch (`ranks.json`, `players/`, `teams/`) | exact "Better than X%" player ranks with no waiting, and the player search (which top-2,000 league and clan each player is in) |
 
 Data never goes on `main`. Every commit to `main` is a Netlify production deploy, and on the
 Free plan each one costs 15 of the 300 monthly credits (about 20 deploys a month). So only commit
@@ -22,10 +22,9 @@ is missing.
 
 GitHub's own scheduler skipped most runs, so Netlify starts them instead:
 `netlify/functions/trigger-data-jobs.mjs` is a Netlify scheduled function that runs every hour
-on the hour and asks GitHub to run the history job (and the scan every 3 hours). It only makes one
-or two small API calls, so it costs about a credit a month. GitHub's schedules stay on as a
+on the hour and asks GitHub to run the history job and the scan. It only makes two small API calls, so it costs about a credit a month. GitHub's schedules stay on as a
 backup that only does the work when Netlify missed (history: no snapshot in the last 45 minutes;
-scan: none finished in the last hour), so snapshots stay on the hour and nothing runs twice.
+scan: none finished in the last 50 minutes), so snapshots stay on the hour and nothing runs twice.
 
 The function needs a Netlify environment variable `GH_DISPATCH_TOKEN`: a fine-grained GitHub
 token with access to this repository only and the permission "Actions: Read and write". When the

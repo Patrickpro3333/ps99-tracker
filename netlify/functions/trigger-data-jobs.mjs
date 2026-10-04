@@ -1,5 +1,5 @@
 // Starts the GitHub Actions that save the site's data. GitHub's own scheduler skipped most runs,
-// so Netlify's scheduler presses the button instead: history every hour, the ranks scan every 3 hours.
+// so Netlify's scheduler presses the button instead: history and the ranks scan every hour.
 // The jobs skip themselves if they ran recently, so GitHub's schedule can stay on as a backup.
 // Needs GH_DISPATCH_TOKEN: a fine-grained GitHub token for this repository only, with Actions: read and write.
 export const config = { schedule: '0 * * * *' }
@@ -29,8 +29,6 @@ export default async () => {
     console.log('GH_DISPATCH_TOKEN is not set, so nothing was started.')
     return
   }
-  const now = new Date()
-  const jobs = ['history.yml']
-  if (now.getUTCHours() % 3 === 0 && now.getUTCMinutes() < 15) jobs.push('scan.yml')
+  const jobs = ['history.yml', 'scan.yml']
   console.log((await Promise.all(jobs.map(start))).join('; '))
 }
