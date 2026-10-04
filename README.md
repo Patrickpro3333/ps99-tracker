@@ -24,7 +24,7 @@ GitHub's own scheduler skipped most runs, so Netlify starts them instead:
 `netlify/functions/trigger-data-jobs.mjs` is a Netlify scheduled function that runs every hour
 on the hour and asks GitHub to run the history job (and the scan every 3 hours). It only makes one
 or two small API calls, so it costs about a credit a month. GitHub's schedules stay on as a
-backup that only does the work when Netlify missed (history: no snapshot in the last 70 minutes;
+backup that only does the work when Netlify missed (history: no snapshot in the last 45 minutes;
 scan: none finished in the last hour), so snapshots stay on the hour and nothing runs twice.
 
 The function needs a Netlify environment variable `GH_DISPATCH_TOKEN`: a fine-grained GitHub
