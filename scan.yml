@@ -1,15 +1,17 @@
 name: Scan PS99 leaderboards
 
-# Started every 3 hours by Netlify (netlify/functions/trigger-data-jobs.mjs), because GitHub's
-# scheduler skipped its runs. GitHub's schedule stays as a backup; a run skips the scan if the last
-# one finished under an hour ago. When starting it by hand, tick "force" to scan anyway.
+# Started every hour by Netlify (netlify/functions/trigger-data-jobs.mjs), because GitHub's scheduler
+# skipped its runs. A scan reuses every team whose points haven't changed since the last one, so it takes
+# about 20 minutes (45 when every team changed). GitHub's schedule stays as a backup that only scans when
+# the last scan finished over 50 minutes ago; a Netlify run only skips a scan that finished in the last
+# 10 minutes. When starting it by hand, tick "force" to scan anyway.
 on:
   schedule:
-    - cron: "23 */3 * * *"
+    - cron: "23 * * * *"
   workflow_dispatch:
     inputs:
       force:
-        description: Scan even if the last scan finished less than an hour ago
+        description: Scan even if the last scan just finished
         type: boolean
         default: false
 
@@ -34,7 +36,8 @@ jobs:
           when=$(gh api "repos/${GITHUB_REPOSITORY}/commits/data-ranks" --jq '.commit.committer.date' 2>/dev/null || true)
           age=$(( $(date +%s) - $(date -d "${when:-1970-01-01T00:00:00Z}" +%s) ))
           echo "The last scan finished $age seconds ago."
-          if [ "$age" -gt 3600 ]; then echo "run=true" >> "$GITHUB_OUTPUT"; else echo "run=false" >> "$GITHUB_OUTPUT"; fi
+          limit=600; if [ "$GITHUB_EVENT_NAME" = "schedule" ]; then limit=3000; fi
+          if [ "$age" -gt "$limit" ]; then echo "run=true" >> "$GITHUB_OUTPUT"; else echo "run=false" >> "$GITHUB_OUTPUT"; fi
 
   scan:
     needs: check
@@ -54,14 +57,14 @@ jobs:
           elif [ "$rc" -eq 2 ]; then mkdir -p prev  # first run: the branch doesn't exist yet
           else exit 1; fi                           # never start over just because GitHub didn't answer
       - name: Scan the top leagues and clans
-        run: python scan.py --leagues 2000 --clans 2000 --rate 90 --out ranks.json --players players --prev prev
+        run: python scan.py --leagues 2000 --clans 2000 --rate 90 --out ranks.json --players players --prev prev --teams teams
       - name: Save ranks.json and the player index to the data-ranks branch
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
           # Kept off main on purpose: every commit to main is a Netlify production deploy, which costs credits.
           # One commit with no parents, force-pushed, so the branch never piles up old copies.
-          mkdir out && mv ranks.json players out/ && cd out
+          mkdir out && mv ranks.json players teams out/ && cd out
           git init -q && git checkout -q --orphan data-ranks && git add -A
           git -c user.name="ps99-scan-bot" -c user.email="ps99-scan-bot@users.noreply.github.com" commit -qm "Update ranks.json"
           git push -qf "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:data-ranks
