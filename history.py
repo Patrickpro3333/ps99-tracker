@@ -114,6 +114,10 @@ for kind in KINDS:
     # Snapshots saved before ranks were counted like index.html counts them (page positions) can't be compared
     # with new ones, so their rank is dropped once; the page then shows "Collecting" until a day has passed.
     compact = (meta.get(kind) or {}).get("rank") == "compact"
+    # When any team's points last changed, for the page's "league war looks paused" notice. Worked out from
+    # the whole kept history each time; if nothing moved in it at all, "moved" is its oldest snapshot and
+    # "still" says so (paused for at least that long).
+    moved, oldest = 0, t
     for b in range(BUCKETS):
         path = os.path.join(a.dir, "h", kind, f"{b}.json")
         old = load(path) or {}
@@ -130,8 +134,15 @@ for kind in KINDS:
                 h[-1] = entry  # a re-run must not add a second point for the same moment
             else:
                 h.append(entry)
+        for h in nxt.values():
+            oldest = min(oldest, h[0][0])
+            for i in range(len(h) - 1, 0, -1):
+                if h[i][1] != h[i - 1][1]:
+                    moved = max(moved, h[i][0])
+                    break
         save(path, nxt)
-    meta[kind] = {"t": t, "n": len(now), "failedPages": failed, "rank": "compact"}
+    meta[kind] = {"t": t, "n": len(now), "failedPages": failed, "rank": "compact",
+                  "moved": moved or oldest, "still": not moved}
 
 if not saved:
     sys.exit("No data from the API, so the history was left unchanged.")
