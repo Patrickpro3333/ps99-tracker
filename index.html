@@ -269,7 +269,7 @@ let BID='',BIDT=0,BREC=null,WARNEW=false;
 let BP=null;
 const battle=()=>BID&&Date.now()-BIDT<60000?Promise.resolve(BID):BP||(BP=battle0().catch(e=>{if(BID){BIDT=Date.now()-30000;return BID}throw e}).finally(()=>{BP=null}));
 async function battle0(){const j=await jget('/api/activeClanBattle'),d=j.data,id=d&&d.configName;if(!id)throw 0;
-const cfg=d.configData||{};BREC={id,title:String(cfg.Title||id).replace(/([a-z])([A-Z0-9])/g,'$1 $2'),start:Date.parse(d.dateCreated)||0,end:(cfg.FinishTime||0)*1000};
+const cfg=d.configData||{};BREC={id,title:String(cfg.Title||id).replace(/([a-z])([A-Z0-9])/g,'$1 $2'),start:Date.parse(d.dateCreated)||0,begin:(cfg.StartTime||0)*1000,end:(cfg.FinishTime||0)*1000};
 if(id!==BID)warSeen(id,!!BID);BID=id;BIDT=Date.now();return id}
 // A new war restarts every clan's points, so this device's old-war scan is dropped and clan views start over.
 function warSeen(id,changed){let s='';try{s=localStorage.getItem('ps99war')||''}catch(e){}
@@ -283,7 +283,7 @@ async function gplay0(k){const g=GPX[k];if(Date.now()-g.at<180000)return;
 try{let list;
 if(k==='League'){const j=await jget('/v1/leagues/players');list=((j.data&&j.data.players)||[]).map(q=>({id:q.UserID,p:q.Points,team:q.League&&q.League.Name,icon:q.League&&q.League.Icon,t:q.Timestamp||0}))}
 else{const id=await battle();const j=await jget('/v1/clans/battles/'+encodeURIComponent(id));list=((j.data&&j.data.topPlayers)||[]).map(q=>({id:q.userId,p:q.points,team:q.clan&&q.clan.name,icon:q.clan&&q.clan.icon}))}
-const P={};list.forEach((q,i)=>{P[q.id]=i+1});Object.assign(g,{P,N:list.length,T:list.length?list[list.length-1].p:0,at:Date.now(),list,newest:list.reduce((m,q)=>Math.max(m,q.t||0),0)})}catch(e){g.at=0}}
+const P={};list.forEach((q,i)=>{P[q.id]=i+1});Object.assign(g,{P,N:list.length,T:list.length?list[list.length-1].p:0,at:Date.now(),ok:Date.now(),list,newest:list.reduce((m,q)=>Math.max(m,q.t||0),0)})}catch(e){g.at=0}}
 const S=(()=>{try{return JSON.parse(localStorage.getItem('ps99s'))||{}}catch(e){return{}}})();
 // Only the changed entry is written, on top of what other open tabs saved.
 const save=k=>{const c=ldS('ps99s');c.mode=S.mode;if(k)c[k]=S[k];store('ps99s',JSON.stringify(c))};
@@ -309,6 +309,9 @@ const m=full?2000:100,[a,b,ct]=await Promise.all([pages('/v1/leagues?pageSize=10
 // from #100 to #101 stays in the list instead of showing as "Not ranked".
 const fresh=(r,old)=>{const s=new Set(r.map(x=>String(x[0]).toLowerCase()));return r.concat(old.filter(x=>!s.has(String(x[0]).toLowerCase())))};
 const done=full&&a.complete&&b.complete;if(full)LISTA=Date.now();
+// Points seen changing on this device's own refresh: then neither war is shown as paused.
+const moved=(r,old,k)=>{if(!old.length)return;const o=new Map(old.map(x=>[String(x[0]).toLowerCase(),x[1]]));if(r.some(x=>{const v=o.get(String(x[0]).toLowerCase());return v!=null&&v!==x[1]}))MOV[k]=Date.now()};
+if(a.rows.length)moved(a.rows,L,'League');if(b.rows.length)moved(b.rows,C,'Clan');
 if(a.rows.length){L=full&&a.complete?a.rows:fresh(a.rows,L);LT=a.total||LT}if(b.rows.length){C=full&&b.complete?b.rows:fresh(b.rows,C);if(ct&&ct.data)CT=ct.data}
 if(!a.rows.length||!b.rows.length)throw 0;
 if(done)LISTT=Date.now();live=true;if(done)saveLists()}
@@ -503,9 +506,9 @@ const hist=hs&&hs.ok&&hs.h.length?'From hourly snapshots (latest '+(hs.up?ago(no
 const pph=g1&&g1[1]>=120?g1[0]/(g1[1]/3600):null;
 let ct='Collecting',cc='';
 if(g24&&g24[2][2]&&last[2]){const r=g24[2][2]-last[2];ct=r>0?'Up '+r:r<0?'Down '+(-r):'No change';cc=r>0?'up':r<0?'dn':'';if(g24[1]<86000)ct+=' <small>(last '+durf(g24[1])+')</small>'}
-const unk=d.i<0&&d.list.length<=Math.min(2000,tot||2000)-100,LP=kind==='League'?lpause():null;
+const unk=d.i<0&&d.list.length<=Math.min(2000,tot||2000)-100,PZ=pzInfo(kind);
 const keys=[['Rank',d.i>=0?'#'+d.rank.toLocaleString():unk?'Unavailable':'Not ranked',d.i>=0&&tot?topPct((tot-d.rank)/tot*100)+' of '+tot.toLocaleString()+' '+war+'s':unk?'The leaderboard could not fully load':'Only the top 2,000 are ranked'],
-['Rank change, 24h','<span class="'+cc+'">'+ct+'</span>',''],['Points',d.pts==null?'n/a':fmt(d.pts),kind==='Clan'?'This clan war':''],['Points per hour',LP?'Paused':pph==null?'Collecting':sg(pph),LP?'League war paused':''],
+['Rank change, 24h','<span class="'+cc+'">'+ct+'</span>',''],['Points',d.pts==null?'n/a':fmt(d.pts),kind==='Clan'?'This clan war':''],['Points per hour',PZ?PZ.short:pph==null?'Collecting':sg(pph),PZ?PZ.sub:''],
 ['Members',d.mem+' of '+d.cap,''],['Average per member',d.pts==null||!d.mem?'n/a':fmt(d.pts/d.mem),'']];
 const mx=Math.max(1,...G.map(x=>x?Math.abs(x[0]):0)),lab=['1 hour','6 hours','12 hours','24 hours'];
 const gains=[1,6,12,24].map((h,k)=>{const x=G[k];return '<div class="gr"><span>'+lab[k]+'</span><div><b>'+(x?sg(x[0])+(x[1]<h*3600-120?' <small>('+durf(x[1])+' so far)</small>':x[1]>h*3600+120?' <small>(over '+durf(x[1])+')</small>':''):'Collecting')+'</b><div class="bar"><i style="width:'+(x?Math.max(2,Math.abs(x[0])/mx*100):0)+'%"></i></div></div></div>'}).join('');
@@ -524,9 +527,9 @@ return '<div class="mem'+(open?' open':'')+(k>=LIMIT&&!all?' hid':'')+'" data-id
 +'<div class="acts"><button class="more" data-open="Player" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:r.id)+'">Player stats</button><a class="more" href="https://www.roblox.com/users/'+r.id+'/profile" target="_blank" rel="noopener">Roblox profile</a></div></div></div>'}).join('')||'<p class="st">No contributor data.</p>';
 const own=d.oid?nm({id:d.oid,n:d.owner||d.oid}):d.owner||'',lost=kind==='Clan'&&d.pts!=null&&d.pts-d.sum>d.pts*0.005;
 return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2><p class="meta">'+(kind==='Clan'&&BREC?esc(BREC.title):kind)+(own?' · Owner '+esc(own):'')+'</p></div><button class="share" data-share>Share</button></div>'
-+(LP?'<p class="pz">League war looks paused. No league in the top 2,000 has earned points '+lpwhen(LP)+', so points and ranks stay as they are until it starts again.</p>':'')
++(PZ?'<p class="pz">'+esc(PZ.page)+'</p>':'')
 +'<div class="grid keys">'+keys.map(c=>'<div class="cell"><small>'+c[0]+'</small><b>'+c[1]+'</b>'+(c[2]?'<small>'+c[2]+'</small>':'')+'</div>').join('')+'</div>'
-+'<h3>Points gained</h3>'+(LP&&!G.some(x=>x&&x[0])?'<p class="st">No points while the league war is paused.</p>':'<p class="st" style="margin:0 0 4px">'+hist+'</p>'+gains)
++'<h3>Points gained</h3>'+(PZ&&!G.some(x=>x&&x[0])?'<p class="st">'+PZ.none+'</p>':'<p class="st" style="margin:0 0 4px">'+hist+'</p>'+gains)
 +'<h3>Close rivals</h3><div class="grid">'+gap+'</div>'
 +'<h3>Points per hour</h3><div id="chw">'+chartHtml(a,d)+'</div>'
 +'<h3>'+(kind==='Clan'?'Members ('+d.rows.length+')':'Contributors'+(d.nAll?' ('+d.nAll+')':''))+'</h3><p class="st" style="margin:0 0 4px">'+(kind==='Clan'&&d.rows.length>d.nAll?d.nAll+' have points in this war, '+(d.rows.length-d.nAll)+' not yet. ':'')+'Tap a player for details.</p>'
@@ -556,9 +559,27 @@ const e=TOF[key]={at:Date.now(),ttl:300000,pr:teamOf(k,id)};e.pr.then(r=>{if(r&&
 // official top 500 league players list earned points, and when any top-2,000 league's points last changed in
 // the hourly snapshots (history.py). Paused when neither has moved for 2 hours; it clears as soon as one does.
 let HMC=null,HMV=null;const hmeta=()=>{if(HMC&&Date.now()-HMC.at<HMC.ttl)return HMC.pr;const e=HMC={at:Date.now(),ttl:300000,pr:rawj('data-history/h/meta.json').catch(()=>null)};e.pr.then(r=>{if(r)HMV=r;else e.ttl=30000});return e.pr};
-function lpause(){const now=Date.now()/1000,nw=GPX.League.newest||0,m=HMV&&HMV.league,ok=m&&m.moved&&now-m.t<10800,A=nw>0&&now-nw>7200,B=ok&&now-m.moved>7200;
-if(nw>0)return A&&(!ok||B)?{t:nw}:null;return B?{t:m.moved,least:!!m.still}:null}
-const lpwhen=lp=>lp.least?'for at least '+durf(Date.now()/1000-lp.t):'since '+new Date(Math.round(lp.t/60)*60000).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
+const MOV={League:0,Clan:0};
+// The hourly snapshots say a war stood still: their own latest run saw no change, nothing changed for 2 hours,
+// the snapshots are recent (under 3 hours old), and (when nothing else can confirm it) two runs in a row saw no change.
+const still=(m,two)=>{const now=Date.now()/1000;return !!(m&&m.moved&&now-m.t<10800&&m.moved<m.t&&now-m.moved>7200&&(!two||m.t-m.moved>6600))};
+function lpause(){const g=GPX.League,now=Date.now()/1000,nw=Date.now()-(g.ok||0)<600000?g.newest||0:0,m=HMV&&HMV.league,ok=m&&m.moved&&now-m.t<10800;
+if(Date.now()-MOV.League<7200000)return null;
+if(nw>0)return now-nw>7200&&(!ok||still(m))?{t:nw}:null;return still(m,true)?{t:m.moved,least:!!m.still}:null}
+// The clan war has its own start and end times; a pause in the middle of a war is read from the snapshots.
+function cwar(){if(!BREC)return null;const now=Date.now(),m=HMV&&HMV.clan;
+if(BREC.end&&now>BREC.end)return{state:'ended',t:BREC.end/1000};if(BREC.begin&&now<BREC.begin)return{state:'upcoming',t:BREC.begin/1000};
+return now-MOV.Clan>7200000&&still(m,true)?{state:'paused',t:m.moved,least:!!m.still}:null}
+const when=t=>new Date(Math.round(t/60)*60000).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'});
+const pwhen=p=>p.least?'for at least '+durf(Date.now()/1000-p.t):'since '+when(p.t);
+// What each part of the page says while a war is paused, over or not started yet.
+function pzInfo(kind){if(kind==='League'){const p=lpause();if(!p)return null;const w='no league has earned points '+pwhen(p);
+return{short:'Paused',sub:'League war paused',none:'No points while the league war is paused.',board:'League war looks paused: '+w+'.',card:'League war looks paused: '+w+'.',page:'League war looks paused. No league in the top 2,000 has earned points '+pwhen(p)+', so points and ranks stay as they are until it starts again.'}}
+const c=cwar();if(!c)return null;const T=BREC.title;
+if(c.state==='ended')return{short:'Ended',sub:'Clan war over',none:'No points since the clan war ended.',board:'Clan war '+T+' ended '+when(c.t)+'. Points are final until the next war starts.',card:'Clan war '+T+' ended '+when(c.t)+'. Points are final.',page:'Clan war '+T+' ended '+when(c.t)+'. Points and ranks are final until the next war starts.'};
+if(c.state==='upcoming')return{short:'Not started',sub:'Starts '+when(c.t),none:'No points until the clan war starts.',board:'Next clan war: '+T+', starts '+when(c.t)+'.',card:'The next clan war, '+T+', starts '+when(c.t)+'.',page:'The next clan war, '+T+', starts '+when(c.t)+'. Clan points start again at zero then.'};
+const w='no clan has earned points '+pwhen(c);
+return{short:'Paused',sub:'Clan war paused',none:'No points while the clan war is paused.',board:'Clan war '+T+' looks paused: '+w+'.',card:'Clan war looks paused: '+w+'.',page:'Clan war '+T+' looks paused. No clan in the top 2,000 has earned points '+pwhen(c)+', so points and ranks stay as they are until it starts again.'}}
 let PMC=null;const pmeta=()=>{if(PMC&&Date.now()-PMC.at<PMC.ttl)return PMC.pr;const e=PMC={at:Date.now(),ttl:300000,pr:rawj('data-ranks/players/meta.json').catch(()=>null)};e.pr.then(r=>{if(!r)e.ttl=30000});return e.pr};
 async function teamOf(kind,id){const sh=await rawj('data-ranks/players/'+kind.toLowerCase()+'/'+(id%256)+'.json').catch(()=>null),e=sh&&sh[id];
 if(e)return{name:e[0],cur:!!e[2],idx:true,hist:Array.isArray(e[3])?e[3]:[]};
@@ -628,7 +649,7 @@ let h='<section class="pc"><div class="pch"><span class="av big">'+'<b>'+esc(((u
 +'<p class="meta">'+(P&&P.d?'<span class="tag">['+esc(P.d.name)+']</span>':'')+esc(k?title:V.unk?'Teams could not load':'Not in a top 2,000 team')+'</p>'+(u&&u[1]!==u[0]?'<p class="meta">'+esc(u[1])+'</p>':'')+'</div><button class="share" data-share>Share</button></div>';
 const miss=['League','Clan'].filter(x=>V[x].unk&&!V[x].t);if(k&&miss.length)h+='<p class="st">Could not check their '+miss.map(x=>x==='Clan'?'clan':'league').join(' or ')+' right now. Trying again every minute.</p>';
 if(kinds.length>1)h+='<div class="seg pct">'+kinds.map(x=>'<button data-pk="'+x+'" aria-pressed="'+(x===k)+'">'+(x==='Clan'?'Clan war':'League')+'</button>').join('')+'</div>';
-const LPP=k==='League'?lpause():null;if(LPP)h+='<p class="pz">League war looks paused: no league has earned points '+lpwhen(LPP)+'.</p>';
+const PZP=k?pzInfo(k):null;if(PZP)h+='<p class="pz">'+esc(PZP.card)+'</p>';
 if(!k)h+='<p class="st">'+(V.unk?'Could not check this player\'s league and clan right now. Trying again every minute.':'Not in a top 2,000 league or clan'+(V.pm?'':' as far as the official top lists show (the full scan has not run yet)')+'.')+'</p>';
 else if(!P.d)h+='<p class="st">In '+esc(P.t.name)+', but its data could not load right now.</p>';
 else if(!s.has&&!s.member)h+='<p class="st">Was in '+esc(P.d.name)+' at the last scan, but is not a member any more and has no points left there.</p>';
@@ -659,7 +680,7 @@ try{const id=await findUser(q);if(!ok())return;
 if(!id){DEAD='Player:'+q.toLowerCase();box.innerHTML='<section class="card"><b>No Roblox user called '+esc(q.replace(/^@/,''))+'.</b><p class="st">Check the spelling of their username (not their display name), or type their user ID.</p></section>';return}
 // Each team's live data is requested the moment its name is known; a slow profile picture never holds up the numbers.
 const pp=Promise.all([pics([id]),names([id])]),tl=teamOfC('League',id),tc=teamOfC('Clan',id),real=t=>t&&!t.unk?t:null;
-const [lt,ct,pm,ld,cd]=await Promise.all([tl,tc,pmeta(),tl.then(t=>real(t)?dataL(t.name).catch(()=>null):null),tc.then(t=>real(t)?dataC(t.name).catch(()=>null):null),gplay('League'),gplay('Clan'),Promise.race([pp,sleep(2500)])]);if(!ok())return;
+const [lt,ct,pm,,ld,cd]=await Promise.all([tl,tc,pmeta(),hmeta(),tl.then(t=>real(t)?dataL(t.name).catch(()=>null):null),tc.then(t=>real(t)?dataC(t.name).catch(()=>null):null),gplay('League'),gplay('Clan'),Promise.race([pp,sleep(2500)])]);if(!ok())return;
 // On a refresh, anything that failed to load keeps what was on screen instead of saying "no team" or "could not load".
 const prev=PV&&PV.id===id?PV:null,got={League:lt,Clan:ct};
 const V={id,pm:pm||prev&&prev.pm||null,League:{t:real(lt),d:ld},Clan:{t:real(ct),d:cd},unk:!!(lt&&lt.unk||ct&&ct.unk)};
@@ -696,16 +717,18 @@ if(!g.at){if(Date.now()-(g.tr||0)>30000){g.tr=Date.now();gplay('League').then(()
 const ids=g.list.slice(0,k).map(x=>x.id).filter(i=>!TRIED.has(i)&&(!U[i]||!IM[i]));ids.forEach(i=>TRIED.add(i));
 if(ids.length)Promise.all([names(ids),pics(ids)]).then(()=>{if(mode==='Player')boardPlayers()})}
 function exPH(){const a=mode==='League'?L:mode==='Clan'?C:null;$('q').placeholder='Example: '+(a?a.length?a[0][0]:mode==='League'?'UN00':'UN0':'JOHNMAN1990')}
+const pzLoad=()=>{if(mode!=='Player')Promise.all([mode==='League'?gplay('League'):null,hmeta()]).then(()=>{if(mode!=='Player')board()})};
 const rkw=k=>$('top').style.setProperty('--rkw',k>999?'64px':k>99?'54px':'44px');
 function board(){exPH();if(mode==='Player')return boardPlayers();const a=mode==='League'?L:C,k=Math.min(BN,a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(mode==='League'?'leagues':'clans');
-if(mode==='Clan'&&BREC){w.textContent='Current clan war: '+BREC.title+(BREC.end>Date.now()?', ends '+new Date(BREC.end).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'')+'.';w.hidden=false}else if(mode==='League'&&lpause()){w.textContent='League war looks paused: no league has earned points '+lpwhen(lpause())+'.';w.hidden=false}else w.hidden=true;
+const pz=mode!=='Player'?pzInfo(mode):null;
+if(pz){w.textContent=pz.board;w.hidden=false}else if(mode==='Clan'&&BREC){w.textContent='Current clan war: '+BREC.title+(BREC.end>Date.now()?', ends '+new Date(BREC.end).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'')+'.';w.hidden=false}else w.hidden=true;
 $('top').innerHTML=a.length?a.slice(0,k).map((x,i)=>'<button class="rk" data-n="'+esc(x[0])+'"><b>#'+(i+1)+'</b>'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span><i>'+fmt(x[1])+'</i></button>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">Loading...</p>'}
 function setMode(m,np){mode=m;BN=10;$('sg').innerHTML='';S.mode=m;save();$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');$('tP').setAttribute('aria-pressed',m==='Player');
-$('q').value=S[m]||'';exPH();$('ql').textContent=m==='Player'?'Roblox username':m+' name';showRecent();board();$('dash').innerHTML='';setURL();if(S[m]&&live&&!np)paint(true)}
+$('q').value=S[m]||'';exPH();$('ql').textContent=m==='Player'?'Roblox username':m+' name';showRecent();board();$('dash').innerHTML='';setURL();pzLoad();if(S[m]&&live&&!np)paint(true)}
 // One refresh at a time: a slow one is never doubled up by the next minute's.
 let TK=null,LASTTICK=0;const tick=full=>TK||(TK=tick0(full).finally(()=>{TK=null}));
 async function tick0(full){LASTTICK=Date.now();try{const b=battle().catch(()=>{});if(!full)await b;const nw=WARNEW;WARNEW=false;await Promise.all([pull(full||nw),b]);
-$('st').textContent=nw?'A new clan war just started ('+BREC.title+'). Clan points, ranks and history start over.':'Live. Updated '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+', every minute.';board();crawl();if(nw||ranksOld())loadRanks();Promise.all([gplay('League'),hmeta()]).then(()=>{if(mode==='League')board()});if(S[mode]&&DEAD!==mode+':'+String(S[mode]).toLowerCase())paint(false)}
+$('st').textContent=nw?'A new clan war just started ('+BREC.title+'). Clan points, ranks and history start over.':'Live. Updated '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+', every minute.';board();crawl();if(nw||ranksOld())loadRanks();pzLoad();if(S[mode]&&DEAD!==mode+':'+String(S[mode]).toLowerCase())paint(false)}
 catch(e){board();if(!live)$('st').textContent='Live data could not load here. Try again, or open the site from your own link.';else if(!LISTT)$('st').textContent='Showing the leaderboards from your last visit. Live data could not load right now, trying again every minute.'}}
 async function go(){const v=$('q').value.trim();if(!v){$('q').focus();return}$('sg').innerHTML='';S[mode]=v;save(mode);DEAD='';setURL();if(!live)await ready;await paint(true);$('dash').scrollIntoView({behavior:'smooth',block:'start'})}
 $('tL').onclick=()=>setMode('League');$('tC').onclick=()=>setMode('Clan');$('tP').onclick=()=>setMode('Player');$('go').onclick=go;
