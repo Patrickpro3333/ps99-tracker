@@ -67,7 +67,7 @@ def get(path):
 
 
 def top(path, key, n, size=100):
-    # (name, total points) for the top n teams. Clans can be read 1,000 at a time; leagues 100.
+    # (name, [total points, members]) for the top n teams. Clans can be read 1,000 at a time; leagues 100.
     names, page = [], 1
     while len(names) < n:
         d = get(f"{path}&pageSize={size}&page={page}")
@@ -78,7 +78,7 @@ def top(path, key, n, size=100):
         rows = d if isinstance(d, list) else d.get(key)
         if not rows:
             break
-        names += [(x["Name"], x.get("Points")) for x in rows]
+        names += [(x["Name"], [x.get("Points"), x.get("Members")] if x.get("Points") is not None else None) for x in rows]
         page += 1
     # The API caches each page at a slightly different moment, so a team near a page edge can show on two
     # pages. Scanning it twice would count its players twice, so only its first place is kept.
@@ -103,8 +103,10 @@ def index(kind, team, rows, members):
 
 
 def scan(kind, teams, detail, pick, members, cache):
-    # cache: the previous scan's {lowercase name: {name, p (list points then), ft (fetched at), rows, mem}}.
-    # A team whose list points are the same as then is reused, unless it was fetched 6-12 hours ago.
+    # cache: the previous scan's {lowercase name: {name, p ([points of the rows saved, members]), ft (fetched at),
+    # rows, mem}}. A team whose list total and member count match is reused, unless it was fetched 6-12 hours
+    # ago. The saved total is the sum of the rows actually saved (the list and the team's own page can be a
+    # minute apart), so a team whose rows don't add up to its list total is simply asked for again.
     global stopped
     pts, i, asked, now, fresh = [], 0, 0, int(time.time()), {}
     try:
@@ -117,7 +119,7 @@ def scan(kind, teams, detail, pick, members, cache):
                 if not d:
                     continue
                 rows = [[x["UserID"], round(x.get("Points") or 0)] for x in pick(d) if x.get("UserID")]
-                c = {"name": d.get("Name") or name, "p": lp, "ft": now, "rows": rows,
+                c = {"name": d.get("Name") or name, "p": [sum(pt for _, pt in rows), lp[1]] if lp else None, "ft": now, "rows": rows,
                      "mem": [m for m in members(d) if m]}
             fresh[key] = c
             pts += [p for _, p in c["rows"]]
