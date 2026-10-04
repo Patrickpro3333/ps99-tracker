@@ -2,7 +2,7 @@ name: Save PS99 history
 
 # Started every hour by Netlify (netlify/functions/trigger-data-jobs.mjs), because GitHub's
 # scheduler skipped most runs. GitHub's schedule stays as a backup, off the top of the hour when
-# GitHub is busiest: history.py only lets it run when Netlify missed an hour (no snapshot in 70 min).
+# GitHub is busiest: history.py only lets it run when Netlify missed an hour (no snapshot in 45 min).
 on:
   schedule:
     - cron: "37 * * * *"

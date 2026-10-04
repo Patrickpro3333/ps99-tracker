@@ -241,7 +241,7 @@ const GONE=e=>e===400||e===404;
 // Browser storage holds about 5 MB. When it is full, data that is simply downloaded again (the saved
 // leaderboards and this device's scan) goes first, then the saved history of the teams and players
 // looked at longest ago, and the save is tried again after each step instead of silently failing.
-function store(k,v){for(let n=0;;n++){try{localStorage.setItem(k,v);return true}catch(e){}if(n>=4)return false;
+function store(k,v){for(let n=0;;n++){try{localStorage.setItem(k,v);return true}catch(e){}if(n>=4||/^ps99(lists$|g2:)/.test(k))return false;
 try{if(n===0){let fr=0;['ps99lists','ps99g2:League','ps99g2:Clan'].forEach(x=>{if(x!==k&&localStorage.getItem(x)!=null){localStorage.removeItem(x);fr=1}});if(fr)continue}
 const old=[];for(let i=0;i<localStorage.length;i++){const x=localStorage.key(i);if(x!==k&&/^ps99[hp]:/.test(x)){let t=0;try{const a=JSON.parse(localStorage.getItem(x));t=a.length?a[a.length-1][0]:0}catch(e){}old.push([t,x])}}
 if(!old.length)return false;old.sort((a,b)=>a[0]-b[0]);old.slice(0,Math.ceil(old.length/2)).forEach(o=>localStorage.removeItem(o[1]))}catch(e){return false}}}
@@ -267,7 +267,7 @@ const GPX={League:{P:{},N:0,T:0,at:0,list:[]},Clan:{P:{},N:0,T:0,at:0,list:[]}};
 let BID='',BIDT=0,BREC=null,WARNEW=false;
 // The active clan war, checked every minute so a new war shows up right away.
 let BP=null;
-const battle=()=>BID&&Date.now()-BIDT<60000?Promise.resolve(BID):BP||(BP=battle0().catch(e=>{if(BID)return BID;throw e}).finally(()=>{BP=null}));
+const battle=()=>BID&&Date.now()-BIDT<60000?Promise.resolve(BID):BP||(BP=battle0().catch(e=>{if(BID){BIDT=Date.now()-30000;return BID}throw e}).finally(()=>{BP=null}));
 async function battle0(){const j=await jget('/api/activeClanBattle'),d=j.data,id=d&&d.configName;if(!id)throw 0;
 const cfg=d.configData||{};BREC={id,title:String(cfg.Title||id).replace(/([a-z])([A-Z0-9])/g,'$1 $2'),start:Date.parse(d.dateCreated)||0,end:(cfg.FinishTime||0)*1000};
 if(id!==BID)warSeen(id,!!BID);BID=id;BIDT=Date.now();return id}
@@ -300,7 +300,7 @@ for(let i=0;i<n;i++){const j=res[i],a=j&&rows(j.data);if(!a||!a.length){complete
 return{rows:out.slice(0,max),total,complete}}
 let lp=0,cp=0;
 const ldUpd=()=>{const b=$('ldbar');if(!b)return;b.style.width=Math.max(3,Math.min(100,Math.round((lp+cp)/40*100)))+'%';$('lddet').textContent='Leagues '+Math.min(lp,20)+' of 20 pages, clans '+Math.min(cp,20)+' of 20 pages'};
-let LISTT=0;
+let LISTT=0,LISTA=0;
 // The leaderboards are kept for the next visit, so they show at once while fresh ones load.
 const saveLists=()=>{const sl=a=>a.map(x=>[x[0],x[1],x[2],iid(x[3]),x[4]]);store('ps99lists',JSON.stringify({t:Date.now(),LT,CT,L:sl(L),C:sl(C)}))};
 async function pull(full){
@@ -308,10 +308,10 @@ const m=full?2000:100,[a,b,ct]=await Promise.all([pages('/v1/leagues?pageSize=10
 // New rows first, then every team they don't cover in its last known order: a team that just slipped
 // from #100 to #101 stays in the list instead of showing as "Not ranked".
 const fresh=(r,old)=>{const s=new Set(r.map(x=>String(x[0]).toLowerCase()));return r.concat(old.filter(x=>!s.has(String(x[0]).toLowerCase())))};
-const done=full&&a.complete&&b.complete;
-if(a.rows.length)L=done?a.rows:fresh(a.rows,L);if(b.rows.length)C=done?b.rows:fresh(b.rows,C);
+const done=full&&a.complete&&b.complete;if(full)LISTA=Date.now();
+if(a.rows.length){L=full&&a.complete?a.rows:fresh(a.rows,L);LT=a.total||LT}if(b.rows.length){C=full&&b.complete?b.rows:fresh(b.rows,C);if(ct&&ct.data)CT=ct.data}
 if(!a.rows.length||!b.rows.length)throw 0;
-if(done)LISTT=Date.now();LT=a.total||LT;if(ct&&ct.data)CT=ct.data;live=true;if(done)saveLists()}
+if(done)LISTT=Date.now();live=true;if(done)saveLists()}
 // The saved team's lookup starts while the leaderboards load, so its stats show the moment they arrive.
 const PF={};
 function prefetch(k,name){const p=(k==='League'?'/v1/leagues/':'/api/clan/')+encodeURIComponent(name);if(!PF[p])PF[p]={at:Date.now(),pr:jget(p)};PF[p].pr.catch(()=>{})}
@@ -333,8 +333,10 @@ async function near(d){if(d.i<100||Date.now()-LISTT<30000)return d;const k=d.kin
 const pg=p=>jget((k==='League'?'/v1/leagues?':'/api/clans?')+'pageSize=100&sort=Points&sortOrder=desc&page='+p).then(j=>(k==='League'?j.data&&j.data.leagues:j.data)||[]);
 try{const p=Math.floor(d.i/100)+1;let r=await pg(p);if(r.length&&!r.some(x=>String(x.Name).toLowerCase()===me))r=r.concat(await pg(p+1).catch(()=>[]));if(!r.length)return d;
 const seen=new Set(),rows=[];r.forEach(x=>{const n=String(x.Name).toLowerCase();if(!seen.has(n)){seen.add(n);rows.push([x.Name,x.Points,x.Members,x.Icon,x.ContributorCount])}});
-const a=k==='League'?L:C,at=a.findIndex(x=>seen.has(lc(x)));if(at<0)return d;
-const rest=a.filter(x=>!seen.has(lc(x))),ins=a.slice(0,at).length,out=rest.slice(0,ins).concat(rows,rest.slice(ins));
+const a=k==='League'?L:C;let mx=-1;a.forEach((x,i)=>{if(seen.has(lc(x)))mx=i});if(mx<0)return d;
+// Teams not on the fetched pages stay above the block if they sat above its last team and have more points
+// than the block's lowest; the rest stay below. A team that rose off the page therefore stays above it.
+const lo=rows[rows.length-1][1],up=(x,i)=>i<mx&&x[1]>lo,out=a.filter((x,i)=>!seen.has(lc(x))&&up(x,i)).concat(rows,a.filter((x,i)=>!seen.has(lc(x))&&!up(x,i)));
 if(k==='League')L=out;else C=out;d.list=out;d.i=out.findIndex(x=>lc(x)===me);d.rank=d.i+1}catch(e){}return d}
 const H={get(k){try{return JSON.parse(localStorage.getItem('ps99h:'+k))||[]}catch(e){return[]}},set(k,a){store('ps99h:'+k,JSON.stringify(a))}};
 function snap(d){if(d.pts==null)return[];
@@ -450,10 +452,10 @@ if(kind==='League'){const N=popL();
 if(ex&&N)return{rank:ex,pct:Math.max(0,(1-ex/N)*100),est:false,rEst:xe,N,s,src:'live'};
 if(s.nl<12||!N)return{rank:0,pct:null,est:true,N:0,s};
 const q=lbelow(p,s),rank=Math.max(Math.round(q.N-q.below),p<GT&&GN?GN+1:1);
-return{rank,pct:q.below/q.N*100,est:true,N:q.N,s}}
+return{rank,pct:Math.max(0,Math.min(q.below,q.N-rank))/q.N*100,est:true,N:q.N,s}}
 const cov=s.n>=120&&s.cov>=Math.min(100,s.tot),N=cov?Math.round(s.n*s.tot/s.cov):0;
 if(ex&&N)return{rank:ex,pct:Math.max(0,(1-ex/N)*100),est:false,nEst:true,rEst:xe,N,s,src:'live'};
-if(cov){const fb=lb(s.arr,p)/s.n,rank=Math.max(Math.round((1-fb)*N)+1,p<GT&&GN?GN+1:1);return{rank,pct:fb*100,est:true,N,s}}
+if(cov){const fb=lb(s.arr,p)/s.n,rank=Math.min(N,Math.max(Math.round((1-ub(s.arr,p)/s.n)*N)+1,p<GT&&GN?GN+1:1));return{rank,pct:Math.max(0,Math.min(fb*N,N-rank))/N*100,est:true,N,s}}
 return ex?{rank:ex,pct:null,est:false,rEst:xe,N:0,s,src:'live'}:{rank:0,pct:null,est:true,N:0,s}}
 const basis=ri=>ri.est?'Estimate, '+ri.s.cov.toLocaleString()+' of '+ri.s.tot.toLocaleString()+' scanned':ri.src==='live'?'Official top players list':ri.src==='file'?'Full scan, '+ago(Date.now()/1000-ri.s.file):'Full scan in this browser';
 let t0=Date.now();
@@ -465,7 +467,7 @@ return (k==='League'?'Global rank among '+popL().toLocaleString()+' players in t
 let LRT=0;const ranksOld=()=>Date.now()-LRT>600000&&['League','Clan'].some(k=>!fileFor(k)||Date.now()/1000-FS[k].file>12600);
 async function loadRanks(){LRT=Date.now();try{const j=await rawj('data-ranks/ranks.json').catch(()=>null);if(!j)return;
 ['League','Clan'].forEach(k=>{const f=j[k];if(f&&f.points&&f.points.length>50&&Date.now()/1000-(j.updated||0)<172800){const n=f.names||f.points.length;f.points.sort((a,b)=>a-b);FS[k]={arr:f.points,n:f.points.length,cov:n,done:n,tot:n,sh:null,nl:999,file:j.updated,battle:f.battle||''}}});
-const el=$('scan');if(el)el.innerHTML=scanText(el.dataset.k);if(live&&S[mode]&&($('chw')||mode==='Player'&&PV))paint(false)}catch(e){}}
+const el=$('scan');if(el)el.innerHTML=scanText(el.dataset.k);if(live&&S[mode]&&DEAD!==mode+':'+String(S[mode]).toLowerCase()&&($('chw')||mode==='Player'&&PV))paint(false)}catch(e){}}
 const Q={League:[],Clan:[]},INF=new Set();
 // Two workers share the queue so the scan keeps the limiter busy even when a request is slow.
 async function crawl(){if(crawling)return;crawling=true;t0=Date.now();worker();worker()}
@@ -501,7 +503,7 @@ const hist=hs&&hs.ok&&hs.h.length?'From hourly snapshots (latest '+(hs.up?ago(no
 const pph=g1&&g1[1]>=120?g1[0]/(g1[1]/3600):null;
 let ct='Collecting',cc='';
 if(g24&&g24[2][2]&&last[2]){const r=g24[2][2]-last[2];ct=r>0?'Up '+r:r<0?'Down '+(-r):'No change';cc=r>0?'up':r<0?'dn':'';if(g24[1]<86000)ct+=' <small>(last '+durf(g24[1])+')</small>'}
-const unk=d.i<0&&d.list.length<Math.min(2000,tot||2000)-100;
+const unk=d.i<0&&d.list.length<=Math.min(2000,tot||2000)-100;
 const keys=[['Rank',d.i>=0?'#'+d.rank.toLocaleString():unk?'Unavailable':'Not ranked',d.i>=0&&tot?topPct((tot-d.rank)/tot*100)+' of '+tot.toLocaleString()+' '+war+'s':unk?'The leaderboard could not fully load':'Only the top 2,000 are ranked'],
 ['Rank change, 24h','<span class="'+cc+'">'+ct+'</span>',''],['Points',d.pts==null?'n/a':fmt(d.pts),kind==='Clan'?'This clan war':''],['Points per hour',pph==null?'Collecting':sg(pph),''],
 ['Members',d.mem+' of '+d.cap,''],['Average per member',d.pts==null||!d.mem?'n/a':fmt(d.pts/d.mem),'']];
@@ -519,7 +521,7 @@ return '<div class="mem'+(open?' open':'')+(k>=LIMIT&&!all?' hid':'')+'" data-id
 +(r.z?'<p class="st">No points'+(kind==='Clan'?' in this clan war':'')+' yet.</p>'
 :'<div class="cell"><small>Share of '+war+' points</small><b>'+(sh==null?'n/a':sh+'%')+'</b></div><div class="cell"><small>Global rank</small><b>'+(ri.rank?(ri.est||ri.rEst?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' of '+(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString():''):'Working it out')+'</b></div>'
 +'<p class="st">'+(ri.pct!=null?'Better than '+(ri.est||ri.nEst||ri.rEst?'~':'')+pcs(ri.pct)+'% of '+war+' war players. ':'')+(ri.rank?'Based on: '+basis(ri)+'.':'')+(r.t?' Last earned points '+ago(now-r.t)+'.':'')+'</p>')
-+'<div class="acts"><button class="more" data-open="Player" data-n="'+esc(u?u[0]:r.id)+'">Player stats</button><a class="more" href="https://www.roblox.com/users/'+r.id+'/profile" target="_blank" rel="noopener">Roblox profile</a></div></div></div>'}).join('')||'<p class="st">No contributor data.</p>';
++'<div class="acts"><button class="more" data-open="Player" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:r.id)+'">Player stats</button><a class="more" href="https://www.roblox.com/users/'+r.id+'/profile" target="_blank" rel="noopener">Roblox profile</a></div></div></div>'}).join('')||'<p class="st">No contributor data.</p>';
 const own=d.oid?nm({id:d.oid,n:d.owner||d.oid}):d.owner||'',lost=kind==='Clan'&&d.pts!=null&&d.pts-d.sum>d.pts*0.005;
 return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2><p class="meta">'+(kind==='Clan'&&BREC?esc(BREC.title):kind)+(own?' · Owner '+esc(own):'')+'</p></div><button class="share" data-share>Share</button></div>'
 +'<div class="grid keys">'+keys.map(c=>'<div class="cell"><small>'+c[0]+'</small><b>'+c[1]+'</b>'+(c[2]?'<small>'+c[2]+'</small>':'')+'</div>').join('')+'</div>'
@@ -578,7 +580,7 @@ a,H,day:v0!=null&&a.length>1?Math.max(0,p-v0):null,span:now-from,best:hv.length?
 async function pnear(kind,s,id,pm){const g=GPX[kind],ri=s.ri,p=s.p;if(!ri||!ri.rank)return null;
 if(ri.src==='live'){const o=g.list.filter(q=>String(q.id)!==String(id)),ah=o.filter(q=>q.p>p).pop(),be=o.find(q=>q.p<=p);return{a:ah&&{id:ah.id,r:ri.rank-1},b:be&&{id:be.id,r:ri.rank+1},live:1}}
 const st=sstat(kind),C=pm&&pm.rankChunk,N=pm&&pm.ranked&&pm.ranked[kind];if(!st.file||!C||!N)return null;
-const f=p<g.T?scanScale(st,g):1,pos=st.n-ub(st.arr,sq(st,p,f)),k=kind.toLowerCase(),last=Math.ceil(N/C)-1;
+const f=p<g.T?scanScale(st,g):1,q=sq(st,p,f),pos=st.n-ub(st.arr,q),k=kind.toLowerCase(),last=Math.ceil(N/C)-1;
 // The scan's own counts can differ a little from the ranking files (a player who changed teams is counted
 // in both), so the files on each side of the guess are read too, and a neighbour only shows when the files
 // read reach past the player's points on that side: never someone far away.
@@ -586,13 +588,13 @@ const c=Math.min(last,Math.max(0,Math.floor(pos/C))),cs=[c-1,c,c+1].filter(i=>i>
 const ch=await Promise.all(cs.map(i=>rawj('data-ranks/players/rank/'+k+'/'+i+'.json').catch(()=>null)));if(ch.some(x=>!x))return null;
 const list=[].concat(...ch).filter(e=>String(e[0])!==String(id));if(!list.length)return null;
 // Their places sit right next to the player's own rank, so the three numbers always line up.
-let ah=null,be=null;list.forEach(e=>{if(e[1]*f>p)ah={id:e[0],r:ri.rank-1};else if(!be)be={id:e[0],r:ri.rank+1}});
+let ah=null,be=null;list.forEach(e=>{if(e[1]>q)ah={id:e[0],r:ri.rank-1};else if(!be)be={id:e[0],r:ri.rank+1}});
 const top=cs[0]===0,end=cs[cs.length-1]===last;
 return{a:ah&&(be||end)?ah:null,b:be&&(ah||top)?be:null,live:0}}
 function prank(s,nb){const ri=s.ri;if(!s.has)return '<div class="pr"><div class="prm"><small>GLOBAL RANK</small><b>-</b><small>No points yet</small></div></div>';
 if(!ri||!ri.rank)return '<div class="pr"><div class="prm"><small>GLOBAL RANK</small><b>...</b><small>Working it out</small></div></div>';
 const tl=ri.est||ri.nEst||ri.rEst?'~':'',ap=ri.pct!=null?Math.max(0,Math.min(100,ri.pct)):null,ah=ap==null?null:ri.N?Math.max(0,Math.min(100,(ri.rank-1)/ri.N*100)):100-ap;
-const side=(x,lab)=>'<div class="prn">'+(x?'<small>'+(nb.live?'':'~')+'#'+x.r.toLocaleString()+' · '+lab+'</small>'+pav(x.id)+'<span>'+esc(U[x.id]?(U[x.id][1]!==U[x.id][0]?U[x.id][1]+' ('+U[x.id][0]+')':U[x.id][0]):'User '+x.id)+'</span>':'<small>'+lab+'</small><span class="st">'+(nb===undefined?'Loading':'-')+'</span>')+'</div>';
+const side=(x,lab)=>'<div class="prn">'+(x?'<small>'+(nb.live&&!ri.rEst?'':'~')+'#'+x.r.toLocaleString()+' · '+lab+'</small>'+pav(x.id)+'<span>'+esc(U[x.id]?(U[x.id][1]!==U[x.id][0]?U[x.id][1]+' ('+U[x.id][0]+')':U[x.id][0]):'User '+x.id)+'</span>':'<small>'+lab+'</small><span class="st">'+(nb===undefined?'Loading':'-')+'</span>')+'</div>';
 return '<div class="pr"><div class="prt">'+side(nb&&nb.b,'Behind')+'<div class="prm"><small>GLOBAL RANK</small><b>'+tl+'#'+ri.rank.toLocaleString()+'</b><small>of '+(ri.N?(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString():'?')+' players</small></div>'+side(nb&&nb.a,'Ahead')+'</div>'
 +(ap!=null?'<div class="prb"><i style="width:'+ap.toFixed(2)+'%"></i><em style="left:'+ap.toFixed(2)+'%"></em></div><div class="prp"><div><b>'+tl+ap.toFixed(2)+'%</b><small>players behind</small></div><div><b>'+tl+ah.toFixed(2)+'%</b><small>players ahead</small></div></div>':'')
 +(nb===null?'<small class="prx">The players just ahead and behind show after the next full scan.</small>':'')
@@ -616,11 +618,12 @@ let k=PKIND[id];if(!kinds.includes(k))k=kinds.includes('Clan')&&(!V.Clan.s||V.Cl
 const P=k?V[k]:null,s=P&&P.s,war=k==='League'?'league':'clan',title=k==='Clan'?(BREC?BREC.title:'Clan war'):'League';
 let h='<section class="pc"><div class="pch"><span class="av big">'+'<b>'+esc(((u?u[0]:'?')[0]||'?').toUpperCase())+'</b>'+(img?'<img src="'+esc(img)+'" alt="">':'')+'</span><div class="pcn"><h2>'+esc(u?u[0]:'User '+id)+'</h2>'
 +'<p class="meta">'+(P&&P.d?'<span class="tag">['+esc(P.d.name)+']</span>':'')+esc(k?title:V.unk?'Teams could not load':'Not in a top 2,000 team')+'</p>'+(u&&u[1]!==u[0]?'<p class="meta">'+esc(u[1])+'</p>':'')+'</div><button class="share" data-share>Share</button></div>';
+const miss=['League','Clan'].filter(x=>V[x].unk&&!V[x].t);if(k&&miss.length)h+='<p class="st">Could not check their '+miss.map(x=>x==='Clan'?'clan':'league').join(' or ')+' right now. Trying again every minute.</p>';
 if(kinds.length>1)h+='<div class="seg pct">'+kinds.map(x=>'<button data-pk="'+x+'" aria-pressed="'+(x===k)+'">'+(x==='Clan'?'Clan war':'League')+'</button>').join('')+'</div>';
 if(!k)h+='<p class="st">'+(V.unk?'Could not check this player\'s league and clan right now. Trying again every minute.':'Not in a top 2,000 league or clan'+(V.pm?'':' as far as the official top lists show (the full scan has not run yet)')+'.')+'</p>';
 else if(!P.d)h+='<p class="st">In '+esc(P.t.name)+', but its data could not load right now.</p>';
 else if(!s.has&&!s.member)h+='<p class="st">Was in '+esc(P.d.name)+' at the last scan, but is not a member any more and has no points left there.</p>';
-else{const avg=s.day==null||s.span<3000?null:s.day/(s.span/3600),so=s.span<86000&&s.day!=null?' <small>('+dur(s.span)+')</small>':'';
+else{const avg=s.day==null||s.span<3000?null:s.day/(s.span/3600),so=s.span<86000&&s.day!=null?' <small>('+durf(s.span)+')</small>':'';
 h+='<div class="pcg pt"><div class="pk c1">'+ico('star')+'<small>'+(k==='Clan'?'War points':'League points')+'</small><b>'+(s.has?fmt(s.p):'0')+'</b></div>'
 +'<div class="pk c5">'+ico('cup')+'<small>'+(k==='Clan'?'Clan':'League')+' rank · '+esc(P.d.name)+'</small><b>'+(s.rank?s.rank+'/'+s.size:'-')+'</b>'+(s.share!=null?'<small>'+pc(s.share,100)+'% of its points</small>':'')+'</div>'
 +prank(s,P.nb)+'</div>'
@@ -651,7 +654,7 @@ const [lt,ct,pm,ld,cd]=await Promise.all([tl,tc,pmeta(),tl.then(t=>real(t)?dataL
 // On a refresh, anything that failed to load keeps what was on screen instead of saying "no team" or "could not load".
 const prev=PV&&PV.id===id?PV:null,got={League:lt,Clan:ct};
 const V={id,pm:pm||prev&&prev.pm||null,League:{t:real(lt),d:ld},Clan:{t:real(ct),d:cd},unk:!!(lt&&lt.unk||ct&&ct.unk)};
-['League','Clan'].forEach(k=>{const v=V[k],o=prev&&prev[k];
+['League','Clan'].forEach(k=>{const v=V[k],o=prev&&prev[k];v.unk=!!(got[k]&&got[k].unk);
 if(o&&o.t&&got[k]&&got[k].unk){V[k]=o;return}
 if(o&&o.s&&v.t&&!v.d&&o.t.name===v.t.name){V[k]=o;return}
 if(v.t&&v.d)v.s=pstat(k,v.t,v.d,id,V.pm)});
@@ -660,7 +663,7 @@ if(V.League.t||V.Clan.t)V.unk=false;
 if(PV&&PV.id===id)['League','Clan'].forEach(k=>{if(V[k].s&&PV[k].nb!==undefined)V[k].nb=PV[k].nb});
 PV=V;drawPlayer(V);shown('Player',U[id]&&!/^\d+$/.test(U[id][0])?U[id][0]:String(id));
 // The players just ahead and behind (with names and pictures) fill in on a second draw.
-const ks=['League','Clan'].filter(k=>V[k].s&&V[k].s.ri),nbs=await Promise.all(ks.map(k=>pnear(k,V[k].s,id,pm).catch(()=>null)));ks.forEach((k,i)=>{V[k].nb=nbs[i]});
+const ks=['League','Clan'].filter(k=>V[k].s&&V[k].s.ri),nbs=await Promise.all(ks.map(k=>pnear(k,V[k].s,id,V.pm).catch(()=>null)));ks.forEach((k,i)=>{if(nbs[i]!==null||V[k].nb===undefined)V[k].nb=nbs[i]});
 const ids=[].concat(...nbs.filter(Boolean).map(x=>[x.a&&x.a.id,x.b&&x.b.id])).filter(Boolean);
 await Promise.race([Promise.all([pp,ids.length?Promise.all([names(ids),pics(ids)]):null]),sleep(4000)]);
 if(ok()&&PV===V)drawPlayer(V)}
@@ -679,7 +682,7 @@ catch(e){if(GONE(e))DEAD=k+':'+name.toLowerCase();if(k===mode&&seq===PSEQ&&(show
 // In Player mode the list shows the official top league players (the API's top 500 sample).
 const TRIED=new Set();
 function boardPlayers(){const g=GPX.League,k=Math.min(BN,g.list.length);rkw(k);$('th').textContent='Top '+(k||10)+' league players';$('war').hidden=true;
-$('top').innerHTML=g.list.length?g.list.slice(0,k).map((x,i)=>{const u=U[x.id];return '<button class="rk" data-n="'+esc(u?u[0]:x.id)+'"><b>#'+(i+1)+'</b><span class="lg"><b>'+esc((u?u[0][0]:'?').toUpperCase())+'</b>'+(IM[x.id]?'<img src="'+esc(IM[x.id])+'" alt="" loading="lazy">':'')+'</span><span>'+esc(u?'@'+u[0]:'User '+x.id)+(x.team?'<small>'+esc(x.team)+'</small>':'')+'</span><i>'+fmt(x.p)+'</i></button>'}).join('')+(k<g.list.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">Loading...</p>';
+$('top').innerHTML=g.list.length?g.list.slice(0,k).map((x,i)=>{const u=U[x.id];return '<button class="rk" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:x.id)+'"><b>#'+(i+1)+'</b><span class="lg"><b>'+esc((u?u[0][0]:'?').toUpperCase())+'</b>'+(IM[x.id]?'<img src="'+esc(IM[x.id])+'" alt="" loading="lazy">':'')+'</span><span>'+esc(u?'@'+u[0]:'User '+x.id)+(x.team?'<small>'+esc(x.team)+'</small>':'')+'</span><i>'+fmt(x.p)+'</i></button>'}).join('')+(k<g.list.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">Loading...</p>';
 if(!g.at){if(Date.now()-(g.tr||0)>30000){g.tr=Date.now();gplay('League').then(()=>{if(mode==='Player'&&GPX.League.at)board()})}return}
 const ids=g.list.slice(0,k).map(x=>x.id).filter(i=>!TRIED.has(i)&&(!U[i]||!IM[i]));ids.forEach(i=>TRIED.add(i));
 if(ids.length)Promise.all([names(ids),pics(ids)]).then(()=>{if(mode==='Player')boardPlayers()})}
@@ -694,7 +697,7 @@ $('q').value=S[m]||'';exPH();$('ql').textContent=m==='Player'?'Roblox username':
 let TK=null,LASTTICK=0;const tick=full=>TK||(TK=tick0(full).finally(()=>{TK=null}));
 async function tick0(full){LASTTICK=Date.now();try{const b=battle().catch(()=>{});if(!full)await b;const nw=WARNEW;WARNEW=false;await Promise.all([pull(full||nw),b]);
 $('st').textContent=nw?'A new clan war just started ('+BREC.title+'). Clan points, ranks and history start over.':'Live. Updated '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+', every minute.';board();crawl();if(nw||ranksOld())loadRanks();if(S[mode]&&DEAD!==mode+':'+String(S[mode]).toLowerCase())paint(false)}
-catch(e){if(!live)$('st').textContent='Live data could not load here. Try again, or open the site from your own link.';else if(!LISTT)$('st').textContent='Showing the leaderboards from your last visit. Live data could not load right now, trying again every minute.'}}
+catch(e){board();if(!live)$('st').textContent='Live data could not load here. Try again, or open the site from your own link.';else if(!LISTT)$('st').textContent='Showing the leaderboards from your last visit. Live data could not load right now, trying again every minute.'}}
 async function go(){const v=$('q').value.trim();if(!v){$('q').focus();return}$('sg').innerHTML='';S[mode]=v;save(mode);DEAD='';setURL();if(!live)await ready;await paint(true);$('dash').scrollIntoView({behavior:'smooth',block:'start'})}
 $('tL').onclick=()=>setMode('League');$('tC').onclick=()=>setMode('Clan');$('tP').onclick=()=>setMode('Player');$('go').onclick=go;
 document.addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(!b)return;setMode(b.dataset.open,true);$('q').value=b.dataset.n;go()});
@@ -716,7 +719,7 @@ function showRecent(){const a=R[mode]||[];$('recent').innerHTML=a.length?'<small
 document.addEventListener('click',e=>{const b=e.target.closest('[data-recent]');if(b){$('q').value=b.dataset.recent;go()}});
 // The address bar always holds a link to what is on screen, e.g. ?clan=LSQ, so it can be shared or bookmarked.
 function setURL(){try{history.replaceState(null,'',location.pathname+(S[mode]?'?'+mode.toLowerCase()+'='+encodeURIComponent(S[mode]):''))}catch(e){}}
-function shown(m,n){if(m!==mode||!n)return;const r=ldS('ps99r'),a=(r[m]||[]).filter(x=>x.toLowerCase()!==n.toLowerCase());a.unshift(n);const b=a.slice(0,6);
+function shown(m,n){if(m!==mode||!n)return;const r=Object.assign({},R,ldS('ps99r')),a=(r[m]||[]).filter(x=>x.toLowerCase()!==n.toLowerCase());a.unshift(n);const b=a.slice(0,6);
 if(JSON.stringify(b)!==JSON.stringify(r[m]||[])){r[m]=b;store('ps99r',JSON.stringify(r))}Object.assign(R,r);if(S[m]!==n){S[m]=n;save(m)}setURL();showRecent()}
 let TT=0;function toast(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(TT);TT=setTimeout(()=>{e.hidden=true},2200)}
 document.addEventListener('click',async e=>{if(!e.target.closest('[data-share]'))return;const url=location.href,title='PS99 Tracker: '+S[mode];
@@ -735,7 +738,7 @@ $('q').oninput=sugg;$('sg').onclick=e=>{const b=e.target.closest('.sg');if(b){$(
 {const q=new URLSearchParams(location.search);for(const m of ['League','Clan','Player']){const v=(q.get(m.toLowerCase())||'').trim().slice(0,64);if(v){S.mode=m;S[m]=v;save(m);break}}}
 {const k=S.mode;if((k==='League'||k==='Clan')&&S[k]){prefetch(k,S[k]);shist(k,S[k].toLowerCase())}
 // A saved player: their user ID (remembered), teams, team data and picture are all requested straight away.
-if(k==='Player'&&S.Player){gplay('League');gplay('Clan');findUser(S.Player).then(id=>{if(!id)return;pics([id]);pmeta();['League','Clan'].forEach(x=>teamOfC(x,id).then(t=>{if(t)prefetch(x,t.name)}))}).catch(()=>{})}}
+if(k==='Player'&&S.Player){gplay('League');gplay('Clan');findUser(S.Player).then(id=>{if(!id)return;pics([id]);pmeta();['League','Clan'].forEach(x=>teamOfC(x,id).then(t=>{if(t&&!t.unk)prefetch(x,t.name)}))}).catch(()=>{})}}
 // The leaderboards from the last visit (up to 6 hours old) show at once while the live ones load.
 {const c=ldS('ps99lists');if(c.t&&Date.now()-c.t<216e5&&c.L&&c.L.length&&c.C&&c.C.length){L=c.L;C=c.C;LT=c.LT||0;CT=c.CT||0;live=true}}
 const ready=(loadRanks(),setMode(['Clan','Player'].includes(S.mode)?S.mode:'League'),tick(true));
@@ -749,8 +752,9 @@ ready.then(ldDone);
 if(live){$('st').textContent='Showing the leaderboards from your last visit while the live ones load...';ldDone()}
 $('ldretry').onclick=()=>{$('ldh').textContent='Loading all API data';$('ldp').textContent='Trying again...';$('ldbtns').hidden=true;lp=0;cp=0;ldUpd();tick(true).then(ldDone)};
 $('ldopen').onclick=()=>{const el=$('ld');if(el){el.classList.add('out');setTimeout(()=>el.remove(),450)}};
-setInterval(()=>{if(!document.hidden){n++;tick(!LISTT||n%5===0).then(()=>{if(live)ldDone()})}},60000);
+const dueFull=()=>!live||Date.now()-Math.max(LISTT,LISTA)>=290000;
+setInterval(()=>{if(!document.hidden){n++;tick(dueFull()).then(()=>{if(live)ldDone()})}},60000);
 // Back on the tab (or the phone unlocked) after a while: refresh straight away instead of waiting up to a minute.
-document.addEventListener('visibilitychange',()=>{if(!document.hidden&&live&&Date.now()-LASTTICK>60000)tick(!LISTT||Date.now()-LISTT>300000)});
+document.addEventListener('visibilitychange',()=>{if(!document.hidden&&live&&Date.now()-LASTTICK>60000)tick(dueFull())});
 </script>
 </body></html>

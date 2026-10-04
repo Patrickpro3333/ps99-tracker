@@ -111,12 +111,15 @@ for kind in KINDS:
     for name, entry in now.items():
         by_bucket[bucket(name)].append((name, entry))
     cut = t - KEEP
+    # Snapshots saved before ranks were counted like index.html counts them (page positions) can't be compared
+    # with new ones, so their rank is dropped once; the page then shows "Collecting" until a day has passed.
+    compact = (meta.get(kind) or {}).get("rank") == "compact"
     for b in range(BUCKETS):
         path = os.path.join(a.dir, "h", kind, f"{b}.json")
         old = load(path) or {}
         nxt = {}
         for name, h in old.items():
-            h = [e for e in h if e[0] >= cut]
+            h = [e if compact else e[:2] + [None] for e in h if e[0] >= cut]
             if h:
                 nxt[name] = h
         for name, entry in by_bucket[b]:
@@ -128,7 +131,7 @@ for kind in KINDS:
             else:
                 h.append(entry)
         save(path, nxt)
-    meta[kind] = {"t": t, "n": len(now), "failedPages": failed}
+    meta[kind] = {"t": t, "n": len(now), "failedPages": failed, "rank": "compact"}
 
 if not saved:
     sys.exit("No data from the API, so the history was left unchanged.")
