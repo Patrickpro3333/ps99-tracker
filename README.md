@@ -8,7 +8,7 @@ saved to two data branches that the page reads straight from GitHub:
 | Job | When | Saves to | Used for |
 |---|---|---|---|
 | `history.py` (`.github/workflows/history.yml`) | every hour | `data-history` branch | points per hour, gains, rank change and the chart, instantly for every visitor |
-| `scan.py` (`.github/workflows/scan.yml`) | every hour, about 7 minutes per run (about 14 when every team changed; teams whose points didn't change are reused). The changed teams are read by 5 machines at once, 350 requests a minute together (70 each), which BIG Games agreed to; `SHARDS` and `TOTAL_RATE` at the top of the workflow set this | `data-ranks` branch (`ranks.json`, `players/`, `teams/`) | exact "Better than X%" player ranks with no waiting, and the player search (which top-2,000 league and clan each player is in) |
+| `scan.py` (`.github/workflows/scan.yml`) | every hour, about 3 minutes per run (about 5 when every team changed; teams whose points didn't change are reused). The changed teams are read by 17 machines at once, 1,530 requests a minute together (90 each), which BIG Games agreed to; `SHARDS` and `TOTAL_RATE` at the top of the workflow set this | `data-ranks` branch (`ranks.json`, `players/`, `teams/`) | exact "Better than X%" player ranks with no waiting, and the player search (which top-2,000 league and clan each player is in) |
 
 Data never goes on `main`. Every commit to `main` is a Netlify production deploy, and on the
 Free plan each one costs 15 of the 300 monthly credits (about 20 deploys a month). So only commit
