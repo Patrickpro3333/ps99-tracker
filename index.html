@@ -81,7 +81,7 @@ small{color:var(--mut);font-size:14px}
 .up{color:var(--g)}.dn{color:var(--r)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
 .cell{background:#000;border:2px solid var(--ed);border-radius:14px;padding:10px 12px;min-width:0}
-.cell b{display:block;font:400 22px/1.2 "Lilita One",Impact,sans-serif;overflow-wrap:anywhere}
+.cell b{display:block;font:400 22px/1.2 "Lilita One",Impact,sans-serif;overflow-wrap:anywhere}.tk{font-size:.82em;white-space:nowrap}
 h3{font-size:22px;line-height:1.1;margin:22px 0 8px;color:var(--y)}
 .gr{display:grid;grid-template-columns:88px 1fr;gap:10px;align-items:center;margin:8px 0}
 .gr b{font-weight:700}
@@ -324,10 +324,10 @@ function prefetch(k,name){const p=(k==='League'?'/v1/leagues/':'/api/clan/')+enc
 const take=p=>{const f=PF[p],age=f?Date.now()-f.at:1e9;if(f&&(f.pre&&!f.used&&age<20000||age<2500)){f.used=1;return f.pr.catch(e=>{if(GONE(e))throw e;delete PF[p];return take(p)})}
 const e=PF[p]={at:Date.now(),pr:jget(p)};e.pr.catch(()=>{});return e.pr};
 async function dataL(name){const j=await take('/v1/leagues/'+encodeURIComponent(name));if(j.status!=='ok')throw 0;const d=j.data,i=L.findIndex(x=>String(x[0]).toLowerCase()===d.Name.toLowerCase());
-SMP.League[d.Name.toLowerCase()]={t:Date.now(),p:(d.PointContributions||[]).map(x=>Math.round(x.Points))};SV.League++;return{kind:'League',key:'l:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:d.Points,mem:(d.Members||[]).length+1,cap:d.MemberCapacity,oid:d.Owner&&typeof d.Owner==='object'?d.Owner.UserID:d.Owner,owner:d.Owner&&d.Owner.DisplayName,members:(d.Members||[]).map(m=>m.UserID).concat(d.Owner&&typeof d.Owner==='object'?d.Owner.UserID:d.Owner),i,list:L,rank:i+1,sum:(d.PointContributions||[]).reduce((s,x)=>s+x.Points,0),nAll:(d.PointContributions||[]).length,rows:(d.PointContributions||[]).slice().sort((a,b)=>b.Points-a.Points).map(x=>({id:x.UserID,n:x.DisplayName,p:x.Points,t:x.Timestamp}))}}
+SMP.League[d.Name.toLowerCase()]={t:Date.now(),p:(d.PointContributions||[]).map(x=>Math.round(x.Points))};SV.League++;return{kind:'League',at:Date.now(),key:'l:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:d.Points,mem:(d.Members||[]).length+1,cap:d.MemberCapacity,oid:d.Owner&&typeof d.Owner==='object'?d.Owner.UserID:d.Owner,owner:d.Owner&&d.Owner.DisplayName,members:(d.Members||[]).map(m=>m.UserID).concat(d.Owner&&typeof d.Owner==='object'?d.Owner.UserID:d.Owner),i,list:L,rank:i+1,sum:(d.PointContributions||[]).reduce((s,x)=>s+x.Points,0),nAll:(d.PointContributions||[]).length,rows:(d.PointContributions||[]).slice().sort((a,b)=>b.Points-a.Points).map(x=>({id:x.UserID,n:x.DisplayName,p:x.Points,t:x.Timestamp}))}}
 async function dataC(name){const j=await take('/api/clan/'+encodeURIComponent(name));if(j.status!=='ok')throw 0;const d=j.data,i=C.findIndex(x=>String(x[0]).toLowerCase()===d.Name.toLowerCase());
 let bid='';try{bid=await battle()}catch(e){}const cb=cpts(d,bid),bp=bid&&d.Battles&&d.Battles[bid],who=new Set((d.Members||[]).map(m=>m.UserID)),got=new Set(cb.map(x=>x.UserID));if(d.Owner)who.add(d.Owner);
-if(bid||d.Contribution){SMP.Clan[d.Name.toLowerCase()]={t:Date.now(),p:cb.map(x=>Math.round(x.Points))};SV.Clan++}return{kind:'Clan',key:'c:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:bp&&bp.Points!=null?bp.Points:i>=0?C[i][1]:null,mem:who.size,cap:d.MemberCapacity,oid:d.Owner,members:[...who],i,list:C,rank:i+1,
+if(bid||d.Contribution){SMP.Clan[d.Name.toLowerCase()]={t:Date.now(),p:cb.map(x=>Math.round(x.Points))};SV.Clan++}return{kind:'Clan',at:Date.now(),key:'c:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:bp&&bp.Points!=null?bp.Points:i>=0?C[i][1]:null,mem:who.size,cap:d.MemberCapacity,oid:d.Owner,members:[...who],i,list:C,rank:i+1,
 sum:cb.reduce((s,x)=>s+x.Points,0),nAll:cb.length,rows:cb.slice().sort((a,b)=>b.Points-a.Points).map(x=>({id:x.UserID,n:'Player '+x.UserID,p:x.Points,t:0})).concat(bid||d.Contribution?[...who].filter(id=>!got.has(id)).map(id=>({id,n:'Player '+id,p:0,t:0,z:1})):[]),
 extra:(bid?'Clan war: '+(BREC&&BREC.id===bid?BREC.title:bid)+'. ':'')+(d.GuildLevel!=null?'Clan level '+d.GuildLevel+'. ':'')+'Clan battle medals: '+(d.GoldMedals||0)+' gold, '+(d.SilverMedals||0)+' silver, '+(d.BronzeMedals||0)+' bronze, '+(d.GoodMedals||0)+' good.'}}
 // The team's page of the leaderboard is fetched fresh. The list skips teams the API repeats across page
@@ -509,7 +509,7 @@ let ct='Collecting',cc='';
 if(g24&&g24[2][2]&&last[2]){const r=g24[2][2]-last[2];ct=r>0?'Up '+r:r<0?'Down '+(-r):'No change';cc=r>0?'up':r<0?'dn':'';if(g24[1]<86000)ct+=' <small>(last '+durf(g24[1])+')</small>'}
 const unk=d.i<0&&d.list.length<=Math.min(2000,tot||2000)-100,PZ=pzInfo(kind);
 const keys=[['Rank',d.i>=0?'#'+d.rank.toLocaleString():unk?'Unavailable':'Not ranked',d.i>=0&&tot?topPct((tot-d.rank)/tot*100)+' of '+tot.toLocaleString()+' '+war+'s':unk?'The leaderboard could not fully load':'Only the top 2,000 are ranked'],
-['Rank change, 24h','<span class="'+cc+'">'+ct+'</span>',''],['Points',d.pts==null?'n/a':fmt(d.pts),kind==='Clan'?'This clan war':''],['Points per hour',PZ?PZ.short:pph==null?'Collecting':sg(pph),PZ?PZ.sub:''],
+['Rank change, 24h','<span class="'+cc+'">'+ct+'</span>',''],['Points',d.pts==null?'n/a':kind==='Clan'&&!PZ?tk(d.pts,pph,since('t:'+d.key)):fmt(d.pts),kind==='Clan'?'This clan war'+(!PZ&&pph>0&&d.pts!=null?' · live estimate':''):''],['Points per hour',PZ?PZ.short:pph==null?'Collecting':sg(pph),PZ?PZ.sub:''],
 ['Members',d.mem+' of '+d.cap,''],['Average per member',d.pts==null||!d.mem?'n/a':fmt(d.pts/d.mem),'']];
 const mx=Math.max(1,...G.map(x=>x?Math.abs(x[0]):0)),lab=['1 hour','6 hours','12 hours','24 hours'];
 const gains=[1,6,12,24].map((h,k)=>{const x=G[k];return '<div class="gr"><span>'+lab[k]+'</span><div><b>'+(x?sg(x[0])+(x[1]<h*3600-120?' <small>('+durf(x[1])+' so far)</small>':x[1]>h*3600+120?' <small>(over '+durf(x[1])+')</small>':''):'Collecting')+'</b><div class="bar"><i style="width:'+(x?Math.max(2,Math.abs(x[0])/mx*100):0)+'%"></i></div></div></div>'}).join('');
@@ -603,7 +603,7 @@ function pstat(kind,t,d,id,pm){const rows=d.rows.filter(r=>!r.z),i=rows.findInde
 const member=(d.members||[]).some(m=>String(m)===String(id)),loc=r?psnap(kind,id,p,d.name):[],old=kind==='Clan'&&pm&&pm.battle&&BREC&&pm.battle!==BREC.id;let a=merge(loc,old?[]:t.hist||[]).map(s=>[s[0],s[1]]);if(kind==='Clan')a=sinceReset(a);
 const H=hourly(a),hv=H.map(h=>h[1]).filter(v=>v!=null),now=a.length?a[a.length-1][0]:0,from=a.length?Math.max(a[0][0],now-86400):0,v0=a.length?pval(a,from):null;
 return{kind,team:d.name,teamRank:d.i>=0?d.rank:null,size:d.rows.length,rank:r?i+1:null,has:!!r,member,p,share:r&&tp?p/tp*100:null,ri:r?rinfo(kind,p,id):null,last:r&&r.t,
-a,H,day:v0!=null&&a.length>1?Math.max(0,p-v0):null,span:now-from,best:hv.length?Math.max(...hv):null,latest:hv.length?hv[hv.length-1]:null}}
+a,H,day:v0!=null&&a.length>1?Math.max(0,p-v0):null,span:now-from,rate:(()=>{const f3=a.length?Math.max(a[0][0],now-10800):0,v3=a.length>1?pval(a,f3):null;return v3!=null&&now-f3>=1800?Math.max(0,p-v3)/((now-f3)/3600):v0!=null&&now-from>3000?Math.max(0,p-v0)/((now-from)/3600):0})(),best:hv.length?Math.max(...hv):null,latest:hv.length?hv[hv.length-1]:null}}
 // Players just ahead and behind: exact from the live top list, otherwise from the full scan's ranking
 // (players/rank/<kind>/<n>.json), scaled to live points like the rank itself. Only files the scan's
 // meta.json lists are requested, so a scan that has not made them yet causes no failed requests.
@@ -655,7 +655,7 @@ if(!k)h+='<p class="st">'+(V.unk?'Could not check this player\'s league and clan
 else if(!P.d)h+='<p class="st">In '+esc(P.t.name)+', but its data could not load right now.</p>';
 else if(!s.has&&!s.member)h+='<p class="st">Was in '+esc(P.d.name)+' at the last scan, but is not a member any more and has no points left there.</p>';
 else{const avg=s.day==null||s.span<3000?null:s.day/(s.span/3600),so=s.span<86000&&s.day!=null?' <small>('+durf(s.span)+')</small>':'';
-h+='<div class="pcg pt"><div class="pk c1">'+ico('star')+'<small>'+(k==='Clan'?'War points':'League points')+'</small><b>'+(s.has?fmt(s.p):'0')+'</b></div>'
+h+='<div class="pcg pt"><div class="pk c1">'+ico('star')+'<small>'+(k==='Clan'?'War points':'League points')+'</small><b>'+(!s.has?'0':k==='Clan'&&!PZP?tk(s.p,s.rate,since('p:'+id)):fmt(s.p))+'</b>'+(s.has&&k==='Clan'&&!PZP&&s.rate>0?'<small>live estimate</small>':'')+'</div>'
 +'<div class="pk c5">'+ico('cup')+'<small>'+(k==='Clan'?'Clan':'League')+' rank · '+esc(P.d.name)+'</small><b>'+(s.rank?s.rank+'/'+s.size:'-')+'</b>'+(s.share!=null?'<small>'+pc(s.share,100)+'% of its points</small>':'')+'</div>'
 +prank(s,P.nb)+'</div>'
 +'<div class="pcg four"><div class="pk c1">'+ico('star')+'<small>Points · 24h</small><b>'+(s.day==null?'-':fmt(s.day)+so)+'</b></div>'
@@ -684,7 +684,7 @@ const pp=Promise.all([pics([id]),names([id])]),tl=teamOfC('League',id),tc=teamOf
 const [lt,ct,pm,,ld,cd]=await Promise.all([tl,tc,pmeta(),hmeta(),tl.then(t=>real(t)?dataL(t.name).catch(()=>null):null),tc.then(t=>real(t)?dataC(t.name).catch(()=>null):null),gplay('League'),gplay('Clan'),Promise.race([pp,sleep(2500)])]);if(!ok())return;
 // On a refresh, anything that failed to load keeps what was on screen instead of saying "no team" or "could not load".
 const prev=PV&&PV.id===id?PV:null,got={League:lt,Clan:ct};
-const V={id,pm:pm||prev&&prev.pm||null,League:{t:real(lt),d:ld},Clan:{t:real(ct),d:cd},unk:!!(lt&&lt.unk||ct&&ct.unk)};
+const V={id,at:Date.now(),pm:pm||prev&&prev.pm||null,League:{t:real(lt),d:ld},Clan:{t:real(ct),d:cd},unk:!!(lt&&lt.unk||ct&&ct.unk)};
 ['League','Clan'].forEach(k=>{const v=V[k],o=prev&&prev[k];v.unk=!!(got[k]&&got[k].unk);
 if(o&&o.t&&got[k]&&got[k].unk){V[k]=o;return}
 if(o&&o.s&&v.t&&!v.d&&o.t.name===v.t.name){V[k]=o;return}
@@ -731,7 +731,14 @@ let TK=null,LASTTICK=0,LIVEAT=0,STNOTE='';
 // "Updated 12 seconds ago", counting up every second; a note (a new war, an error) shows instead while it applies.
 const stTick=()=>{if(!LIVEAT||STNOTE)return;const s=Math.max(0,Math.round((Date.now()-LIVEAT)/1000));
 $('st').textContent='Live. Updated '+(s<2?'just now':s<60?s+' seconds ago':Math.floor(s/60)+' min ago')+'.'};
-setInterval(stTick,1000);
+// War points count up every second between the game's updates (about once a minute), from the recent rate.
+// Marked "~": an estimate that snaps to the real number when it arrives. It runs at most 70 s past the last
+// real change, so it stops on its own if points stop coming in.
+const tkv=e=>{const dt=Math.min(70,Math.max(0,(Date.now()-e.t)/1000));return '~'+Math.round(e.v+e.r*dt).toLocaleString()};
+const tk=(v,perHour,t0)=>!(perHour>0&&isFinite(perHour))?fmt(v):'<span class="tk" data-v="'+v+'" data-r="'+perHour/3600+'" data-t="'+t0+'">'+tkv({v,r:perHour/3600,t:t0})+'</span>';
+const since=k=>{const p=PH[k];return p&&(p.chg||p.f)||Date.now()};
+const tkTick=()=>document.querySelectorAll('.tk').forEach(e=>{e.textContent=tkv({v:+e.dataset.v,r:+e.dataset.r,t:+e.dataset.t})});
+setInterval(()=>{stTick();tkTick()},1000);
 // Refresh timing. The API answers from a cache that renews once a minute (Cache-Control: max-age=60), each
 // address at its own moment, and browsers can't see how old an answer is. So the page notes when the numbers on
 // screen change, estimates that moment (halfway between the last answer without the change and the first with
@@ -740,7 +747,7 @@ setInterval(stTick,1000);
 // again 3 s later, up to 3 times. Until it has seen a
 // change it looks every 10 s, for up to 2.5 minutes, then once a minute.
 const PH={};let NEXT=0,PROBES=0,FOCUS='';
-function phase(k,v){const p=PH[k]||(PH[k]={}),now=Date.now();
+function phase(k,v){const p=PH[k]||(PH[k]={}),now=Date.now();if(p.v!==v)p.f=now;
 if(p.v!==undefined&&p.v!==v){p.chg=p.t?(p.t+now)/2:now;p.late=0}
 else{const a=p.chg?now-p.chg:0;p.late=p.chg&&a>50000&&a<130000&&a%60000<20000?(p.late||0)+1:0}
 p.v=v;p.t=now}
