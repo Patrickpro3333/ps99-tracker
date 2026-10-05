@@ -56,7 +56,9 @@
 html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:#000;color:var(--tx);font:17px/1.5 "Atkinson Hyperlegible",system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
-.wrap{max-width:720px;margin:0 auto;padding:0 16px 40px}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 40px;display:flex;flex-direction:column}
+.side,.mainc{display:contents}.wrap>*,.side>*,.mainc>*{min-width:0}
+.side>h1{order:1}.side>.sub,.side>noscript{order:2}#find{order:3}#dash{order:4}.tops{order:5}.help{order:6}.about{order:7}.wrap>footer{order:8}
 h1,h2,h3,.big,button,input{font-family:"Lilita One",Impact,system-ui,sans-serif;font-weight:400}
 h1{font-size:clamp(36px,11vw,54px);line-height:1.05;margin:24px 0 6px}
 h1 span{color:var(--y)}
@@ -153,7 +155,7 @@ h3{font-size:22px;line-height:1.1;margin:22px 0 8px;color:var(--y)}
 .rk:first-child{border-top:0}.rk b{font-family:"Lilita One",Impact,sans-serif;font-weight:400;color:var(--mut)}.rk span{overflow-wrap:anywhere;font-weight:700}.rk i{font:400 21px "Lilita One",Impact,sans-serif;font-style:normal;color:var(--y)}
 .help summary{cursor:pointer;font:400 20px "Lilita One",Impact,sans-serif;min-height:44px;display:flex;align-items:center}
 .help ul{padding-left:20px;margin:6px 0 0}.help li{margin-bottom:8px}
-footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
+footer{color:var(--mut);font-size:14px}footer>p:first-child{margin-top:0}footer a{color:var(--mut)}
 .pill{display:block;width:fit-content;max-width:100%;margin-top:6px;padding:4px 10px;border-radius:12px;background:#262626;color:var(--y);font-size:13px;font-weight:700}
 .faq{border-top:1px solid var(--ed)}.faq summary{cursor:pointer;font-weight:700;min-height:48px;display:flex;align-items:center}.faq p{margin:0 0 12px;color:var(--mut)}
 .det .cell{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px;padding:8px 12px}.det .cell b{font-size:22px;white-space:nowrap}.det .cell small{min-width:0}
@@ -175,6 +177,12 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 .ldb{width:min(320px,80vw);margin-top:6px}.ldb i{transition:width .3s}
 .ldbtn{display:grid;gap:10px;width:min(320px,80vw);margin-top:8px}
 @media(min-width:640px){.grid{grid-template-columns:repeat(4,1fr)}.grid.rvs{grid-template-columns:1fr 1fr}.keys{grid-template-columns:repeat(3,1fr)}}
+/* PC (16:9 and other wide screens): search, top 10 and help on the left, the stats filling the rest. */
+@media(min-width:1100px){.wrap{max-width:1680px;display:grid;grid-template-columns:380px minmax(0,1fr);gap:0 24px;align-items:start}
+.side,.mainc{display:block}.mainc{margin-top:24px}.wrap>footer{grid-column:1/-1}}
+@media(min-width:1300px){.dg,.pgx{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 28px;align-items:start}.pgx{gap:0 14px}
+.pgx .pcg.four{grid-template-columns:1fr 1fr}.mems{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px}}
+@media(min-width:1500px){.wrap{grid-template-columns:420px minmax(0,1fr);gap:0 32px}.keys{grid-template-columns:repeat(6,1fr)}}
 </style></head>
 <body><div id="ld" role="status" aria-live="polite"><svg viewBox="0 0 120 150" aria-hidden="true"><path d="M60 6C92 6 114 58 114 94c0 30-24 50-54 50S6 124 6 94C6 58 28 6 60 6Z" fill="#fff" stroke="#14204a" stroke-width="7" stroke-linejoin="round"/><path d="M14 84l17-13 15 15 15-17 15 15 17-13 13 11" fill="none" stroke="#14204a" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="40" cy="42" r="8" fill="#ff9ec7"/><circle cx="82" cy="34" r="6" fill="#ffd23f"/><circle cx="78" cy="118" r="9" fill="#7ee6ff"/><circle cx="36" cy="112" r="6" fill="#b98cff"/></svg>
 <div class="ldt" id="ldh">Loading all API data</div>
@@ -185,6 +193,7 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 <div class="ldbtn" id="ldbtns" hidden><button class="go" id="ldretry">Try again</button><button class="tab" id="ldopen">Open anyway</button></div></div>
 <noscript><style>#ld{display:none}</style></noscript>
 <main class="wrap">
+<div class="side">
 <h1>PS99 <span>Tracker</span></h1>
 <p class="sub">Look up any Pet Simulator 99 league, clan or player. See their rank, points per hour and gains, live.</p>
 <noscript><p class="st">PS99 Tracker needs JavaScript to load the live Pet Simulator 99 league and clan leaderboards.</p></noscript>
@@ -197,8 +206,10 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 <div class="recent" id="recent"></div>
 <p class="st" id="st">Loading live data...</p>
 </section>
+<section class="card tops"><h2 id="th">Top 10 leagues</h2><p class="st" id="war" style="margin:0 0 6px;color:var(--y)" hidden></p><p class="st" style="margin:0 0 6px">Tap one to see its stats.</p><div id="top"></div></section>
+</div>
+<div class="mainc">
 <div id="dash" aria-live="polite"></div>
-<section class="card"><h2 id="th">Top 10 leagues</h2><p class="st" id="war" style="margin:0 0 6px;color:var(--y)" hidden></p><p class="st" style="margin:0 0 6px">Tap one to see its stats.</p><div id="top"></div></section>
 <details class="card help"><summary>How to read the stats</summary><ul>
 <li><b>Rank</b> is the place on the leaderboard. #1 is the best.</li>
 <li><b>Better than 98%</b> means a player has more points than 98 in 100 players in the top 2,000 leagues, or the top 2,000 clans for the clan war. A ~ means it is an estimate for now.</li>
@@ -216,6 +227,7 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 <details class="faq"><summary>What does "better than 98%" mean?</summary><p>The player has more points than 98 in 100 players. It compares a player with every player in the top 2,000 leagues, or the top 2,000 clans for the clan war. A ~ means it is an estimate while the scan of those teams is still running.</p></details>
 <details class="faq"><summary>How do I look up a player?</summary><p>Pick Player, type their Roblox username or user ID, and tap Show stats. You see their points, rank and share of points in their league and in the clan war, as long as their league or clan is in the top 2,000.</p></details>
 <details class="faq"><summary>Is this an official tool?</summary><p>No. It is fan-made and not affiliated with BIG Games or Roblox.</p></details></section>
+</div>
 <footer><p>Fan-made and unofficial. Data comes from the <a href="https://github.com/BIG-Games-LLC/ps99-public-api-docs">BIG Games public API</a>. Pet Simulator 99 belongs to BIG Games, and Roblox is a trademark of Roblox Corporation.</p></footer>
 </main>
 <button id="fab" class="fab" hidden aria-label="Search again"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg></button>
@@ -530,11 +542,11 @@ const own=d.oid?nm({id:d.oid,n:d.owner||d.oid}):d.owner||'',lost=kind==='Clan'&&
 return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2><p class="meta">'+(kind==='Clan'&&BREC?esc(BREC.title):kind)+(own?' · Owner '+esc(own):'')+'</p></div><button class="share" data-share>Share</button></div>'
 +(PZ?'<p class="pz">'+esc(PZ.page)+'</p>':'')
 +'<div class="grid keys">'+keys.map(c=>'<div class="cell"><small>'+c[0]+'</small><b>'+c[1]+'</b>'+(c[2]?'<small>'+c[2]+'</small>':'')+'</div>').join('')+'</div>'
-+'<h3>Points gained</h3>'+(PZ&&!G.some(x=>x&&x[0])?'<p class="st">'+PZ.none+'</p>':'<p class="st" style="margin:0 0 4px">'+hist+'</p>'+gains)
-+'<h3>Close rivals</h3><div class="grid rvs">'+gap+'</div>'
-+'<h3>Points per hour</h3><div id="chw">'+chartHtml(a,d)+'</div>'
++'<div class="dg"><div><h3>Points gained</h3>'+(PZ&&!G.some(x=>x&&x[0])?'<p class="st">'+PZ.none+'</p>':'<p class="st" style="margin:0 0 4px">'+hist+'</p>'+gains)
++'<h3>Close rivals</h3><div class="grid rvs">'+gap+'</div></div>'
++'<div><h3>Points per hour</h3><div id="chw">'+chartHtml(a,d)+'</div></div></div>'
 +'<h3>'+(kind==='Clan'?'Members ('+d.rows.length+')':'Contributors'+(d.nAll?' ('+d.nAll+')':''))+'</h3><p class="st" style="margin:0 0 4px">'+(kind==='Clan'&&d.rows.length>d.nAll?d.nAll+' have points in this war, '+(d.rows.length-d.nAll)+' not yet. ':'')+'Tap a player for details.</p>'
-+mem+(d.rows.length>LIMIT&&!all?'<button class="more" data-all="'+esc(d.key)+'">Show all '+d.rows.length+' '+(kind==='Clan'?'members':'contributors')+'</button>':'')
++'<div class="mems">'+mem+'</div>'+(d.rows.length>LIMIT&&!all?'<button class="more" data-all="'+esc(d.key)+'">Show all '+d.rows.length+' '+(kind==='Clan'?'members':'contributors')+'</button>':'')
 +'<details class="notes"'+(NOTESOPEN?' open':'')+'><summary>About these numbers</summary><div class="st" id="scan" data-k="'+kind+'">'+scanText(kind)+'</div>'
 +(lost?'<p class="st">'+fmt(d.pts-d.sum)+' of the clan\'s '+fmt(d.pts)+' points are not credited to anyone in the list, usually because those players left the clan.</p>':'')
 +(d.i<0?'<p class="st">'+(unk?'The leaderboard could not fully load, so rank and rivals are unavailable right now.':'Not in the top 2,000, so rank and rivals are unavailable.')+'</p>':'')+(d.extra?'<p class="st">'+esc(d.extra)+'</p>':'')
@@ -655,15 +667,15 @@ if(!k)h+='<p class="st">'+(V.unk?'Could not check this player\'s league and clan
 else if(!P.d)h+='<p class="st">In '+esc(P.t.name)+', but its data could not load right now.</p>';
 else if(!s.has&&!s.member)h+='<p class="st">Was in '+esc(P.d.name)+' at the last scan, but is not a member any more and has no points left there.</p>';
 else{const avg=s.day==null||s.span<3000?null:s.day/(s.span/3600),so=s.span<86000&&s.day!=null?' <small>('+durf(s.span)+')</small>':'';
-h+='<div class="pcg pt"><div class="pk c1">'+ico('star')+'<small>'+(k==='Clan'?'War points':'League points')+'</small><b>'+(s.has?fmt(s.p):'0')+'</b></div>'
+h+='<div class="pgx"><div><div class="pcg pt"><div class="pk c1">'+ico('star')+'<small>'+(k==='Clan'?'War points':'League points')+'</small><b>'+(s.has?fmt(s.p):'0')+'</b></div>'
 +'<div class="pk c5">'+ico('cup')+'<small>'+(k==='Clan'?'Clan':'League')+' rank · '+esc(P.d.name)+'</small><b>'+(s.rank?s.rank+'/'+s.size:'-')+'</b>'+(s.share!=null?'<small>'+pc(s.share,100)+'% of its points</small>':'')+'</div>'
 +prank(s,P.nb)+'</div>'
 +'<div class="pcg four"><div class="pk c1">'+ico('star')+'<small>Points · 24h</small><b>'+(s.day==null?'-':fmt(s.day)+so)+'</b></div>'
 +'<div class="pk c2">'+ico('bars')+'<small>Average / hour</small><b>'+(avg==null?'-':fmt(avg))+'</b></div>'
 +'<div class="pk c3">'+ico('cup')+'<small>Best hour</small><b>'+(s.best==null?'-':fmt(s.best))+'</b></div>'
 +'<div class="pk c4">'+ico('bolt')+'<small>Latest hour</small><b>'+(s.latest==null?'-':fmt(s.latest))+'</b></div></div>'
-+(s.day==null||avg==null||s.best==null||s.latest==null?'<p class="st pnote">Boxes showing "-" fill in as points come in: at every full scan (every hour), and every minute while this page is open.</p>':'')
-+'<div class="pcc"><div class="pcch"><div><b>Hourly performance</b><small>Points earned per hour · last '+(s.H.length===1?'hour':(s.H.length||24)+' hours')+'</small></div><div class="pleg"><span><i class="d"></i>Hourly points</span><span><i class="ds"></i>Average</span></div></div>'+pchart(s.H)+'</div>'
++(s.day==null||avg==null||s.best==null||s.latest==null?'<p class="st pnote">Boxes showing "-" fill in as points come in: at every full scan (every hour), and every minute while this page is open.</p>':'')+'</div>'
++'<div><div class="pcc"><div class="pcch"><div><b>Hourly performance</b><small>Points earned per hour · last '+(s.H.length===1?'hour':(s.H.length||24)+' hours')+'</small></div><div class="pleg"><span><i class="d"></i>Hourly points</span><span><i class="ds"></i>Average</span></div></div>'+pchart(s.H)+'</div></div></div>'
 +(s.has?'':'<p class="st">A member, but no points'+(k==='Clan'?' in this clan war':'')+' yet.</p>')+(s.member?'':'<p class="st">Not a member any more; these are the points left in this '+war+'.</p>')
 +'<p class="st">'+(s.ri&&s.ri.rank?'Global rank based on: '+basis(s.ri)+'. ':'')+'Points over time come from full scans (every hour) and this device while the page is open.'+(s.last?' Last earned '+war+' points '+ago(Date.now()/1000-s.last)+'.':'')+'</p>'}
 if(k&&P.d)h+='<button class="more" data-open="'+k+'" data-n="'+esc(P.d.name)+'">Open '+esc(P.d.name)+'</button>';
