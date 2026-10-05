@@ -178,11 +178,12 @@ footer{color:var(--mut);font-size:14px}footer>p:first-child{margin-top:0}footer 
 .ldbtn{display:grid;gap:10px;width:min(320px,80vw);margin-top:8px}
 @media(min-width:640px){.grid{grid-template-columns:repeat(4,1fr)}.grid.rvs{grid-template-columns:1fr 1fr}.keys{grid-template-columns:repeat(3,1fr)}}
 /* PC (16:9 and other wide screens): search, top 10 and help on the left, the stats filling the rest. */
-@media(min-width:1100px){.wrap{max-width:1680px;display:grid;grid-template-columns:380px minmax(0,1fr);gap:0 24px;align-items:start}
+@media(min-width:1100px){.wrap{max-width:none;padding:0 24px 40px;display:grid;grid-template-columns:clamp(360px,24vw,520px) minmax(0,1fr);gap:0 24px;align-items:start}
 .side,.mainc{display:block}.mainc{margin-top:24px}.wrap>footer{grid-column:1/-1}}
 @media(min-width:1300px){.dg,.pgx{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 28px;align-items:start}.pgx{gap:0 14px}
 .pgx .pcg.four{grid-template-columns:1fr 1fr}.mems{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px}}
-@media(min-width:1500px){.wrap{grid-template-columns:420px minmax(0,1fr);gap:0 32px}.keys{grid-template-columns:repeat(6,1fr)}}
+@media(min-width:1500px){.wrap{gap:0 32px}.keys{grid-template-columns:repeat(6,1fr)}}
+@media(min-width:2200px){.mems{grid-template-columns:repeat(3,minmax(0,1fr))}}
 </style></head>
 <body><div id="ld" role="status" aria-live="polite"><svg viewBox="0 0 120 150" aria-hidden="true"><path d="M60 6C92 6 114 58 114 94c0 30-24 50-54 50S6 124 6 94C6 58 28 6 60 6Z" fill="#fff" stroke="#14204a" stroke-width="7" stroke-linejoin="round"/><path d="M14 84l17-13 15 15 15-17 15 15 17-13 13 11" fill="none" stroke="#14204a" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="40" cy="42" r="8" fill="#ff9ec7"/><circle cx="82" cy="34" r="6" fill="#ffd23f"/><circle cx="78" cy="118" r="9" fill="#7ee6ff"/><circle cx="36" cy="112" r="6" fill="#b98cff"/></svg>
 <div class="ldt" id="ldh">Loading all API data</div>
@@ -382,7 +383,10 @@ return HS[key]=r}
 function merge(loc,srv){if(!srv.length)return loc;const out=[];let j=0;
 for(const s of srv){while(j<loc.length&&loc[j][0]<s[0]-450)j++;if(!(j<loc.length&&loc[j][0]<=s[0]+450))out.push([s[0],s[1],s[2],null])}
 return out.concat(loc).sort((x,y)=>x[0]-y[0])}
-const COL=['#ffd23f','#ff9ec7','#3ddc84','#6cc8ff'],CW=340,CH=200;
+const COL=['#ffd23f','#ff9ec7','#3ddc84','#6cc8ff'],CH=200;let CW=340;
+// On PC the charts sit in half-width columns. They get wider instead of taller there: the drawing
+// width follows the column (sizes mirror the CSS), so text stays readable and the height stays low.
+function colW(pad){const W=innerWidth;if(W<1300)return 0;const side=Math.min(520,Math.max(360,W*.24));return (W-48-side-(W>=1500?32:24)-pad)/2}
 let RG=0,CM='tot',LAST=null,CHD=null;
 const sg=v=>(v<0?'':'+')+fmt(v);
 const pc=(x,m)=>{x=Math.max(0,Math.min(m||99.9,Math.round(x*10)/10));return x%1?x.toFixed(1):''+x};
@@ -400,9 +404,9 @@ s+='C'+(b[0]+(c[0]-a[0])/6).toFixed(1)+' '+cl(b[1]+(c[1]-a[1])/6)+' '+(c[0]-(d[0
 return s}
 function ctl(hrs,kind){return '<div class="seg">'+[1,6,24].map(h=>'<button data-r="'+h+'" aria-pressed="'+(h===hrs)+'">'+h+' hour'+(h>1?'s':'')+'</button>').join('')+'</div><div class="seg"><button data-m="tot" aria-pressed="'+(CM==='tot')+'">'+kind+' total</button><button data-m="pl" aria-pressed="'+(CM==='pl')+'">Top players</button></div>'}
 function chartHtml(a,d){
-if(CM==='pl'&&d.loc)a=d.loc;
+CW=Math.max(340,Math.round(colW(64)/1.3));if(CM==='pl'&&d.loc)a=d.loc;
 const sp=a.length>1?a[a.length-1][0]-a[0][0]:0;
-if(a.length<3||sp<240){CHD=null;return (CM==='pl'?ctl(RG||1,d.kind):'')+'<svg class="ch" viewBox="0 0 '+CW+' '+CH+'"><line x1="48" x2="330" y1="170" y2="170" stroke="#3a3a3a"/><path d="M48 150C100 118 140 160 190 130S280 108 330 98" fill="none" stroke="#3a3a3a" stroke-width="3" stroke-dasharray="6 6"/><text x="189" y="76" text-anchor="middle">Collecting data</text></svg><p class="cap">'+(CM==='pl'?'Points per player only come from this device, not the server. Keep this page open and the chart fills in.':'The chart starts after about 4 minutes. Keep this page open and it fills in.')+'</p>'}
+if(a.length<3||sp<240){CHD=null;return (CM==='pl'?ctl(RG||1,d.kind):'')+'<svg class="ch" viewBox="0 0 340 '+CH+'"><line x1="48" x2="330" y1="170" y2="170" stroke="#3a3a3a"/><path d="M48 150C100 118 140 160 190 130S280 108 330 98" fill="none" stroke="#3a3a3a" stroke-width="3" stroke-dasharray="6 6"/><text x="189" y="76" text-anchor="middle">Collecting data</text></svg><p class="cap">'+(CM==='pl'?'Points per player only come from this device, not the server. Keep this page open and the chart fills in.':'The chart starts after about 4 minutes. Keep this page open and it fills in.')+'</p>'}
 const hrs=RG||(sp<=3900?1:sp<=22200?6:24);
 const mk=(c,n,r,get)=>{const raw=series(a,get,hrs);return{c,n,r,raw,pts:smooth(raw)}};
 const ser=CM==='pl'?d.rows.filter(r=>!r.z).slice(0,4).map((r,i)=>mk(COL[i],nm(r),r,s=>s[3]&&s[3][r.id]!=null?s[3][r.id]:null)):[mk(COL[0],d.kind,null,s=>s[1])];
@@ -644,7 +648,7 @@ return '<div class="pr"><div class="prt">'+side(nb&&nb.b,'Behind')+'<div class="
 function pchart(H){const v=H.map(h=>h[1]).filter(x=>x!=null);
 if(v.length<2)return '<p class="st">No hourly points yet. The chart fills in the same way as the boxes above.</p>';
 if(!v.some(x=>x>=1))return '<p class="st">No points earned in the last '+H.length+' hour'+(H.length>1?'s':'')+'.</p>';
-const W=340,Hh=200,l=46,r=14,t=28,b=24,pw=W-l-r,ph=Hh-t-b,mx=nice(Math.max(1,...v)),n=H.length,X=i=>l+(n<2?pw:i*pw/(n-1)),Y=x=>t+ph-x/mx*ph,avg=v.reduce((s,x)=>s+x,0)/v.length;
+const W=Math.max(340,Math.round((colW(46)-28)/1.5)),Hh=200,l=46,r=14,t=28,b=24,pw=W-l-r,ph=Hh-t-b,mx=nice(Math.max(1,...v)),n=H.length,X=i=>l+(n<2?pw:i*pw/(n-1)),Y=x=>t+ph-x/mx*ph,avg=v.reduce((s,x)=>s+x,0)/v.length;
 let g='<defs><linearGradient id="pl" x1="0" x2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#ffd23f"/></linearGradient><linearGradient id="pa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd23f" stop-opacity=".35"/><stop offset="1" stop-color="#ffd23f" stop-opacity="0"/></linearGradient></defs>';
 for(let k=0;k<=5;k++){const y=Y(mx*k/5);g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#242424"/><text x="'+(l-6)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end">'+fmt(mx*k/5)+'</text>'}
 let run=[];const runs=[];H.forEach((h,i)=>{if(h[1]==null){if(run.length)runs.push(run);run=[]}else run.push([X(i),Y(h[1])])});if(run.length)runs.push(run);
