@@ -12,22 +12,35 @@ Needs only Python 3 (standard library). The API allows under 100 requests per
 minute per IP, so requests are spaced to 90 per minute. With --teams and --prev,
 a team whose total points haven't changed since the last scan is not asked for
 again (its members can't have earned anything), except every 6-12 hours to pick
-up roster changes. While the league war is paused that skips all 2,000 leagues,
-and a scan takes about 20 minutes instead of about 45.
+up roster changes. While the league war is paused that skips all 2,000 leagues.
+
+The work can be split across machines (BIG Games agreed to this for PS99 Tracker):
+  python3 scan.py plan  --prev prev --plan plan.json                 (one machine)
+  python3 scan.py fetch --plan plan.json --shard 0 --of 5 --total-rate 350 --part p0.json   (machines 0..4, 70/min each)
+  python3 scan.py merge --plan plan.json --parts parts --of 5 --prev prev --out ranks.json --players players --teams teams
+With no step named, one machine does all three.
 """
 import argparse, json, os, sys, time, urllib.error, urllib.parse, urllib.request, zlib
 
 API = os.environ.get("PS99_API", "https://ps99.biggamesapi.io")
 ap = argparse.ArgumentParser()
+ap.add_argument("step", nargs="?", default="all", choices=["all", "plan", "fetch", "merge"])
+ap.add_argument("--plan", default="plan.json", help="plan file written by the plan step, read by fetch and merge")
+ap.add_argument("--shard", type=int, default=0, help="fetch: which machine this is, from 0")
+ap.add_argument("--of", type=int, default=1, help="fetch and merge: how many machines share the fetch step")
+ap.add_argument("--part", default="part.json", help="fetch: where this machine writes the teams it read")
+ap.add_argument("--parts", default="parts", help="merge: folder holding every machine's part file")
 ap.add_argument("--leagues", type=int, default=2000)
 ap.add_argument("--clans", type=int, default=2000)
-ap.add_argument("--rate", type=float, default=90, help="max requests per minute (the API allows under 100)")
+ap.add_argument("--rate", type=float, default=90, help="max requests per minute for this machine (the API allows under 100)")
+ap.add_argument("--total-rate", type=float, default=0, help="fetch: requests per minute for all machines together; each gets an equal share")
 ap.add_argument("--out", default="ranks.json")
 ap.add_argument("--players", default="", help="also write a player index (which top team each player is in) to this folder")
 ap.add_argument("--prev", default="", help="folder holding the previous data-ranks branch, to carry on each player's points history")
 ap.add_argument("--teams", default="", help="write each team's contributions to this folder, so the next scan can skip unchanged teams")
 a = ap.parse_args()
-gap = 60.0 / a.rate
+rate = min(a.rate, a.total_rate / a.of) if a.step == "fetch" and a.total_rate else a.rate
+gap = 60.0 / rate
 REFRESH = 12 * 3600  # an unchanged team is still asked for again after 6-12 hours (spread by name), for roster changes
 PLAYER_SHARDS = 256  # index.html reads players/<kind>/<user ID % 256>.json
 HISTORY_KEEP = 25 * 3600 + 1200  # each player's points at every scan for 24 hours, plus one spare so a 24h gain has a start
@@ -87,9 +100,6 @@ def top(path, key, n, size=100):
     return names[:n]
 
 
-stopped = False
-
-
 def index(kind, team, rows, members):
     # Which team each player is in, for the site's player search. A current member wins over a player
     # who only has old points left in a team; otherwise the bigger contribution wins.
@@ -102,36 +112,89 @@ def index(kind, team, rows, members):
             idx[uid] = new
 
 
-def scan(kind, teams, detail, pick, members, cache):
-    # cache: the previous scan's {lowercase name: {name, p ([points of the rows saved, members]), ft (fetched at),
-    # rows, mem}}. A team whose list total and member count match is reused, unless it was fetched 6-12 hours
-    # ago. The saved total is the sum of the rows actually saved (the list and the team's own page can be a
-    # minute apart), so a team whose rows don't add up to its list total is simply asked for again.
-    global stopped
-    pts, i, asked, now, fresh = [], 0, 0, int(time.time()), {}
+KINDS = {  # list path, list key, list page size, team page
+    "League": ("/v1/leagues?sort=Points&sortOrder=desc", "leagues", 100, "/v1/leagues/"),
+    "Clan": ("/api/clans?sort=Points&sortOrder=desc", None, 1000, "/api/clan/"),
+}
+
+
+def due(c, lp, key, now):
+    # A team is read again unless it was saved before with the same list total and member count, under 6-12
+    # hours ago (spread by name). The saved total is the sum of the rows actually saved (the list and the
+    # team's own page can be a minute apart), so a team whose rows don't add up to its list total is read again.
+    limit = REFRESH // 2 + zlib.crc32(key.encode()) % (REFRESH // 2)
+    return not (c and lp is not None and c.get("p") == lp and now - c.get("ft", 0) < limit)
+
+
+def make_plan():
+    # Step 1 (one machine): the clan war, both top lists, and which teams changed since the last scan.
+    global battle
+    battle = (get("/api/activeClanBattle") or {}).get("configName")
+    if not battle:
+        # Without the war's name every clan's points come back empty and every clan player's history would be
+        # wiped, so nothing is written and the last good scan stays.
+        sys.exit("Could not read the current clan war, so nothing was written.")
+    now = int(time.time())
+    plan = {"battle": battle, "t": now, "fetch": []}
+    for kind, (path, key, size, _) in KINDS.items():
+        teams = top(path, key, a.leagues if kind == "League" else a.clans, size)
+        cache = load_teams(kind) if a.prev else {}
+        todo = [[kind, n, lp] for n, lp in teams if due(cache.get(n.lower()), lp, n.lower(), now)]
+        plan[kind], plan["fetch"] = teams, plan["fetch"] + todo
+        print(f"{kind}: {len(teams)} teams, {len(todo)} changed or due to be read again", flush=True)
+    return plan
+
+
+def fetch(items, label=""):
+    # Step 2 (one or more machines): the changed teams' own pages. Returns {kind: {lowercase name: team}}.
+    got = {"League": {}, "Clan": {}}
     try:
-        for i, (name, lp) in enumerate(teams, 1):
-            key, c = name.lower(), cache.get(name.lower())
-            limit = REFRESH // 2 + zlib.crc32(key.encode()) % (REFRESH // 2)
-            if not (c and lp is not None and c.get("p") == lp and now - c.get("ft", 0) < limit):
-                d = get(detail + urllib.parse.quote(name, safe=""))
-                asked += 1
-                if not d:
-                    continue
-                rows = [[x["UserID"], round(x.get("Points") or 0)] for x in pick(d) if x.get("UserID")]
-                c = {"name": d.get("Name") or name, "p": [sum(pt for _, pt in rows), lp[1]] if lp else None, "ft": now, "rows": rows,
-                     "mem": [m for m in members(d) if m]}
-            fresh[key] = c
+        for i, (kind, name, lp) in enumerate(items, 1):
+            d = get(KINDS[kind][3] + urllib.parse.quote(name, safe=""))
+            if d:
+                found = (d.get("PointContributions") or []) if kind == "League" else clan_points(d, battle)
+                rows = [[x["UserID"], round(x.get("Points") or 0)] for x in found if x.get("UserID")]
+                got[kind][name.lower()] = {"name": d.get("Name") or name, "ft": int(time.time()), "rows": rows,
+                                           "p": [sum(pt for _, pt in rows), lp[1]] if lp else None,
+                                           "mem": [m for m in (league_members(d) if kind == "League" else clan_members(d)) if m]}
+            if i % 100 == 0 or i == len(items):
+                print(f"{label}{i}/{len(items)} teams read", flush=True)
+    except KeyboardInterrupt:
+        print("Stopped early; the teams not read keep their last saved data.")
+    return got
+
+
+def merge(plan, got):
+    # Step 3 (one machine): every team, read now or reused, into ranks.json, the player index and the team cache.
+    for kind in KINDS:
+        cache = load_teams(kind) if a.prev else {}
+        pts, keep = [], {}
+        for name, lp in plan[kind]:
+            key = name.lower()
+            c = got[kind].get(key) or cache.get(key)  # a team whose page could not be read keeps its last saved data
+            if not c:
+                continue
+            keep[key] = c
             pts += [p for _, p in c["rows"]]
             if a.players:
                 index(kind, c["name"], c["rows"], c["mem"])
-            if i % 100 == 0 or i == len(teams):
-                print(f"{kind}: {i}/{len(teams)} done, {asked} asked for, {len(pts)} players", flush=True)
-    except KeyboardInterrupt:
-        print("Stopped early, saving what was scanned so far.")
-        stopped, i = True, max(0, i - 1)
-    pts.sort()
-    return {"names": i, "points": pts, "asked": asked}, fresh
+        pts.sort()
+        out[kind] = {"names": len(keep), "points": pts, "read": len(got[kind])}
+        teams[kind] = keep
+    out["Clan"]["battle"] = battle  # the page ignores a clan scan from an earlier war
+    if not any(len(out[k]["points"]) > 50 for k in KINDS):
+        sys.exit("Scan found almost no players, so " + a.out + " was not written. The API may be down.")
+    out["updated"] = int(time.time())
+    with open(a.out, "w") as f:
+        json.dump(out, f, separators=(",", ":"))
+    print("Wrote", a.out)
+    if a.players:
+        write_players(a.players)
+        print(f"Wrote the player index to {a.players}: {len(players['League'])} league players, {len(players['Clan'])} clan players")
+    if a.teams:
+        for k, v in teams.items():
+            write_teams(k, v)
+        print("Wrote the team cache to", a.teams, "-", ", ".join(f"{k}: {out[k]['read']} read, {len(v) - out[k]['read']} reused" for k, v in teams.items()))
 
 
 def load_teams(kind):
@@ -223,34 +286,34 @@ def write_players(folder):
 
 
 out, battle, teams = {"updated": 0}, None, {}
-battle = (get("/api/activeClanBattle") or {}).get("configName")
-if not battle:
-    # Without the war's name every clan's points come back empty and every clan player's history would be
-    # wiped, so nothing is written and the last good scan stays.
-    sys.exit("Could not read the current clan war, so nothing was written.")
-try:
-    print("Reading the top leagues...", flush=True)
-    out["League"], teams["League"] = scan("League", top("/v1/leagues?sort=Points&sortOrder=desc", "leagues", a.leagues),
-                                          "/v1/leagues/", lambda d: d.get("PointContributions") or [], league_members,
-                                          load_teams("League") if a.prev and a.teams else {})
-    if not stopped:
-        print("Reading the top clans for", battle, flush=True)
-        out["Clan"], teams["Clan"] = scan("Clan", top("/api/clans?sort=Points&sortOrder=desc", None, a.clans, 1000),
-                                          "/api/clan/", lambda d: clan_points(d, battle), clan_members,
-                                          load_teams("Clan") if a.prev and a.teams else {})
-        out["Clan"]["battle"] = battle  # the page ignores a clan scan from an earlier war
-except KeyboardInterrupt:
-    print("Stopped early, saving what was scanned so far.")
-if not any(len((out.get(k) or {}).get("points") or []) > 50 for k in ("League", "Clan")):
-    sys.exit("Scan found almost no players, so " + a.out + " was not written. The API may be down.")
-out["updated"] = int(time.time())
-with open(a.out, "w") as f:
-    json.dump(out, f, separators=(",", ":"))
-print("Wrote", a.out, "- upload it next to index.html")
-if a.players:
-    write_players(a.players)
-    print(f"Wrote the player index to {a.players}: {len(players['League'])} league players, {len(players['Clan'])} clan players")
-if a.teams and not stopped:
-    for k, v in teams.items():
-        write_teams(k, v)
-    print("Wrote the team cache to", a.teams, "-", ", ".join(f"{k}: {out[k]['asked']} of {len(v)} asked for" for k, v in teams.items()))
+if a.step == "plan":
+    plan = make_plan()
+    with open(a.plan, "w") as f:
+        json.dump(plan, f, separators=(",", ":"))
+    print(f"Wrote {a.plan}: {len(plan['fetch'])} teams to read")
+elif a.step == "fetch":
+    with open(a.plan) as f:
+        plan = json.load(f)
+    battle, items = plan["battle"], plan["fetch"][a.shard::a.of]
+    print(f"Machine {a.shard + 1} of {a.of}: {len(items)} teams to read at {rate:g} a minute", flush=True)
+    got = fetch(items)
+    with open(a.part, "w") as f:
+        json.dump(got, f, separators=(",", ":"))
+    print("Wrote", a.part)
+elif a.step == "merge":
+    with open(a.plan) as f:
+        plan = json.load(f)
+    battle, got = plan["battle"], {"League": {}, "Clan": {}}
+    files = sorted(fn for fn in os.listdir(a.parts) if fn.endswith(".json"))
+    if len(files) != a.of:
+        # A machine's part is missing: those teams would quietly fall back to old data, so nothing is written.
+        sys.exit(f"Expected {a.of} part files in {a.parts}, found {len(files)}, so nothing was written.")
+    for fn in files:
+        with open(os.path.join(a.parts, fn)) as f:
+            part = json.load(f)
+        for k in got:
+            got[k].update(part.get(k) or {})
+    merge(plan, got)
+else:
+    plan = make_plan()
+    merge(plan, fetch(plan["fetch"]))
