@@ -119,7 +119,7 @@ h3{font-size:22px;line-height:1.1;margin:22px 0 8px;color:var(--y)}
 .pk.c3 .ic,.pk.c5 .ic{color:var(--g)}
 .pr{grid-column:1/-1;background:#000;border:2px solid var(--ed);border-radius:14px;padding:12px}
 .prt{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:start;text-align:center}
-.prn{min-width:0;display:grid;justify-items:center;gap:4px}.prn small{color:var(--mut);font-size:12px}.prn span:last-child{max-width:100%;font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prn{min-width:0;display:grid;justify-items:center;gap:4px}.prn small{color:var(--mut);font-size:12px}.prn>span:last-child{max-width:100%;font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .av.pav{width:40px;height:40px;font-size:16px;border:2px solid var(--ed)}
 .prm small{display:block;color:var(--mut);font-size:12px;letter-spacing:.04em}.prm b{display:block;font:400 44px/1.05 "Lilita One",Impact,sans-serif;color:var(--y)}
 .prb{position:relative;height:8px;margin:12px 4px 8px;border-radius:8px;background:#262626}.prb i{display:block;height:100%;border-radius:8px;background:var(--g)}
@@ -144,7 +144,7 @@ h3{font-size:22px;line-height:1.1;margin:22px 0 8px;color:var(--y)}
 .seg button[aria-pressed="true"]{background:var(--y);color:#111;border-color:var(--y)}
 .sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
 .sum .cell{padding:8px}.sum .cell b{font-size:28px}
-.cap{min-height:24px;margin:8px 0 0;font-size:15px;color:var(--mut)}
+.cap{min-height:3em;margin:8px 0 0;font-size:15px;color:var(--mut)}
 .lg{position:relative;flex:none;width:38px;height:38px;border-radius:10px;background:#262626;display:grid;place-items:center;overflow:hidden;color:var(--y);font:400 18px "Lilita One",Impact,sans-serif}
 .lg.lgb{width:72px;height:72px;border-radius:16px;font-size:30px}
 .lg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
@@ -166,6 +166,33 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 .more{width:100%;min-height:48px;margin-top:10px;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx);font-size:18px;cursor:pointer}
 #ld{position:fixed;inset:0;z-index:50;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;touch-action:none;transition:opacity .35s}
 [hidden]{display:none!important}
+/* Open/close signs on the expandable sections. */
+summary{list-style:none}summary::-webkit-details-marker{display:none}
+.help summary::after,.faq summary::after,.notes summary::after{content:"+";flex:none;margin-left:auto;padding-left:12px;color:var(--y);font:400 24px/1 "Lilita One",Impact,sans-serif}
+.help[open]>summary::after,.faq[open]>summary::after,.notes[open]>summary::after{content:"\2212"}.faq summary{padding:10px 0}
+.more{font-family:"Lilita One",Impact,system-ui,sans-serif}.rvs .cell:not(.nb){display:grid;place-items:center}
+.cell .lg b,.rk .lg b{font:inherit;color:inherit;letter-spacing:0}.pcc:not(:has(.pchs)) .pleg{display:none}
+#ldslow[hidden]{display:block!important;visibility:hidden}#ld:has(#ldbtns:not([hidden])) :is(.ldb,#lddet,#ldslow){display:none!important}#ld:has(#ldbtns:not([hidden])) svg{animation:none}
+@media(max-width:1099px){.wrap{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}html{scroll-padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}}
+@media(hover:hover){.rk:hover,.mem:hover,.sg:hover{background:#1a1a1a}.tab:not([aria-pressed=true]):hover,.seg button:not([aria-pressed=true]):hover,.share:hover,.more:hover,.recent button:hover{border-color:#555}.go:hover{filter:brightness(1.08)}}
+
+/* Phones: header on one row (picture, name, Share) with the details full width underneath. */
+.own{display:inline-block;max-width:100%}.nw{white-space:nowrap}
+@media(max-width:400px){.top,.pch{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 12px;align-items:center}
+.top>div,.pch>.pcn{display:contents}.top>.lg.lgb,.pch>.av.big{width:56px;height:56px;font-size:24px}
+.top h2,.pch h2{grid-column:2;grid-row:1;margin:0}.top .share,.pch .share{grid-column:3;grid-row:1;padding:0 10px}.top .meta,.pch .meta{grid-column:1/-1}}
+/* Global rank: names may take two lines; on phones the rank sits on top and the two neighbours share the row below. */
+.prn{grid-template-columns:minmax(0,1fr)}.prn>span:last-child{white-space:normal;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.25}
+.prt{align-items:end}.prm{align-self:start}
+@media(max-width:639px){.prt{grid-template-columns:1fr 1fr}.prm{grid-column:1/-1;grid-row:1}}
+/* Stat boxes: label, number and note line up across a row even when one label wraps. */
+.keys .cell,.pcg.four .pk{display:grid;grid-row:span 3;grid-template-rows:subgrid;row-gap:0;align-content:start}
+@media(max-width:639px){.pcg.pt .pk{display:grid;grid-row:span 3;grid-template-rows:subgrid;row-gap:0;align-content:start}}
+.pk b~small{padding:0}@media(max-width:379px){.pk .ic{display:none}.pk>small{padding:0}}
+.keys .cell b{white-space:nowrap}.keys .cell b small,.pk b small{display:block;white-space:normal;line-height:1.3;margin-top:2px}
+.rk>.lg+span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gr b small{white-space:nowrap}
+@media(max-width:479px){.sum{grid-template-columns:1fr;gap:6px}.sum .cell{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 12px}.sum .cell small{font-size:14px}}
+
 #ld.out{opacity:0;pointer-events:none}
 #ld svg{width:84px;animation:ldw 1.2s ease-in-out infinite}
 @keyframes ldw{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(10deg)}}
@@ -177,16 +204,17 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 @media(min-width:640px){.grid{grid-template-columns:repeat(4,1fr)}.grid.rvs{grid-template-columns:1fr 1fr}.keys{grid-template-columns:repeat(3,1fr)}}
 /* PC (16:9 and other wide screens): search (and the top 10 while a team is shown) in a column on the
    left that stays in view, the stats filling the rest of the screen. */
-@media(min-width:1100px){.wrap{max-width:none;padding:0 24px 40px;display:grid;grid-template-columns:clamp(360px,24vw,520px) minmax(0,1fr);gap:0 24px;align-items:start}
-.side{position:sticky;top:0;max-height:100vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#333 transparent}.mainc{margin-top:24px;min-width:0}.wrap>footer{grid-column:1/-1}
+@media(min-width:1100px){html{scroll-padding-bottom:12px}.wrap{max-width:none;padding:0 24px;display:grid;grid-template-columns:clamp(360px,24vw,520px) minmax(0,1fr);gap:0 24px;align-items:start}
+.side{position:sticky;top:0;max-height:100vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#333 transparent;scrollbar-gutter:stable;scroll-padding-block:12px}.mainc{margin-top:24px;min-width:0}.wrap>footer{grid-column:2;padding-bottom:24px}
 #dash{scroll-margin-top:24px}#dash>.st:first-child{margin-top:0}#fab{display:none!important}.about p,.help ul{max-width:80ch}
-.mainc>.tops #top{columns:2;column-gap:28px}.mainc>.tops .rk{break-inside:avoid}.mainc>.tops #more{column-span:all}}
+.mainc>.tops #top{columns:2;column-gap:28px}.mainc>.tops .rk{break-inside:avoid}.mainc>.tops #more{column-span:all;display:block}.mainc>.tops .rk:first-child{border-top:1px solid var(--ed)}}
 @media(min-width:1300px){.dg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 28px;align-items:start}
 .mems{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px;align-items:start}}
 @media(min-width:1500px){.wrap{gap:0 32px}}
 @media(min-width:1700px){.keys{grid-template-columns:repeat(6,1fr)}}
 @media(min-width:1800px){.pgx{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 14px;align-items:start}.pgx .pcg.four{grid-template-columns:1fr 1fr}}
-@media(min-width:2200px){.mems{grid-template-columns:repeat(3,minmax(0,1fr))}.mems>.mem.hid:nth-child(-n+12){display:grid}}
+@media(min-width:2200px){.mems{grid-template-columns:repeat(3,minmax(0,1fr))}.mems>.mem.hid:nth-child(-n+12){display:grid}.mems:not(:has(>.mem:nth-child(13)))+.more{display:none}}
+@media(min-width:2800px){.mems{grid-template-columns:repeat(4,minmax(0,1fr))}.mainc>.tops #top{columns:3}}
 </style></head>
 <body><div id="ld" role="status" aria-live="polite"><svg viewBox="0 0 120 150" aria-hidden="true"><path d="M60 6C92 6 114 58 114 94c0 30-24 50-54 50S6 124 6 94C6 58 28 6 60 6Z" fill="#fff" stroke="#14204a" stroke-width="7" stroke-linejoin="round"/><path d="M14 84l17-13 15 15 15-17 15 15 17-13 13 11" fill="none" stroke="#14204a" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="40" cy="42" r="8" fill="#ff9ec7"/><circle cx="82" cy="34" r="6" fill="#ffd23f"/><circle cx="78" cy="118" r="9" fill="#7ee6ff"/><circle cx="36" cy="112" r="6" fill="#b98cff"/></svg>
 <div class="ldt" id="ldh">Loading all API data</div>
@@ -238,6 +266,7 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 <div id="toast" class="toast" role="status" hidden></div>
 <script>
 const $=i=>document.getElementById(i);
+let LDFAIL=false,CHX=null,CHK=null;
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 const UNITS=[[1e12,'t',2],[1e9,'b',2],[1e6,'m',2],[1e3,'k',1]];
 const fmt=v=>{if(typeof v!=='number')return v;const a=Math.abs(v),m=v<0&&Math.round(a)?'-':'';
@@ -390,9 +419,13 @@ const COL=['#ffd23f','#ff9ec7','#3ddc84','#6cc8ff'],CH=200;let CW=340;
 // On PC the charts get wider instead of taller: the drawing width follows the chart's column (sizes
 // mirror the CSS), so text stays readable and the height stays low. Half-width columns start at
 // "two" (1300px for the team page, 1800px for the player card); below that the chart is full width.
-function colW(pad,two){const W=document.documentElement.clientWidth;if(W<1100)return 0;
-const m=W-48-Math.min(520,Math.max(360,innerWidth*.24))-(W>=1500?32:24);return W<(two||1300)?m-36:(m-pad)/2}
-const pW=()=>Math.max(340,Math.round((colW(46,1800)-28)/1.5));let PW=340;
+function colW(pad,two){const V=innerWidth,W=document.documentElement.clientWidth;if(V<1100)return Math.max(0,Math.min(720,W)-68);
+const m=W-48-Math.min(520,Math.max(360,V*.24))-(V>=1500?32:24);return V<(two||1300)?m-36:(m-pad)/2}
+// Phones draw at about their real size (so labels are not shrunk); wider screens draw wider instead of taller.
+const cwNow=()=>{const c=colW(64);return Math.max(Math.min(340,c),Math.round(c/1.3),260)};
+const pW=()=>{const c=colW(46,1800)-28;return Math.max(Math.min(340,c),Math.round(c/1.5),260)};let PW=340;
+// Axis labels without trailing zeros (100m, 37.5m), so they stay clear of the chart's edge.
+const fax=v=>fmt(v).replace(/\.?0+(?=[kmbt]$)/,'');
 let RG=0,CM='tot',LAST=null,CHD=null;
 const sg=v=>(v<0?'':'+')+fmt(v);
 const pc=(x,m)=>{x=Math.max(0,Math.min(m||99.9,Math.round(x*10)/10));return x%1?x.toFixed(1):''+x};
@@ -410,9 +443,9 @@ s+='C'+(b[0]+(c[0]-a[0])/6).toFixed(1)+' '+cl(b[1]+(c[1]-a[1])/6)+' '+(c[0]-(d[0
 return s}
 function ctl(hrs,kind){return '<div class="seg">'+[1,6,24].map(h=>'<button data-r="'+h+'" aria-pressed="'+(h===hrs)+'">'+h+' hour'+(h>1?'s':'')+'</button>').join('')+'</div><div class="seg"><button data-m="tot" aria-pressed="'+(CM==='tot')+'">'+kind+' total</button><button data-m="pl" aria-pressed="'+(CM==='pl')+'">Top players</button></div>'}
 function chartHtml(a,d){
-CW=Math.max(340,Math.round(colW(64)/1.3));if(CM==='pl'&&d.loc)a=d.loc;
+CW=cwNow();if(CM==='pl'&&d.loc)a=d.loc;
 const sp=a.length>1?a[a.length-1][0]-a[0][0]:0;
-if(a.length<3||sp<240){CHD=null;return (CM==='pl'?ctl(RG||1,d.kind):'')+'<svg class="ch" viewBox="'+(340-CW)/2+' 0 '+CW+' '+CH+'"><line x1="48" x2="330" y1="170" y2="170" stroke="#3a3a3a"/><path d="M48 150C100 118 140 160 190 130S280 108 330 98" fill="none" stroke="#3a3a3a" stroke-width="3" stroke-dasharray="6 6"/><text x="189" y="76" text-anchor="middle">Collecting data</text></svg><p class="cap">'+(CM==='pl'?'Points per player only come from this device, not the server. Keep this page open and the chart fills in.':'The chart starts after about 4 minutes. Keep this page open and it fills in.')+'</p>'}
+if(a.length<3||sp<240){CHD=null;return (CM==='pl'?ctl(RG||1,d.kind):'')+'<svg class="ch" viewBox="'+(340-Math.max(CW,340))/2+' 0 '+Math.max(CW,340)+' '+CH+'"><line x1="48" x2="330" y1="170" y2="170" stroke="#3a3a3a"/><path d="M48 150C100 118 140 160 190 130S280 108 330 98" fill="none" stroke="#3a3a3a" stroke-width="3" stroke-dasharray="6 6"/><text x="189" y="76" text-anchor="middle">Collecting data</text></svg><p class="cap">'+(CM==='pl'?'Points per player only come from this device, not the server. Keep this page open and the chart fills in.':'The chart starts after about 4 minutes. Keep this page open and it fills in.')+'</p>'}
 const hrs=RG||(sp<=3900?1:sp<=22200?6:24);
 const mk=(c,n,r,get)=>{const raw=series(a,get,hrs);return{c,n,r,raw,pts:smooth(raw)}};
 const ser=CM==='pl'?d.rows.filter(r=>!r.z).slice(0,4).map((r,i)=>mk(COL[i],nm(r),r,s=>s[3]&&s[3][r.id]!=null?s[3][r.id]:null)):[mk(COL[0],d.kind,null,s=>s[1])];
@@ -423,13 +456,13 @@ const mx=nice(Math.max(1,...all)),l=48,t=18,r=10,b=26,pw=CW-l-r,ph=CH-t-b,x0=ser
 const X=tm=>l+(tm-x0)/(x1-x0||1)*pw,Y=v=>t+ph-v/mx*ph,hm=tm=>new Date(tm*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
 CHD={ser,X,Y};
 let g='<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+COL[0]+'" stop-opacity=".4"/><stop offset="1" stop-color="'+COL[0]+'" stop-opacity="0"/></linearGradient></defs><text x="'+l+'" y="11">points per hour</text>';
-[0,.25,.5,.75,1].forEach(f=>{const y=Y(mx*f);g+='<line x1="'+l+'" x2="'+(CW-r)+'" y1="'+y+'" y2="'+y+'" stroke="'+(f?'#242424':'#3a3a3a')+'"/><text x="'+(l-6)+'" y="'+(y+4)+'" text-anchor="end">'+fmt(mx*f)+'</text>'});
+[0,.25,.5,.75,1].forEach(f=>{const y=Y(mx*f);g+='<line x1="'+l+'" x2="'+(CW-r)+'" y1="'+y+'" y2="'+y+'" stroke="'+(f?'#242424':'#3a3a3a')+'"/><text x="'+(l-6)+'" y="'+(y+4)+'" text-anchor="end">'+fax(mx*f)+'</text>'});
 [0,.33,.66,1].forEach(f=>{const tm=x0+(x1-x0)*f;g+='<text x="'+X(tm)+'" y="'+(CH-8)+'" text-anchor="'+(f===0?'start':f===1?'end':'middle')+'">'+(f===1?'now':hm(tm))+'</text>'});
 ser.forEach(q=>{let run=[];const runs=[];q.pts.forEach(p=>{if(p[1]==null){if(run.length)runs.push(run);run=[]}else run.push([X(p[0]),Y(p[1])])});if(run.length)runs.push(run);
 runs.forEach(rn=>{const c1=curve(rn,t,t+ph);if(ser.length===1&&rn.length>1)g+='<path d="'+c1+'L'+rn[rn.length-1][0].toFixed(1)+' '+(t+ph)+'L'+rn[0][0].toFixed(1)+' '+(t+ph)+'Z" fill="url(#ga)"/>';g+='<path d="'+c1+'" fill="none" stroke="'+q.c+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'});
 const lp=q.pts.filter(p=>p[1]!=null).pop();if(lp)g+='<circle cx="'+X(lp[0]).toFixed(1)+'" cy="'+Y(lp[1]).toFixed(1)+'" r="4.5" fill="'+q.c+'" stroke="#000" stroke-width="2"/>'});
 g+='<line id="gl" y1="'+t+'" y2="'+(t+ph)+'" stroke="#fff" opacity=".5" style="display:none"/>'+ser.map((q,i)=>'<circle id="gd'+i+'" r="5.5" fill="'+q.c+'" stroke="#fff" stroke-width="2" style="display:none"/>').join('');
-const v1=ser[0].raw.map(p=>p[1]).filter(v=>v!=null),sum=ser.length===1&&v1.length?'<div class="sum"><div class="cell"><small>Now</small><b>+'+fmt(v1[v1.length-1])+'</b></div><div class="cell"><small>Average</small><b>+'+fmt(v1.reduce((s,v)=>s+v,0)/v1.length)+'</b></div><div class="cell"><small>Peak</small><b>+'+fmt(Math.max(...v1))+'</b></div></div>':'';
+const v1=ser[0].pts.map(p=>p[1]).filter(v=>v!=null),sum=ser.length===1&&v1.length?'<div class="sum"><div class="cell"><small>Now</small><b>+'+fmt(v1[v1.length-1])+'</b></div><div class="cell"><small>Average</small><b>+'+fmt(v1.reduce((s,v)=>s+v,0)/v1.length)+'</b></div><div class="cell"><small>Peak</small><b>+'+fmt(Math.max(...v1))+'</b></div></div>':'';
 const leg=ser.length>1?'<div class="leg">'+ser.map(q=>'<span class="lgd">'+av(q.r).replace('class="av"','class="av sm" style="border:2px solid '+q.c+'"')+'<span style="color:'+q.c+'">'+esc(q.n)+'</span></span>').join('')+'</div>':'';
 return ctl(hrs,d.kind)+sum+'<svg class="ch" viewBox="0 0 '+CW+' '+CH+'" role="img" aria-label="Points per hour chart">'+g+'</svg><p class="cap" id="cap">Touch or drag on the chart to see exact numbers. Gaps mean no snapshot was taken then.</p>'+leg}
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
@@ -549,7 +582,7 @@ return '<div class="mem'+(open?' open':'')+(k>=LIMIT&&!all?' hid':'')+'" data-id
 +'<p class="st">'+(ri.pct!=null?'Better than '+(ri.est||ri.nEst||ri.rEst?'~':'')+pcs(ri.pct)+'% of '+war+' war players. ':'')+(ri.rank?'Based on: '+basis(ri)+'.':'')+(r.t?' Last earned points '+ago(now-r.t)+'.':'')+'</p>')
 +'<div class="acts"><button class="more" data-open="Player" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:r.id)+'">Player stats</button><a class="more" href="https://www.roblox.com/users/'+r.id+'/profile" target="_blank" rel="noopener">Roblox profile</a></div></div></div>'}).join('')||'<p class="st">No contributor data.</p>';
 const own=d.oid?nm({id:d.oid,n:d.owner||d.oid}):d.owner||'',lost=kind==='Clan'&&d.pts!=null&&d.pts-d.sum>d.pts*0.005;
-return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2><p class="meta">'+(kind==='Clan'&&BREC?esc(BREC.title):kind)+(own?' · Owner '+esc(own):'')+'</p></div><button class="share" data-share>Share</button></div>'
+return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2><p class="meta">'+(kind==='Clan'&&BREC?esc(BREC.title):kind)+(own?' · <span class="own">Owner '+esc(own)+'</span>':'')+'</p></div><button class="share" data-share>Share</button></div>'
 +(PZ?'<p class="pz">'+esc(PZ.page)+'</p>':'')
 +'<div class="grid keys">'+keys.map(c=>'<div class="cell"><small>'+c[0]+'</small><b>'+c[1]+'</b>'+(c[2]?'<small>'+c[2]+'</small>':'')+'</div>').join('')+'</div>'
 +'<div class="dg"><div><h3>Points gained</h3>'+(PZ&&!G.some(x=>x&&x[0])?'<p class="st">'+PZ.none+'</p>':'<p class="st" style="margin:0 0 4px">'+hist+'</p>'+gains)
@@ -646,7 +679,7 @@ return{a:ah&&(be||end)?ah:null,b:be&&(ah||top)?be:null,live:0}}
 function prank(s,nb){const ri=s.ri;if(!s.has)return '<div class="pr"><div class="prm"><small>GLOBAL RANK</small><b>-</b><small>No points yet</small></div></div>';
 if(!ri||!ri.rank)return '<div class="pr"><div class="prm"><small>GLOBAL RANK</small><b>...</b><small>Working it out</small></div></div>';
 const tl=ri.est||ri.nEst||ri.rEst?'~':'',ap=ri.pct!=null?Math.max(0,Math.min(100,ri.pct)):null,ah=ap==null?null:ri.N?Math.max(0,Math.min(100,(ri.rank-1)/ri.N*100)):100-ap;
-const side=(x,lab)=>'<div class="prn">'+(x?'<small>'+(nb.live&&!ri.rEst?'':'~')+'#'+x.r.toLocaleString()+' · '+lab+'</small>'+pav(x.id)+'<span>'+esc(U[x.id]?(U[x.id][1]!==U[x.id][0]?U[x.id][1]+' ('+U[x.id][0]+')':U[x.id][0]):'User '+x.id)+'</span>':'<small>'+lab+'</small><span class="st">'+(nb===undefined?'Loading':'-')+'</span>')+'</div>';
+const side=(x,lab)=>'<div class="prn">'+(x?'<small>'+lab+' <span class="nw">'+(nb.live&&!ri.rEst?'':'~')+'#'+x.r.toLocaleString()+'</span></small>'+pav(x.id)+'<span>'+esc(U[x.id]?(U[x.id][1]!==U[x.id][0]?U[x.id][1]+' ('+U[x.id][0]+')':U[x.id][0]):'User '+x.id)+'</span>':'<small>'+lab+'</small><span class="st">'+(nb===undefined?'Loading':'-')+'</span>')+'</div>';
 return '<div class="pr"><div class="prt">'+side(nb&&nb.b,'Behind')+'<div class="prm"><small>GLOBAL RANK</small><b>'+tl+'#'+ri.rank.toLocaleString()+'</b><small>of '+(ri.N?(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString():'?')+' players</small></div>'+side(nb&&nb.a,'Ahead')+'</div>'
 +(ap!=null?'<div class="prb"><i style="width:'+ap.toFixed(2)+'%"></i><em style="left:'+ap.toFixed(2)+'%"></em></div><div class="prp"><div><b>'+tl+ap.toFixed(2)+'%</b><small>players behind</small></div><div><b>'+tl+ah.toFixed(2)+'%</b><small>players ahead</small></div></div>':'')
 +(nb===null?'<small class="prx">The players just ahead and behind show after the next full scan.</small>':'')
@@ -656,7 +689,7 @@ if(v.length<2)return '<p class="st">No hourly points yet. The chart fills in the
 if(!v.some(x=>x>=1))return '<p class="st">No points earned in the last '+H.length+' hour'+(H.length>1?'s':'')+'.</p>';
 const W=PW=pW(),Hh=200,l=46,r=14,t=28,b=24,pw=W-l-r,ph=Hh-t-b,mx=nice(Math.max(1,...v)),n=H.length,X=i=>l+(n<2?pw:i*pw/(n-1)),Y=x=>t+ph-x/mx*ph,avg=v.reduce((s,x)=>s+x,0)/v.length;
 let g='<defs><linearGradient id="pl" x1="0" x2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#ffd23f"/></linearGradient><linearGradient id="pa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd23f" stop-opacity=".35"/><stop offset="1" stop-color="#ffd23f" stop-opacity="0"/></linearGradient></defs>';
-for(let k=0;k<=5;k++){const y=Y(mx*k/5);g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#242424"/><text x="'+(l-6)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end">'+fmt(mx*k/5)+'</text>'}
+for(let k=0;k<=5;k++){const y=Y(mx*k/5);g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#242424"/><text x="'+(l-6)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end">'+fax(mx*k/5)+'</text>'}
 let run=[];const runs=[];H.forEach((h,i)=>{if(h[1]==null){if(run.length)runs.push(run);run=[]}else run.push([X(i),Y(h[1])])});if(run.length)runs.push(run);
 runs.forEach(rn=>{if(rn.length<2){g+='<circle cx="'+rn[0][0].toFixed(1)+'" cy="'+rn[0][1].toFixed(1)+'" r="3" fill="#ffd23f"/>';return}const c=curve(rn,t,t+ph);
 g+='<path d="'+c+'L'+rn[rn.length-1][0].toFixed(1)+' '+(t+ph)+'L'+rn[0][0].toFixed(1)+' '+(t+ph)+'Z" fill="url(#pa)"/><path d="'+c+'" fill="none" stroke="url(#pl)" stroke-width="3" stroke-linecap="round"/>'});
@@ -694,24 +727,33 @@ return h}
 // Long names shrink until they fit on one line (down to 16px; past that they wrap).
 function fitName(){const e=document.querySelector('.pch h2');if(!e)return;e.style.fontSize='';e.style.whiteSpace='nowrap';
 let f=28;while(f>16&&e.scrollWidth>e.clientWidth)e.style.fontSize=--f+'px';e.style.whiteSpace=''}
-function drawPlayer(V){$('dash').innerHTML=renderPlayer(V);fitName()}
-function fitNums(){const bs=[...document.querySelectorAll('#dash .cell b,#dash .pk b,#dash .prp b')].filter(b=>!b.closest('.det'));
+// Refreshes rebuild the stats and the top 10; keyboard focus goes back to the same control.
+function keepFocus(box,write){const a=document.activeElement;let q=null;
+if(a&&a!==document.body&&box.contains(a)){const d=a.dataset;q=a.id?'#'+CSS.escape(a.id):d.id?'[data-id="'+CSS.escape(d.id)+'"]':d.r?'[data-r="'+d.r+'"]':d.m?'[data-m="'+d.m+'"]':d.pk?'[data-pk="'+d.pk+'"]':d.n!=null?'[data-n="'+CSS.escape(d.n)+'"]':d.all?'[data-all]':a.hasAttribute('data-share')?'[data-share]':null}
+write();if(q){const e=box.querySelector(q);if(e)e.focus({preventScroll:true})}}
+function drawPlayer(V){keepFocus($('dash'),()=>{$('dash').innerHTML=renderPlayer(V)});fitName()}
+function fitNums(){const bs=[...document.querySelectorAll('#dash .cell b,#dash .pk b,#dash .prp b')].filter(b=>!b.closest('.det,.lg'));
 bs.forEach(b=>{b.style.fontSize='';b.style.overflowWrap='normal'});
 bs.forEach(b=>{const w=b.clientWidth;if(!w||b.scrollWidth<=w+1)return;let s=Math.max(14,Math.floor(parseFloat(getComputedStyle(b).fontSize)*w/b.scrollWidth));b.style.fontSize=s+'px';
-while(s>14&&b.scrollWidth>w+1)b.style.fontSize=--s+'px';if(b.scrollWidth>w+1)b.style.overflowWrap=''})}
+while(s>14&&b.scrollWidth>w+1)b.style.fontSize=--s+'px';if(b.scrollWidth>w+1)b.style.overflowWrap=''});
+// When a number in a row had to shrink, the others in that row shrink to the same size.
+const rows=new Map();bs.forEach(b=>{const c=b.parentElement,g=c.parentElement;if(!b.clientWidth||!g.matches('.sum,.keys,.pcg,.prp'))return;const k=g;const t=Math.round(c.getBoundingClientRect().top);
+const m=rows.get(k)||new Map();rows.set(k,m);(m.get(t)||m.set(t,[]).get(t)).push(b)});
+rows.forEach(m=>m.forEach(a=>{if(a.length<2||!a.some(b=>b.style.fontSize))return;const z=Math.min(...a.map(b=>parseFloat(getComputedStyle(b).fontSize)));a.forEach(b=>{if(parseFloat(getComputedStyle(b).fontSize)>z)b.style.fontSize=z+'px'})}))}
 // The top 10 sits under the search on PC while a team or player is shown, and in the wide column
 // when nothing is. On phones it always follows the stats (its place in the HTML).
 const TOPS=document.querySelector('.tops'),PCQ=matchMedia('(min-width:1100px)');
 function placeTops(){if(PCQ.matches&&$('dash').firstChild){if(TOPS.previousElementSibling!==$('find'))$('find').after(TOPS)}else if(TOPS.previousElementSibling!==$('dash'))$('dash').after(TOPS)}
 PCQ.addEventListener?PCQ.addEventListener('change',placeTops):PCQ.addListener(placeTops);placeTops();
-new MutationObserver(()=>{placeTops();fitNums()}).observe($('dash'),{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['class']});
+new MutationObserver(()=>{placeTops();fitNums();const s=document.querySelector('#chw .ch'),g=$('gl');
+if(s&&g&&CHX!=null&&g.style.display==='none'&&LAST&&LAST.d.key===CHK){const R=s.getBoundingClientRect();chHit({target:s,clientX:R.left+CHX*R.width})}}).observe($('dash'),{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['class']});
 const refit=()=>{fitName();fitNums()};let RZ=0;
 // After a resize the charts are drawn again at the new width.
-addEventListener('resize',()=>{clearTimeout(RZ);RZ=setTimeout(()=>{if(LAST&&$('chw')&&Math.max(340,Math.round(colW(64)/1.3))!==CW)$('chw').innerHTML=chartHtml(LAST.a,LAST.d);
+addEventListener('resize',()=>{clearTimeout(RZ);RZ=setTimeout(()=>{if(LAST&&$('chw')&&cwNow()!==CW)$('chw').innerHTML=chartHtml(LAST.a,LAST.d);
 if(mode==='Player'&&PV&&$('dash').querySelector('.pchs')&&pW()!==PW)drawPlayer(PV)},250)});document.fonts&&(document.fonts.ready.then(refit),document.fonts.addEventListener('loadingdone',refit));addEventListener('resize',refit);
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pk]');if(!b||!PV)return;PKIND[PV.id]=b.dataset.pk;drawPlayer(PV)});
 async function paintPlayer(show){const q=S.Player,seq=++PSEQ,box=$('dash'),ok=()=>seq===PSEQ&&mode==='Player';if(!q){box.innerHTML='';return}
-if(show)box.innerHTML='<p class="st">Looking up '+esc(q)+'...</p>';
+if(show)box.innerHTML='<section class="card"><p class="st" style="margin:0">Looking up '+esc(q)+'...</p></section>';
 try{const id=await findUser(q);if(!ok())return;
 if(!id){DEAD='Player:'+q.toLowerCase();box.innerHTML='<section class="card"><b>No Roblox user called '+esc(q.replace(/^@/,''))+'.</b><p class="st">Check the spelling of their username (not their display name), or type their user ID.</p></section>';return}
 // Each team's live data is requested the moment its name is known; a slow profile picture never holds up the numbers.
@@ -736,19 +778,19 @@ if(ok()&&PV===V)drawPlayer(V)}
 catch(e){if(ok()&&(show||!box.querySelector('.pc')))box.innerHTML='<section class="card"><b>'+(e==='roblox'?'Could not reach Roblox to look up that username.':'Could not load this player.')+'</b><p class="st">Try again in a moment, or type their user ID.</p></section>'}}
 async function paint(show){if(mode==='Player')return paintPlayer(show);
 const name=S[mode],k=mode,seq=++PSEQ;if(!name){$('dash').innerHTML='';return}
-if(show)$('dash').innerHTML='<p class="st">Loading '+esc(name)+'...</p>';
+if(show)$('dash').innerHTML='<section class="card"><p class="st" style="margin:0">Loading '+esc(name)+'...</p></section>';
 try{const hp=shist(k,name.toLowerCase()),d=await near(await(k==='League'?dataL(name):dataC(name)));phase('t:'+d.key,d.pts+':'+d.sum);const ids=d.rows.map(r=>r.id),ln=d.name.toLowerCase(),loc=snap(d);
 const extra=Promise.all([names(d.oid?ids.concat(d.oid):ids),pics(ids),gplay(k),ln===name.toLowerCase()?hp:shist(k,ln)]);
 // Draw as soon as the numbers are in; names, pictures and player ranks fill in on a second draw.
 const draw=fin=>{if(seq!==PSEQ||k!==mode||name.toLowerCase()!==String(S[mode]||'').toLowerCase())return;d.hs=HS[k+':'+ln];d.loc=k==='Clan'?sinceReset(loc):loc;let a=merge(loc,d.hs&&d.hs.ok?d.hs.h:[]);if(k==='Clan')a=sinceReset(a);
-$('dash').innerHTML=render(d,a)+(fin&&ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'');if(!fin)shown(k,d.name)};
+keepFocus($('dash'),()=>{$('dash').innerHTML=render(d,a)+(fin&&ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'')});if(!fin)shown(k,d.name)};
 await Promise.race([hp,new Promise(z=>setTimeout(z,1200))]);draw(false);
 Promise.race([extra,new Promise(z=>setTimeout(z,5000))]).then(()=>draw(true))}
 catch(e){if(GONE(e))DEAD=k+':'+name.toLowerCase();if(k===mode&&seq===PSEQ&&(show||GONE(e)||!$('dash').querySelector('.dash')))$('dash').innerHTML='<section class="card"><b>Could not find '+esc(name)+'.</b><p class="st">'+(GONE(e)?'Check the spelling. Only the exact name works.':'Live data may be unavailable right now. Try again in a moment.')+'</p></section>'}}
 // In Player mode the list shows the official top league players (the API's top 500 sample).
 const TRIED=new Set();
 function boardPlayers(){const g=GPX.League,k=Math.min(BN,g.list.length);rkw(k);$('th').textContent='Top '+(k||10)+' league players';$('war').hidden=true;
-$('top').innerHTML=g.list.length?g.list.slice(0,k).map((x,i)=>{const u=U[x.id];return '<button class="rk" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:x.id)+'"><b>#'+(i+1)+'</b><span class="lg"><b>'+esc((u?u[0][0]:'?').toUpperCase())+'</b>'+(IM[x.id]?'<img src="'+esc(IM[x.id])+'" alt="" loading="lazy">':'')+'</span><span>'+esc(u?'@'+u[0]:'User '+x.id)+(x.team?'<small>'+esc(x.team)+'</small>':'')+'</span><i>'+fmt(x.p)+'</i></button>'}).join('')+(k<g.list.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">Loading...</p>';
+keepFocus($('top'),()=>$('top').innerHTML=g.list.length?g.list.slice(0,k).map((x,i)=>{const u=U[x.id];return '<button class="rk" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:x.id)+'"><b>#'+(i+1)+'</b><span class="lg"><b>'+esc((u?u[0][0]:'?').toUpperCase())+'</b>'+(IM[x.id]?'<img src="'+esc(IM[x.id])+'" alt="" loading="lazy">':'')+'</span><span>'+esc(u?'@'+u[0]:'User '+x.id)+(x.team?'<small>'+esc(x.team)+'</small>':'')+'</span><i>'+fmt(x.p)+'</i></button>'}).join('')+(k<g.list.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>');
 if(!g.at){if(Date.now()-(g.tr||0)>30000){g.tr=Date.now();gplay('League').then(()=>{if(mode==='Player'&&GPX.League.at)board()})}return}
 const ids=g.list.slice(0,k).map(x=>x.id).filter(i=>!TRIED.has(i)&&(!U[i]||!IM[i]));ids.forEach(i=>TRIED.add(i));
 if(ids.length)Promise.all([names(ids),pics(ids)]).then(()=>{if(mode==='Player')boardPlayers()})}
@@ -758,7 +800,7 @@ const rkw=k=>$('top').style.setProperty('--rkw',k>999?'64px':k>99?'54px':'44px')
 function board(){exPH();if(mode==='Player')return boardPlayers();const a=mode==='League'?L:C,k=Math.min(BN,a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(mode==='League'?'leagues':'clans');
 const pz=mode!=='Player'?pzInfo(mode):null;
 if(pz){w.textContent=pz.board;w.hidden=false}else if(mode==='Clan'&&BREC){w.textContent='Current clan war: '+BREC.title+(BREC.end>Date.now()?', ends '+new Date(BREC.end).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'')+'.';w.hidden=false}else w.hidden=true;
-$('top').innerHTML=a.length?a.slice(0,k).map((x,i)=>'<button class="rk" data-n="'+esc(x[0])+'"><b>#'+(i+1)+'</b>'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span><i>'+fmt(x[1])+'</i></button>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">Loading...</p>'}
+keepFocus($('top'),()=>$('top').innerHTML=a.length?a.slice(0,k).map((x,i)=>'<button class="rk" data-n="'+esc(x[0])+'"><b>#'+(i+1)+'</b>'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span><i>'+fmt(x[1])+'</i></button>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>')}
 function setMode(m,np){mode=m;BN=10;$('sg').innerHTML='';S.mode=m;save();$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');$('tP').setAttribute('aria-pressed',m==='Player');
 $('q').value=S[m]||'';exPH();$('ql').textContent=m==='Player'?'Roblox username':m+' name';showRecent();board();$('dash').innerHTML='';setURL();pzLoad();if(S[m]&&live&&!np)paint(true)}
 // One refresh at a time: a slow one is never doubled up by the next minute's.
@@ -798,7 +840,7 @@ $('top').onclick=e=>{if(e.target.id==='more'){BN+=25;board();return}const b=e.ta
 document.addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;if(i.dataset.id&&!i.dataset.t){i.dataset.t=1;i.src='/ps99api/image/'+i.dataset.id}else i.style.display='none'},true);
 document.addEventListener('load',e=>{if(e.target.tagName==='IMG')e.target.parentNode.classList.add('ok')},true);
 document.addEventListener('click',e=>{const b=e.target.closest('.seg button[data-r],.seg button[data-m]');if(!b||!LAST||!$('chw'))return;if(b.dataset.r)RG=+b.dataset.r;if(b.dataset.m)CM=b.dataset.m;$('chw').innerHTML=chartHtml(LAST.a,LAST.d)});
-const chHit=e=>{const s=e.target.closest&&e.target.closest('.ch');if(!s||!CHD)return;const R=s.getBoundingClientRect(),x=(e.clientX-R.left)/R.width*CW,p=CHD.ser[0].pts;let bi=0,bd=1e9;p.forEach((q,i)=>{const dx=Math.abs(CHD.X(q[0])-x);if(dx<bd){bd=dx;bi=i}});
+const chHit=e=>{const s=e.target.closest&&e.target.closest('.ch');if(!s||!CHD)return;const R=s.getBoundingClientRect(),x=(e.clientX-R.left)/R.width*CW;CHX=x/CW;CHK=LAST&&LAST.d.key;const p=CHD.ser[0].pts;let bi=0,bd=1e9;p.forEach((q,i)=>{const dx=Math.abs(CHD.X(q[0])-x);if(dx<bd){bd=dx;bi=i}});
 const tm=p[bi][0],g=$('gl');g.setAttribute('x1',CHD.X(tm));g.setAttribute('x2',CHD.X(tm));g.style.display='';
 CHD.ser.forEach((q,i)=>{const c=$('gd'+i),v=q.pts[bi][1];if(v==null){c.style.display='none'}else{c.setAttribute('cx',CHD.X(tm));c.setAttribute('cy',CHD.Y(v));c.style.display=''}});
 $('cap').innerHTML=new Date(tm*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+': '+CHD.ser.map(q=>q.pts[bi][1]==null?'no data':'<span style="color:'+q.c+'">'+(CHD.ser.length>1?esc(q.n)+' ':'')+'+'+fmt(q.pts[bi][1])+'/hr</span>').join(', ')};
@@ -836,13 +878,13 @@ if(k==='Player'&&S.Player){gplay('League');gplay('Clan');findUser(S.Player).then
 const ready=(loadRanks(),setMode(['Clan','Player'].includes(S.mode)?S.mode:'League'),tick(true));
 const FIRST=!ldS('ps99v').x;
 $('ldp').textContent=FIRST?'First visit: loading the top 2,000 leagues and clans.':'Loading the latest leaderboards...';
-setTimeout(()=>{const e=$('ldslow');if(e&&$('ld'))e.hidden=false},15000);
+setTimeout(()=>{const e=$('ldslow');if(e&&$('ld')&&$('ldbtns').hidden)e.hidden=false},15000);
 function ldDone(){const el=$('ld');if(!el)return;
 if(live){try{localStorage.setItem('ps99v',JSON.stringify({x:1}))}catch(e){}el.classList.add('out');setTimeout(()=>el.remove(),450);return}
-$('ldh').textContent="Couldn't load the data";$('ldp').textContent='The game servers did not answer. Check your connection and try again.';$('ldbtns').hidden=false;$('ldslow').hidden=true}
+LDFAIL=true;$('ldh').textContent="Couldn't load the data";$('ldp').textContent='The game servers did not answer. Check your connection and try again.';$('ldbtns').hidden=false;$('ldslow').hidden=true}
 ready.then(ldDone);
 if(live){$('st').textContent='Showing the leaderboards from your last visit while the live ones load...';ldDone()}
-$('ldretry').onclick=()=>{$('ldh').textContent='Loading all API data';$('ldp').textContent='Trying again...';$('ldbtns').hidden=true;lp=0;cp=0;ldUpd();tick(true).then(ldDone)};
+$('ldretry').onclick=()=>{LDFAIL=false;$('ldh').textContent='Loading all API data';$('ldp').textContent='Trying again...';$('ldbtns').hidden=true;lp=0;cp=0;ldUpd();tick(true).then(ldDone)};
 $('ldopen').onclick=()=>{const el=$('ld');if(el){el.classList.add('out');setTimeout(()=>el.remove(),450)}};
 const dueFull=()=>!live||Date.now()-Math.max(LISTT,LISTA)>=290000;
 ready.then(schedule);
