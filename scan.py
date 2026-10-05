@@ -16,8 +16,8 @@ up roster changes. While the league war is paused that skips all 2,000 leagues.
 
 The work can be split across machines (BIG Games agreed to this for PS99 Tracker):
   python3 scan.py plan  --prev prev --plan plan.json                 (one machine)
-  python3 scan.py fetch --plan plan.json --shard 0 --of 5 --total-rate 350 --part p0.json   (machines 0..4, 70/min each)
-  python3 scan.py merge --plan plan.json --parts parts --of 5 --prev prev --out ranks.json --players players --teams teams
+  python3 scan.py fetch --plan plan.json --shard 0 --of 17 --total-rate 1530 --part p0.json   (machines 0..16, 90/min each)
+  python3 scan.py merge --plan plan.json --parts parts --of 17 --prev prev --out ranks.json --players players --teams teams
 With no step named, one machine does all three.
 """
 import argparse, json, os, sys, time, urllib.error, urllib.parse, urllib.request, zlib
