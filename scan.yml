@@ -1,12 +1,12 @@
 name: Scan PS99 leaderboards
 
-# Started every hour by Netlify (netlify/functions/trigger-data-jobs.mjs), because GitHub's scheduler
+# Started every hour by Cloudflare (cloudflare/cron-worker.js), because GitHub's scheduler
 # skipped its runs. Three steps: "plan" reads the clan war and both top lists and works out which teams
 # changed; "fetch" reads those teams' pages on several machines at once (BIG Games agreed to this for
 # PS99 Tracker), together at TOTAL_RATE requests a minute; "merge" builds the files and saves them.
 # Teams whose points didn't change are reused, so a scan takes about 3 minutes. If any machine fails,
 # nothing is saved and the last good scan stays. GitHub's schedule stays as a backup that only scans when
-# the last scan finished over 50 minutes ago; a Netlify run only skips when a scan finished in the last
+# the last scan finished over 50 minutes ago; a Cloudflare run only skips when a scan finished in the last
 # 2 minutes (it waited behind that scan). When starting it by hand, tick "force" to scan anyway.
 on:
   schedule:
@@ -131,7 +131,7 @@ jobs:
         env:
           GITHUB_TOKEN: ${{ github.token }}
         run: |
-          # Kept off main on purpose: every commit to main is a Netlify production deploy, which costs credits.
+          # Kept off main on purpose: every commit to main is a site deploy.
           # One commit with no parents, force-pushed, so the branch never piles up old copies.
           mkdir out && mv ranks.json players teams out/ && cd out
           git init -q && git checkout -q --orphan data-ranks && git add -A
