@@ -8,7 +8,7 @@ team's points and rank to the history kept in --dir (25 hours, so a 24-hour gain
   h/league/<bucket>.json and h/clan/<bucket>.json   {"<lowercase name>": [[unixSeconds, points, rank], ...]}
   h/meta.json                                        when each kind was last saved
 
-GitHub Actions runs this every hour (.github/workflows/history.yml, started by Netlify) and saves
+GitHub Actions runs this every hour (.github/workflows/history.yml, started by Cloudflare) and saves
 the folder to the data-history branch, which index.html reads. Needs only Python 3.
 """
 import argparse, json, os, sys, time, urllib.error, urllib.request
@@ -79,9 +79,9 @@ a = ap.parse_args()
 t = int(time.time())
 meta_path = os.path.join(a.dir, "h", "meta.json")
 meta = load(meta_path) or {}
-# Netlify starts this job every hour on the hour. GitHub's own schedule (:37) is only a backup, so it
-# runs only when Netlify missed an hour (no snapshot in 45 minutes, so the :37 backup can keep an hourly
-# rhythm on its own); a Netlify run only skips a repeat within 10 minutes.
+# Cloudflare starts this job every hour on the hour. GitHub's own schedule (:37) is only a backup, so it
+# runs only when Cloudflare missed an hour (no snapshot in 45 minutes, so the :37 backup can keep an hourly
+# rhythm on its own); a Cloudflare run only skips a repeat within 10 minutes.
 since = t - (meta.get("lastRun") or {}).get("t", 0)
 if since < (2700 if os.environ.get("GITHUB_EVENT_NAME") == "schedule" else 600):
     print(f"The last snapshot was {since} seconds ago, so this run is skipped.")
