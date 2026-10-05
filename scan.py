@@ -135,7 +135,7 @@ def make_plan():
         # wiped, so nothing is written and the last good scan stays.
         sys.exit("Could not read the current clan war, so nothing was written.")
     now = int(time.time())
-    plan = {"battle": battle, "t": now, "fetch": []}
+    plan = {"battle": battle, "t": now, "prev": prev_updated(), "fetch": []}
     for kind, (path, key, size, _) in KINDS.items():
         teams = top(path, key, a.leagues if kind == "League" else a.clans, size)
         cache = load_teams(kind) if a.prev else {}
@@ -143,6 +143,16 @@ def make_plan():
         plan[kind], plan["fetch"] = teams, plan["fetch"] + todo
         print(f"{kind}: {len(teams)} teams, {len(todo)} changed or due to be read again", flush=True)
     return plan
+
+
+def prev_updated():
+    # When the scan this one builds on was saved. The merge step checks it is still the latest, so re-running an
+    # old failed scan later can never write its old data over a newer scan.
+    try:
+        with open(os.path.join(a.prev, "ranks.json")) as f:
+            return json.load(f).get("updated", 0)
+    except (OSError, ValueError):
+        return 0
 
 
 def fetch(items, label=""):
@@ -297,6 +307,7 @@ elif a.step == "fetch":
     battle, items = plan["battle"], plan["fetch"][a.shard::a.of]
     print(f"Machine {a.shard + 1} of {a.of}: {len(items)} teams to read at {rate:g} a minute", flush=True)
     got = fetch(items)
+    got.update({"t": plan["t"], "shard": a.shard})  # which plan and which machine, checked by the merge step
     with open(a.part, "w") as f:
         json.dump(got, f, separators=(",", ":"))
     print("Wrote", a.part)
@@ -304,15 +315,20 @@ elif a.step == "merge":
     with open(a.plan) as f:
         plan = json.load(f)
     battle, got = plan["battle"], {"League": {}, "Clan": {}}
-    files = sorted(fn for fn in os.listdir(a.parts) if fn.endswith(".json"))
-    if len(files) != a.of:
-        # A machine's part is missing: those teams would quietly fall back to old data, so nothing is written.
-        sys.exit(f"Expected {a.of} part files in {a.parts}, found {len(files)}, so nothing was written.")
-    for fn in files:
+    if prev_updated() != plan.get("prev", 0):
+        sys.exit("A newer scan was saved since this plan was made, so nothing was written.")
+    shards = set()
+    for fn in sorted(fn for fn in os.listdir(a.parts) if fn.endswith(".json")):
         with open(os.path.join(a.parts, fn)) as f:
             part = json.load(f)
+        if part.get("t") != plan["t"]:
+            sys.exit(f"{fn} belongs to another scan, so nothing was written.")
+        shards.add(part.get("shard"))
         for k in got:
             got[k].update(part.get(k) or {})
+    if shards != set(range(a.of)):
+        # A machine's part is missing: those teams would quietly fall back to old data, so nothing is written.
+        sys.exit(f"Expected parts from machines 0-{a.of - 1}, found {sorted(shards)}, so nothing was written.")
     merge(plan, got)
 else:
     plan = make_plan()
