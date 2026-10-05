@@ -56,9 +56,7 @@
 html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:#000;color:var(--tx);font:17px/1.5 "Atkinson Hyperlegible",system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
-.wrap{max-width:720px;margin:0 auto;padding:0 16px 40px;display:flex;flex-direction:column}
-.side,.mainc{display:contents}.wrap>*,.side>*,.mainc>*{min-width:0}
-.side>h1{order:1}.side>.sub,.side>noscript{order:2}#find{order:3}#dash{order:4}.tops{order:5}.help{order:6}.about{order:7}.wrap>footer{order:8}
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 40px}
 h1,h2,h3,.big,button,input{font-family:"Lilita One",Impact,system-ui,sans-serif;font-weight:400}
 h1{font-size:clamp(36px,11vw,54px);line-height:1.05;margin:24px 0 6px}
 h1 span{color:var(--y)}
@@ -155,7 +153,7 @@ h3{font-size:22px;line-height:1.1;margin:22px 0 8px;color:var(--y)}
 .rk:first-child{border-top:0}.rk b{font-family:"Lilita One",Impact,sans-serif;font-weight:400;color:var(--mut)}.rk span{overflow-wrap:anywhere;font-weight:700}.rk i{font:400 21px "Lilita One",Impact,sans-serif;font-style:normal;color:var(--y)}
 .help summary{cursor:pointer;font:400 20px "Lilita One",Impact,sans-serif;min-height:44px;display:flex;align-items:center}
 .help ul{padding-left:20px;margin:6px 0 0}.help li{margin-bottom:8px}
-footer{color:var(--mut);font-size:14px}footer>p:first-child{margin-top:0}footer a{color:var(--mut)}
+footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 .pill{display:block;width:fit-content;max-width:100%;margin-top:6px;padding:4px 10px;border-radius:12px;background:#262626;color:var(--y);font-size:13px;font-weight:700}
 .faq{border-top:1px solid var(--ed)}.faq summary{cursor:pointer;font-weight:700;min-height:48px;display:flex;align-items:center}.faq p{margin:0 0 12px;color:var(--mut)}
 .det .cell{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px;padding:8px 12px}.det .cell b{font-size:22px;white-space:nowrap}.det .cell small{min-width:0}
@@ -177,13 +175,18 @@ footer{color:var(--mut);font-size:14px}footer>p:first-child{margin-top:0}footer 
 .ldb{width:min(320px,80vw);margin-top:6px}.ldb i{transition:width .3s}
 .ldbtn{display:grid;gap:10px;width:min(320px,80vw);margin-top:8px}
 @media(min-width:640px){.grid{grid-template-columns:repeat(4,1fr)}.grid.rvs{grid-template-columns:1fr 1fr}.keys{grid-template-columns:repeat(3,1fr)}}
-/* PC (16:9 and other wide screens): search, top 10 and help on the left, the stats filling the rest. */
+/* PC (16:9 and other wide screens): search (and the top 10 while a team is shown) in a column on the
+   left that stays in view, the stats filling the rest of the screen. */
 @media(min-width:1100px){.wrap{max-width:none;padding:0 24px 40px;display:grid;grid-template-columns:clamp(360px,24vw,520px) minmax(0,1fr);gap:0 24px;align-items:start}
-.side,.mainc{display:block}.mainc{margin-top:24px}.wrap>footer{grid-column:1/-1}}
-@media(min-width:1300px){.dg,.pgx{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 28px;align-items:start}.pgx{gap:0 14px}
-.pgx .pcg.four{grid-template-columns:1fr 1fr}.mems{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px}}
-@media(min-width:1500px){.wrap{gap:0 32px}.keys{grid-template-columns:repeat(6,1fr)}}
-@media(min-width:2200px){.mems{grid-template-columns:repeat(3,minmax(0,1fr))}}
+.side{position:sticky;top:0;max-height:100vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#333 transparent}.mainc{margin-top:24px;min-width:0}.wrap>footer{grid-column:1/-1}
+#dash{scroll-margin-top:24px}#dash>.st:first-child{margin-top:0}#fab{display:none!important}.about p,.help ul{max-width:80ch}
+.mainc>.tops #top{columns:2;column-gap:28px}.mainc>.tops .rk{break-inside:avoid}.mainc>.tops #more{column-span:all}}
+@media(min-width:1300px){.dg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 28px;align-items:start}
+.mems{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px;align-items:start}}
+@media(min-width:1500px){.wrap{gap:0 32px}}
+@media(min-width:1700px){.keys{grid-template-columns:repeat(6,1fr)}}
+@media(min-width:1800px){.pgx{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 14px;align-items:start}.pgx .pcg.four{grid-template-columns:1fr 1fr}}
+@media(min-width:2200px){.mems{grid-template-columns:repeat(3,minmax(0,1fr))}.mems>.mem.hid:nth-child(-n+12){display:grid}}
 </style></head>
 <body><div id="ld" role="status" aria-live="polite"><svg viewBox="0 0 120 150" aria-hidden="true"><path d="M60 6C92 6 114 58 114 94c0 30-24 50-54 50S6 124 6 94C6 58 28 6 60 6Z" fill="#fff" stroke="#14204a" stroke-width="7" stroke-linejoin="round"/><path d="M14 84l17-13 15 15 15-17 15 15 17-13 13 11" fill="none" stroke="#14204a" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="40" cy="42" r="8" fill="#ff9ec7"/><circle cx="82" cy="34" r="6" fill="#ffd23f"/><circle cx="78" cy="118" r="9" fill="#7ee6ff"/><circle cx="36" cy="112" r="6" fill="#b98cff"/></svg>
 <div class="ldt" id="ldh">Loading all API data</div>
@@ -207,10 +210,10 @@ footer{color:var(--mut);font-size:14px}footer>p:first-child{margin-top:0}footer 
 <div class="recent" id="recent"></div>
 <p class="st" id="st">Loading live data...</p>
 </section>
-<section class="card tops"><h2 id="th">Top 10 leagues</h2><p class="st" id="war" style="margin:0 0 6px;color:var(--y)" hidden></p><p class="st" style="margin:0 0 6px">Tap one to see its stats.</p><div id="top"></div></section>
 </div>
 <div class="mainc">
 <div id="dash" aria-live="polite"></div>
+<section class="card tops"><h2 id="th">Top 10 leagues</h2><p class="st" id="war" style="margin:0 0 6px;color:var(--y)" hidden></p><p class="st" style="margin:0 0 6px">Tap one to see its stats.</p><div id="top"></div></section>
 <details class="card help"><summary>How to read the stats</summary><ul>
 <li><b>Rank</b> is the place on the leaderboard. #1 is the best.</li>
 <li><b>Better than 98%</b> means a player has more points than 98 in 100 players in the top 2,000 leagues, or the top 2,000 clans for the clan war. A ~ means it is an estimate for now.</li>
@@ -384,9 +387,12 @@ function merge(loc,srv){if(!srv.length)return loc;const out=[];let j=0;
 for(const s of srv){while(j<loc.length&&loc[j][0]<s[0]-450)j++;if(!(j<loc.length&&loc[j][0]<=s[0]+450))out.push([s[0],s[1],s[2],null])}
 return out.concat(loc).sort((x,y)=>x[0]-y[0])}
 const COL=['#ffd23f','#ff9ec7','#3ddc84','#6cc8ff'],CH=200;let CW=340;
-// On PC the charts sit in half-width columns. They get wider instead of taller there: the drawing
-// width follows the column (sizes mirror the CSS), so text stays readable and the height stays low.
-function colW(pad){const W=innerWidth;if(W<1300)return 0;const side=Math.min(520,Math.max(360,W*.24));return (W-48-side-(W>=1500?32:24)-pad)/2}
+// On PC the charts get wider instead of taller: the drawing width follows the chart's column (sizes
+// mirror the CSS), so text stays readable and the height stays low. Half-width columns start at
+// "two" (1300px for the team page, 1800px for the player card); below that the chart is full width.
+function colW(pad,two){const W=document.documentElement.clientWidth;if(W<1100)return 0;
+const m=W-48-Math.min(520,Math.max(360,innerWidth*.24))-(W>=1500?32:24);return W<(two||1300)?m-36:(m-pad)/2}
+const pW=()=>Math.max(340,Math.round((colW(46,1800)-28)/1.5));let PW=340;
 let RG=0,CM='tot',LAST=null,CHD=null;
 const sg=v=>(v<0?'':'+')+fmt(v);
 const pc=(x,m)=>{x=Math.max(0,Math.min(m||99.9,Math.round(x*10)/10));return x%1?x.toFixed(1):''+x};
@@ -406,7 +412,7 @@ function ctl(hrs,kind){return '<div class="seg">'+[1,6,24].map(h=>'<button data-
 function chartHtml(a,d){
 CW=Math.max(340,Math.round(colW(64)/1.3));if(CM==='pl'&&d.loc)a=d.loc;
 const sp=a.length>1?a[a.length-1][0]-a[0][0]:0;
-if(a.length<3||sp<240){CHD=null;return (CM==='pl'?ctl(RG||1,d.kind):'')+'<svg class="ch" viewBox="0 0 340 '+CH+'"><line x1="48" x2="330" y1="170" y2="170" stroke="#3a3a3a"/><path d="M48 150C100 118 140 160 190 130S280 108 330 98" fill="none" stroke="#3a3a3a" stroke-width="3" stroke-dasharray="6 6"/><text x="189" y="76" text-anchor="middle">Collecting data</text></svg><p class="cap">'+(CM==='pl'?'Points per player only come from this device, not the server. Keep this page open and the chart fills in.':'The chart starts after about 4 minutes. Keep this page open and it fills in.')+'</p>'}
+if(a.length<3||sp<240){CHD=null;return (CM==='pl'?ctl(RG||1,d.kind):'')+'<svg class="ch" viewBox="'+(340-CW)/2+' 0 '+CW+' '+CH+'"><line x1="48" x2="330" y1="170" y2="170" stroke="#3a3a3a"/><path d="M48 150C100 118 140 160 190 130S280 108 330 98" fill="none" stroke="#3a3a3a" stroke-width="3" stroke-dasharray="6 6"/><text x="189" y="76" text-anchor="middle">Collecting data</text></svg><p class="cap">'+(CM==='pl'?'Points per player only come from this device, not the server. Keep this page open and the chart fills in.':'The chart starts after about 4 minutes. Keep this page open and it fills in.')+'</p>'}
 const hrs=RG||(sp<=3900?1:sp<=22200?6:24);
 const mk=(c,n,r,get)=>{const raw=series(a,get,hrs);return{c,n,r,raw,pts:smooth(raw)}};
 const ser=CM==='pl'?d.rows.filter(r=>!r.z).slice(0,4).map((r,i)=>mk(COL[i],nm(r),r,s=>s[3]&&s[3][r.id]!=null?s[3][r.id]:null)):[mk(COL[0],d.kind,null,s=>s[1])];
@@ -648,7 +654,7 @@ return '<div class="pr"><div class="prt">'+side(nb&&nb.b,'Behind')+'<div class="
 function pchart(H){const v=H.map(h=>h[1]).filter(x=>x!=null);
 if(v.length<2)return '<p class="st">No hourly points yet. The chart fills in the same way as the boxes above.</p>';
 if(!v.some(x=>x>=1))return '<p class="st">No points earned in the last '+H.length+' hour'+(H.length>1?'s':'')+'.</p>';
-const W=Math.max(340,Math.round((colW(46)-28)/1.5)),Hh=200,l=46,r=14,t=28,b=24,pw=W-l-r,ph=Hh-t-b,mx=nice(Math.max(1,...v)),n=H.length,X=i=>l+(n<2?pw:i*pw/(n-1)),Y=x=>t+ph-x/mx*ph,avg=v.reduce((s,x)=>s+x,0)/v.length;
+const W=PW=pW(),Hh=200,l=46,r=14,t=28,b=24,pw=W-l-r,ph=Hh-t-b,mx=nice(Math.max(1,...v)),n=H.length,X=i=>l+(n<2?pw:i*pw/(n-1)),Y=x=>t+ph-x/mx*ph,avg=v.reduce((s,x)=>s+x,0)/v.length;
 let g='<defs><linearGradient id="pl" x1="0" x2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#ffd23f"/></linearGradient><linearGradient id="pa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd23f" stop-opacity=".35"/><stop offset="1" stop-color="#ffd23f" stop-opacity="0"/></linearGradient></defs>';
 for(let k=0;k<=5;k++){const y=Y(mx*k/5);g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#242424"/><text x="'+(l-6)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end">'+fmt(mx*k/5)+'</text>'}
 let run=[];const runs=[];H.forEach((h,i)=>{if(h[1]==null){if(run.length)runs.push(run);run=[]}else run.push([X(i),Y(h[1])])});if(run.length)runs.push(run);
@@ -693,8 +699,16 @@ function fitNums(){const bs=[...document.querySelectorAll('#dash .cell b,#dash .
 bs.forEach(b=>{b.style.fontSize='';b.style.overflowWrap='normal'});
 bs.forEach(b=>{const w=b.clientWidth;if(!w||b.scrollWidth<=w+1)return;let s=Math.max(14,Math.floor(parseFloat(getComputedStyle(b).fontSize)*w/b.scrollWidth));b.style.fontSize=s+'px';
 while(s>14&&b.scrollWidth>w+1)b.style.fontSize=--s+'px';if(b.scrollWidth>w+1)b.style.overflowWrap=''})}
-new MutationObserver(fitNums).observe($('dash'),{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['class']});
-const refit=()=>{fitName();fitNums()};document.fonts&&(document.fonts.ready.then(refit),document.fonts.addEventListener('loadingdone',refit));addEventListener('resize',refit);
+// The top 10 sits under the search on PC while a team or player is shown, and in the wide column
+// when nothing is. On phones it always follows the stats (its place in the HTML).
+const TOPS=document.querySelector('.tops'),PCQ=matchMedia('(min-width:1100px)');
+function placeTops(){if(PCQ.matches&&$('dash').firstChild){if(TOPS.previousElementSibling!==$('find'))$('find').after(TOPS)}else if(TOPS.previousElementSibling!==$('dash'))$('dash').after(TOPS)}
+PCQ.addEventListener?PCQ.addEventListener('change',placeTops):PCQ.addListener(placeTops);placeTops();
+new MutationObserver(()=>{placeTops();fitNums()}).observe($('dash'),{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['class']});
+const refit=()=>{fitName();fitNums()};let RZ=0;
+// After a resize the charts are drawn again at the new width.
+addEventListener('resize',()=>{clearTimeout(RZ);RZ=setTimeout(()=>{if(LAST&&$('chw')&&Math.max(340,Math.round(colW(64)/1.3))!==CW)$('chw').innerHTML=chartHtml(LAST.a,LAST.d);
+if(mode==='Player'&&PV&&$('dash').querySelector('.pchs')&&pW()!==PW)drawPlayer(PV)},250)});document.fonts&&(document.fonts.ready.then(refit),document.fonts.addEventListener('loadingdone',refit));addEventListener('resize',refit);
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pk]');if(!b||!PV)return;PKIND[PV.id]=b.dataset.pk;drawPlayer(PV)});
 async function paintPlayer(show){const q=S.Player,seq=++PSEQ,box=$('dash'),ok=()=>seq===PSEQ&&mode==='Player';if(!q){box.innerHTML='';return}
 if(show)box.innerHTML='<p class="st">Looking up '+esc(q)+'...</p>';
