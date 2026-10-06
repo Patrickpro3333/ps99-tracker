@@ -170,7 +170,7 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
 summary{list-style:none}summary::-webkit-details-marker{display:none}
 .help summary::after,.faq summary::after,.notes summary::after{content:"+";flex:none;margin-left:auto;padding-left:12px;color:var(--y);font:400 24px/1 "Lilita One",Impact,sans-serif}
 .help[open]>summary::after,.faq[open]>summary::after,.notes[open]>summary::after{content:"\2212"}.faq summary{padding:10px 0}
-.more{font-family:"Lilita One",Impact,system-ui,sans-serif}.rvs .cell:not(.nb){display:grid;place-items:center}
+.more{font-family:"Lilita One",Impact,system-ui,sans-serif}.rvs .cell:not(.nb){display:grid;place-items:center}.rvs small{overflow-wrap:anywhere}
 .cell .lg b,.rk .lg b{font:inherit;color:inherit;letter-spacing:0}.pcc:not(:has(.pchs)) .pleg{display:none}
 #ldslow[hidden]{display:block!important;visibility:hidden}#ld:has(#ldbtns:not([hidden])) :is(.ldb,#lddet,#ldslow){display:none!important}#ld:has(#ldbtns:not([hidden])) svg{animation:none}
 @media(max-width:1099px){.wrap{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}html{scroll-padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}}
@@ -183,14 +183,22 @@ summary{list-style:none}summary::-webkit-details-marker{display:none}
 .top h2,.pch h2{grid-column:2;grid-row:1;margin:0}.top .share,.pch .share{grid-column:3;grid-row:1;padding:0 10px}.top .meta,.pch .meta{grid-column:1/-1}}
 /* Global rank: names may take two lines; on phones the rank sits on top and the two neighbours share the row below. */
 .prn{grid-template-columns:minmax(0,1fr)}.prn>span:last-child{white-space:normal;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.25}
-.prt{align-items:end}.prm{align-self:start}
+.prt{align-items:start}.prn{grid-row:span 3;grid-template-rows:subgrid;align-items:start}.prm{align-self:start;grid-row:span 3}
 @media(max-width:639px){.prt{grid-template-columns:1fr 1fr}.prm{grid-column:1/-1;grid-row:1}}
 /* Stat boxes: label, number and note line up across a row even when one label wraps. */
-.keys .cell,.pcg.four .pk{display:grid;grid-row:span 3;grid-template-rows:subgrid;row-gap:0;align-content:start}
+.keys .cell,.pcg.four .pk{display:grid;grid-row:span 3;grid-template-rows:subgrid;row-gap:0;align-content:start}.keys .cell,.pcg .pk{grid-template-columns:minmax(0,1fr)}
 @media(max-width:639px){.pcg.pt .pk{display:grid;grid-row:span 3;grid-template-rows:subgrid;row-gap:0;align-content:start}}
 .pk b~small{padding:0}@media(max-width:379px){.pk .ic{display:none}.pk>small{padding:0}}
 .keys .cell b{white-space:nowrap}.keys .cell b small,.pk b small{display:block;white-space:normal;line-height:1.3;margin-top:2px}
 .rk>.lg+span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gr b small{white-space:nowrap}
+
+/* Round-2 audit fixes. */
+.det .cell{flex-wrap:wrap}.det .cell b{margin-left:auto}.det .cell small{min-width:auto}
+.dash h2,.card h2{line-height:1.2}
+.lgd{max-width:100%;min-width:0}.lgd>.av{flex:none}.lgd>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.gr .bar i.neg{background:var(--r)}
+@media(max-width:399px){.cap{min-height:4.5em}}
+@media(min-width:1300px){.mems>.mem.open{grid-column:1/-1}}
 @media(max-width:479px){.sum{grid-template-columns:1fr;gap:6px}.sum .cell{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 12px}.sum .cell small{font-size:14px}}
 
 #ld.out{opacity:0;pointer-events:none}
@@ -214,7 +222,7 @@ summary{list-style:none}summary::-webkit-details-marker{display:none}
 @media(min-width:1700px){.keys{grid-template-columns:repeat(6,1fr)}}
 @media(min-width:1800px){.pgx{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 14px;align-items:start}.pgx .pcg.four{grid-template-columns:1fr 1fr}}
 @media(min-width:2200px){.mems{grid-template-columns:repeat(3,minmax(0,1fr))}.mems>.mem.hid:nth-child(-n+12){display:grid}.mems:not(:has(>.mem:nth-child(13)))+.more{display:none}}
-@media(min-width:2800px){.mems{grid-template-columns:repeat(4,minmax(0,1fr))}.mainc>.tops #top{columns:3}}
+@media(min-width:2800px){.mems{grid-template-columns:repeat(4,minmax(0,1fr))}.mainc>.tops #top:has(>.rk:nth-child(11)){columns:3}}
 </style></head>
 <body><div id="ld" role="status" aria-live="polite"><svg viewBox="0 0 120 150" aria-hidden="true"><path d="M60 6C92 6 114 58 114 94c0 30-24 50-54 50S6 124 6 94C6 58 28 6 60 6Z" fill="#fff" stroke="#14204a" stroke-width="7" stroke-linejoin="round"/><path d="M14 84l17-13 15 15 15-17 15 15 17-13 13 11" fill="none" stroke="#14204a" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="40" cy="42" r="8" fill="#ff9ec7"/><circle cx="82" cy="34" r="6" fill="#ffd23f"/><circle cx="78" cy="118" r="9" fill="#7ee6ff"/><circle cx="36" cy="112" r="6" fill="#b98cff"/></svg>
 <div class="ldt" id="ldh">Loading all API data</div>
@@ -391,6 +399,7 @@ const H={get(k){try{return JSON.parse(localStorage.getItem('ps99h:'+k))||[]}catc
 function snap(d){if(d.pts==null)return[];
 const now=Math.floor(Date.now()/1000),a=H.get(d.key).filter(s=>now-s[0]<93600);
 if(!a.length||now-a[a.length-1][0]>=55){const m={};d.rows.forEach(r=>m[r.id]=r.p);a.push([now,d.pts,LISTT&&d.i>=0?d.rank:null,m]);a.forEach(s=>{if(!s[4]&&now-s[0]>4000){s[3]=Object.fromEntries(Object.entries(s[3]).sort((x,y)=>y[1]-x[1]).slice(0,10));s[4]=1}});if(a.length>1600)a.splice(0,a.length-1600);H.set(d.key,a)}
+else if(a[a.length-1][2]==null&&LISTT&&d.i>=0){a[a.length-1][2]=d.rank;H.set(d.key,a)}
 return a}
 // Gain over exactly h hours: the value h hours ago is read between the two snapshots around that moment,
 // unless they are more than 3 hours apart (more than one missed hourly snapshot), then the older one is used.
@@ -423,9 +432,9 @@ function colW(pad,two){const V=innerWidth,W=document.documentElement.clientWidth
 const m=W-48-Math.min(520,Math.max(360,V*.24))-(V>=1500?32:24);return V<(two||1300)?m-36:(m-pad)/2}
 // Phones draw at about their real size (so labels are not shrunk); wider screens draw wider instead of taller.
 const cwNow=()=>{const c=colW(64);return Math.max(Math.min(340,c),Math.round(c/1.3),260)};
-const pW=()=>{const c=colW(46,1800)-28;return Math.max(Math.min(340,c),Math.round(c/1.5),260)};let PW=340;
+const pW=()=>{const c=colW(46,1800)-28;return Math.max(Math.min(340,c),Math.round(c/1.5))};let PW=340;
 // Axis labels without trailing zeros (100m, 37.5m), so they stay clear of the chart's edge.
-const fax=v=>fmt(v).replace(/\.?0+(?=[kmbt]$)/,'');
+const fax=v=>v<1000&&v%1?String(+v.toFixed(2)):fmt(v).replace(/\.?0+(?=[kmbt]$)/,'');
 let RG=0,CM='tot',LAST=null,CHD=null;
 const sg=v=>(v<0?'':'+')+fmt(v);
 const pc=(x,m)=>{x=Math.max(0,Math.min(m||99.9,Math.round(x*10)/10));return x%1?x.toFixed(1):''+x};
@@ -438,23 +447,23 @@ for(let j=0;j<=k;j++)v.push(interp(a,get,t0+step*j,gap));
 const u=v.map((x,j)=>x!=null?x:interp(a,get,t0+step*j,Infinity)),r=(x,y)=>Math.max(0,(y-x)/(step/3600));
 return v.slice(1).map((q,j)=>{const t=t0+step*(j+1);return v[j]!=null&&q!=null?[t,r(v[j],q)]:u[j]!=null&&u[j+1]!=null?[t,r(u[j],u[j+1]),1]:[t,null]})}
 const smooth=p=>p.map((q,i)=>{if(q[1]==null||q[2])return q;const w=[p[i-1],q,p[i+1]].filter(x=>x&&x[1]!=null&&!x[2]);return[q[0],w.reduce((s,x)=>s+x[1],0)/w.length]});
-const nice=m=>{const e=Math.pow(10,Math.floor(Math.log10(m))),f=m/e;return(f<=1?1:f<=2?2:f<=5?5:10)*e};
-function curve(p,T,B){let s='M'+p[0][0].toFixed(1)+' '+p[0][1].toFixed(1);const cl=y=>Math.min(Math.max(y,T),B).toFixed(1);
-for(let i=0;i<p.length-1;i++){const a=p[i-1]||p[i],b=p[i],c=p[i+1],d=p[i+2]||c;
+const nice=(m,d)=>{const e=Math.pow(10,Math.floor(Math.log10(m))),f=m/e;return(d===5?[1,1.5,2,2.5,3,4,5,6,8,10]:[1,1.2,1.6,2,2.4,3,4,5,6,8,10]).find(x=>f<=x+1e-9)*e};
+function curve(p){let s='M'+p[0][0].toFixed(1)+' '+p[0][1].toFixed(1);
+for(let i=0;i<p.length-1;i++){const a=p[i-1]||p[i],b=p[i],c=p[i+1],d=p[i+2]||c,lo=Math.min(b[1],c[1]),hi=Math.max(b[1],c[1]),cl=y=>Math.min(Math.max(y,lo),hi).toFixed(1);
 s+='C'+(b[0]+(c[0]-a[0])/6).toFixed(1)+' '+cl(b[1]+(c[1]-a[1])/6)+' '+(c[0]-(d[0]-b[0])/6).toFixed(1)+' '+cl(c[1]-(d[1]-b[1])/6)+' '+c[0].toFixed(1)+' '+c[1].toFixed(1)}
 return s}
 function ctl(hrs,kind){return '<div class="seg">'+[1,6,24].map(h=>'<button data-r="'+h+'" aria-pressed="'+(h===hrs)+'">'+h+' hour'+(h>1?'s':'')+'</button>').join('')+'</div><div class="seg"><button data-m="tot" aria-pressed="'+(CM==='tot')+'">'+kind+' total</button><button data-m="pl" aria-pressed="'+(CM==='pl')+'">Top players</button></div>'}
 function chartHtml(a,d){
 CW=cwNow();if(CM==='pl'&&d.loc)a=d.loc;
 const sp=a.length>1?a[a.length-1][0]-a[0][0]:0;
-if(a.length<3||sp<240){CHD=null;return (CM==='pl'?ctl(RG||1,d.kind):'')+'<svg class="ch" viewBox="'+(340-Math.max(CW,340))/2+' 0 '+Math.max(CW,340)+' '+CH+'"><line x1="48" x2="330" y1="170" y2="170" stroke="#3a3a3a"/><path d="M48 150C100 118 140 160 190 130S280 108 330 98" fill="none" stroke="#3a3a3a" stroke-width="3" stroke-dasharray="6 6"/><text x="189" y="76" text-anchor="middle">Collecting data</text></svg><p class="cap">'+(CM==='pl'?'Points per player only come from this device, not the server. Keep this page open and the chart fills in.':'The chart starts after about 4 minutes. Keep this page open and it fills in.')+'</p>'}
+if(a.length<3||sp<240){CHD=null;return (CM==='pl'?ctl(RG||1,d.kind):'')+'<svg class="ch" viewBox="0 0 '+CW+' '+CH+'"><g transform="scale('+(CW/340).toFixed(3)+' 1)"><line x1="48" x2="330" y1="170" y2="170" stroke="#3a3a3a"/><path d="M48 150C100 118 140 160 190 130S280 108 330 98" fill="none" stroke="#3a3a3a" stroke-width="3" stroke-dasharray="6 6" vector-effect="non-scaling-stroke"/></g><text x="'+Math.round(CW*189/340)+'" y="76" text-anchor="middle">Collecting data</text></svg><p class="cap">'+(CM==='pl'?'Points per player only come from this device, not the server. Keep this page open and the chart fills in.':'The chart starts after about 4 minutes. Keep this page open and it fills in.')+'</p>'}
 const hrs=RG||(sp<=3900?1:sp<=22200?6:24);
 const mk=(c,n,r,get)=>{const raw=series(a,get,hrs);return{c,n,r,raw,pts:smooth(raw)}};
 const ser=CM==='pl'?d.rows.filter(r=>!r.z).slice(0,4).map((r,i)=>mk(COL[i],nm(r),r,s=>s[3]&&s[3][r.id]!=null?s[3][r.id]:null)):[mk(COL[0],d.kind,null,s=>s[1])];
 const all=[].concat(...ser.map(q=>q.pts.map(p=>p[1]).filter(v=>v!=null)));
 if(!all.length)return ctl(hrs,d.kind)+'<p class="st">Not enough data in this range yet. Try a longer one.</p>';
 if(!all.some(v=>v>=1)){CHD=null;return ctl(hrs,d.kind)+'<p class="st">No points gained in this range.</p>'}
-const mx=nice(Math.max(1,...all)),l=48,t=18,r=10,b=26,pw=CW-l-r,ph=CH-t-b,x0=ser[0].pts[0][0],x1=ser[0].pts[ser[0].pts.length-1][0];
+const mx=nice(Math.max(1,...all),4),l=48,t=18,r=10,b=26,pw=CW-l-r,ph=CH-t-b,x0=ser[0].pts[0][0],x1=ser[0].pts[ser[0].pts.length-1][0];
 const X=tm=>l+(tm-x0)/(x1-x0||1)*pw,Y=v=>t+ph-v/mx*ph,hm=tm=>new Date(tm*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
 CHD={ser,X,Y};
 let g='<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+COL[0]+'" stop-opacity=".4"/><stop offset="1" stop-color="'+COL[0]+'" stop-opacity="0"/></linearGradient></defs><text x="'+l+'" y="11">points per hour</text>';
@@ -464,12 +473,12 @@ let EST=0;ser.forEach(q=>{let run=[],er=null;const runs=[],est=[];q.pts.forEach(
 if(pt&&!e)run.push(pt);else if(run.length){runs.push(run);run=[]}
 if(e){if(!er){er=[];const b=q.pts[i-1];if(b&&b[1]!=null&&!b[2])er.push([X(b[0]),Y(b[1])])}er.push(pt)}else if(er){if(pt)er.push(pt);est.push(er);er=null}});if(run.length)runs.push(run);if(er)est.push(er);
 est.forEach(rn=>{if(rn.length>1){EST=1;g+='<path d="'+rn.map((p,j)=>(j?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join('')+'" fill="none" stroke="'+q.c+'" stroke-width="2" stroke-dasharray="4 5" opacity=".55"/>'}});
-runs.forEach(rn=>{const c1=curve(rn,t,t+ph);if(ser.length===1&&rn.length>1)g+='<path d="'+c1+'L'+rn[rn.length-1][0].toFixed(1)+' '+(t+ph)+'L'+rn[0][0].toFixed(1)+' '+(t+ph)+'Z" fill="url(#ga)"/>';g+='<path d="'+c1+'" fill="none" stroke="'+q.c+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'});
+runs.forEach(rn=>{if(rn.length<2){g+='<circle cx="'+rn[0][0].toFixed(1)+'" cy="'+rn[0][1].toFixed(1)+'" r="3" fill="'+q.c+'"/>';return}const c1=curve(rn);if(ser.length===1&&rn.length>1)g+='<path d="'+c1+'L'+rn[rn.length-1][0].toFixed(1)+' '+(t+ph)+'L'+rn[0][0].toFixed(1)+' '+(t+ph)+'Z" fill="url(#ga)"/>';g+='<path d="'+c1+'" fill="none" stroke="'+q.c+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'});
 const lp=q.pts.filter(p=>p[1]!=null&&!p[2]).pop();if(lp)g+='<circle cx="'+X(lp[0]).toFixed(1)+'" cy="'+Y(lp[1]).toFixed(1)+'" r="4.5" fill="'+q.c+'" stroke="#000" stroke-width="2"/>'});
 g+='<line id="gl" y1="'+t+'" y2="'+(t+ph)+'" stroke="#fff" opacity=".5" style="display:none"/>'+ser.map((q,i)=>'<circle id="gd'+i+'" r="5.5" fill="'+q.c+'" stroke="#fff" stroke-width="2" style="display:none"/>').join('');
-const v1=ser[0].pts.filter(p=>p[1]!=null&&!p[2]).map(p=>p[1]),sum=ser.length===1&&v1.length?'<div class="sum"><div class="cell"><small>Now</small><b>+'+fmt(v1[v1.length-1])+'</b></div><div class="cell"><small>Average</small><b>+'+fmt(v1.reduce((s,v)=>s+v,0)/v1.length)+'</b></div><div class="cell"><small>Peak</small><b>+'+fmt(Math.max(...v1))+'</b></div></div>':'';
+const v1=ser[0].pts.filter(p=>p[1]!=null&&!p[2]).map(p=>p[1]),nw=d.pph!=null?d.pph:v1[v1.length-1],sum=ser.length===1&&v1.length?'<div class="sum"><div class="cell"><small>Last hour</small><b>'+sg(nw)+'</b></div><div class="cell"><small>Average</small><b>+'+fmt(v1.reduce((s,v)=>s+v,0)/v1.length)+'</b></div><div class="cell"><small>Peak</small><b>+'+fmt(Math.max(...v1,nw))+'</b></div></div>':'';
 const leg=ser.length>1?'<div class="leg">'+ser.map(q=>'<span class="lgd">'+av(q.r).replace('class="av"','class="av sm" style="border:2px solid '+q.c+'"')+'<span style="color:'+q.c+'">'+esc(q.n)+'</span></span>').join('')+'</div>':'';
-return ctl(hrs,d.kind)+sum+'<svg class="ch" viewBox="0 0 '+CW+' '+CH+'" role="img" aria-label="Points per hour chart">'+g+'</svg><p class="cap" id="cap">Touch or drag on the chart to see exact numbers.'+(EST?' Dashed parts had no snapshot, so they show the average for that stretch.':' Gaps mean no snapshot was taken then.')+'</p>'+leg}
+return ctl(hrs,d.kind)+sum+'<svg class="ch" viewBox="0 0 '+CW+' '+CH+'" role="img" aria-label="Points per hour chart">'+g+'</svg><p class="cap" id="cap" data-d="Touch or drag on the chart to see exact numbers.'+(EST?' Dashed parts had no snapshot, so they show the average for that stretch.':' Gaps mean no snapshot was taken then.')+'">Touch or drag on the chart to see exact numbers.'+(EST?' Dashed parts had no snapshot, so they show the average for that stretch.':' Gaps mean no snapshot was taken then.')+'</p>'+leg}
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const ldS=k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){return{}}};
 try{localStorage.removeItem('ps99g:League');localStorage.removeItem('ps99g:Clan');
@@ -564,7 +573,7 @@ const loc=d.loc||a,lastL=loc[loc.length-1],lg1=loc.length>1?gain(loc,1):null,r0=
 const hist=hs&&hs.ok&&hs.h.length?'From snapshots every 15 minutes (latest '+(hs.up?ago(now-hs.up):'unknown')+') and this page while it is open.'
 :hs&&hs.ok?(d.i<0?'Only the top 2,000 get saved history, so these fill in while this page is open.':'No saved history yet, so these fill in while this page is open.')
 :'Saved history is unavailable right now, so these only use what this device has collected.';
-const pph=g1&&g1[1]>=120?g1[0]/(g1[1]/3600):null;
+const pph=g1&&g1[1]>=120?g1[0]/(g1[1]/3600):null;d.pph=pph;
 let ct='Collecting',cc='';
 if(g24&&g24[2][2]&&last[2]){const r=g24[2][2]-last[2];ct=r>0?'Up '+r:r<0?'Down '+(-r):'No change';cc=r>0?'up':r<0?'dn':'';if(g24[1]<86000)ct+=' <small>(last '+durf(g24[1])+')</small>'}
 const unk=d.i<0&&d.list.length<=Math.min(2000,tot||2000)-100,PZ=pzInfo(kind);
@@ -572,7 +581,7 @@ const keys=[['Rank',d.i>=0?'#'+d.rank.toLocaleString():unk?'Unavailable':'Not ra
 ['Rank change, 24h','<span class="'+cc+'">'+ct+'</span>',''],['Points',d.pts==null?'n/a':fmt(d.pts),kind==='Clan'?'This clan war':''],['Points per hour',PZ?PZ.short:pph==null?'Collecting':sg(pph),PZ?PZ.sub:''],
 ['Members',d.mem+' of '+d.cap,''],['Average per member',d.pts==null||!d.mem?'n/a':fmt(d.pts/d.mem),'']];
 const mx=Math.max(1,...G.map(x=>x?Math.abs(x[0]):0)),lab=['1 hour','6 hours','12 hours','24 hours'];
-const gains=[1,6,12,24].map((h,k)=>{const x=G[k];return '<div class="gr"><span>'+lab[k]+'</span><div><b>'+(x?sg(x[0])+(x[1]<h*3600-120?' <small>('+durf(x[1])+' so far)</small>':x[1]>h*3600+120?' <small>(over '+durf(x[1])+')</small>':''):'Collecting')+'</b><div class="bar"><i style="width:'+(x?Math.max(2,Math.abs(x[0])/mx*100):0)+'%"></i></div></div></div>'}).join('');
+const gains=[1,6,12,24].map((h,k)=>{const x=G[k];return '<div class="gr"><span>'+lab[k]+'</span><div><b'+(x&&x[0]<0?' class="dn"':'')+'>'+(x?sg(x[0])+(x[1]<h*3600-120?' <small>('+durf(x[1])+' so far)</small>':x[1]>h*3600+120?' <small>(over '+durf(x[1])+')</small>':''):'Collecting')+'</b><div class="bar"><i'+(x&&x[0]<0?' class="neg"':'')+' style="width:'+(x&&x[0]?Math.max(2,Math.abs(x[0])/mx*100):0)+'%"></i></div></div></div>'}).join('');
 const A=d.i>0?d.list[d.i-1]:null,B=d.i>=0?d.list[d.i+1]:null,ok=d.pts!=null&&d.i>=0,me=ok?d.pts:0;
 const riv=(T,lab,val,none)=>T&&ok?'<div class="cell nb">'+logo(T[3],T[0],'lgs')+'<div><small>'+lab+' '+esc(T[0])+'</small><b>'+val+'</b></div></div>':'<div class="cell"><small>'+(ok?none:unk?'Unavailable right now':'Not ranked')+'</small></div>';
 const gap=riv(A,'Needed to pass','+'+fmt(Math.max(0,(A?A[1]:0)-me)),'Already #1')+riv(B,'Ahead of','by '+fmt(Math.max(0,me-(B?B[1]:0))),tot&&d.rank<tot?'Teams below #'+d.list.length.toLocaleString()+' are not tracked':'Nobody behind');
@@ -592,7 +601,7 @@ return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+
 +'<div class="grid keys">'+keys.map(c=>'<div class="cell"><small>'+c[0]+'</small><b>'+c[1]+'</b>'+(c[2]?'<small>'+c[2]+'</small>':'')+'</div>').join('')+'</div>'
 +'<div class="dg"><div><h3>Points gained</h3>'+(PZ&&!G.some(x=>x&&x[0])?'<p class="st">'+PZ.none+'</p>':'<p class="st" style="margin:0 0 4px">'+hist+'</p>'+gains)
 +'<h3>Close rivals</h3><div class="grid rvs">'+gap+'</div></div>'
-+'<div><h3>Points per hour</h3><div id="chw">'+chartHtml(a,d)+'</div></div></div>'
++'<div><h3>Points per hour</h3><div id="chw">'+(PZ&&!G.some(x=>x&&x[0])?'<p class="st">'+PZ.none+'</p>':chartHtml(a,d))+'</div></div></div>'
 +'<h3>'+(kind==='Clan'?'Members ('+d.rows.length+')':'Contributors'+(d.nAll?' ('+d.nAll+')':''))+'</h3><p class="st" style="margin:0 0 4px">'+(kind==='Clan'&&d.rows.length>d.nAll?d.nAll+' have points in this war, '+(d.rows.length-d.nAll)+' not yet. ':'')+'Tap a player for details.</p>'
 +'<div class="mems">'+mem+'</div>'+(d.rows.length>LIMIT&&!all?'<button class="more" data-all="'+esc(d.key)+'">Show all '+d.rows.length+' '+(kind==='Clan'?'members':'contributors')+'</button>':'')
 +'<details class="notes"'+(NOTESOPEN?' open':'')+'><summary>About these numbers</summary><div class="st" id="scan" data-k="'+kind+'">'+scanText(kind)+'</div>'
@@ -693,29 +702,30 @@ return '<div class="pr"><div class="prt">'+side(nb&&nb.b,'Behind')+'<div class="
 +(ap!=null?'<div class="prb"><i style="width:'+ap.toFixed(2)+'%"></i><em style="left:'+ap.toFixed(2)+'%"></em></div><div class="prp"><div><b>'+tl+ap.toFixed(2)+'%</b><small>players behind</small></div><div><b>'+tl+ah.toFixed(2)+'%</b><small>players ahead</small></div></div>':'')
 +(nb===null?'<small class="prx">The players just ahead and behind show after the next full scan.</small>':'')
 +(tl||nb&&!nb.live&&(nb.a||nb.b)?'<small class="prx">~ means an estimate.</small>':'')+'</div>'}
-function pchart(H){const va=H.filter(h=>h[1]!=null).map(h=>h[1]),v=H.filter(h=>h[1]!=null&&!h[2]).map(h=>h[1]),av=v.length?v:va;
+function pchart(H,box){const va=H.filter(h=>h[1]!=null).map(h=>h[1]),v=H.filter(h=>h[1]!=null&&!h[2]).map(h=>h[1]),av=v.length?v:va;
 if(va.length<2)return '<p class="st">No hourly points yet. The chart fills in the same way as the boxes above.</p>';
 if(!va.some(x=>x>=1))return '<p class="st">No points earned in the last '+H.length+' hour'+(H.length>1?'s':'')+'.</p>';
-const W=PW=pW(),Hh=200,l=46,r=14,t=28,b=24,pw=W-l-r,ph=Hh-t-b,mx=nice(Math.max(1,...va)),n=H.length,X=i=>l+(n<2?pw:i*pw/(n-1)),Y=x=>t+ph-x/mx*ph,avg=av.reduce((s,x)=>s+x,0)/av.length;
-let g='<defs><linearGradient id="pl" x1="0" x2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#ffd23f"/></linearGradient><linearGradient id="pa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd23f" stop-opacity=".35"/><stop offset="1" stop-color="#ffd23f" stop-opacity="0"/></linearGradient></defs>';
+const W=PW=pW(),Hh=200,l=46,r=14,t=28,b=24,pw=W-l-r,ph=Hh-t-b,avg=box!=null?box:av.reduce((s,x)=>s+x,0)/av.length,mx=nice(Math.max(1,...va,avg),5),n=H.length,X=i=>l+(n<2?pw:i*pw/(n-1)),Y=x=>t+ph-x/mx*ph;
+let g='<defs><linearGradient id="pa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd23f" stop-opacity=".35"/><stop offset="1" stop-color="#ffd23f" stop-opacity="0"/></linearGradient></defs>';
 for(let k=0;k<=5;k++){const y=Y(mx*k/5);g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#242424"/><text x="'+(l-6)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end">'+fax(mx*k/5)+'</text>'}
 // Measured hours as the solid line; estimated hours (a missed scan) dashed, joined to the measured hours beside them.
 let run=[],er=null;const runs=[],est=[];H.forEach((h,i)=>{const p=h[1]==null?null:[X(i),Y(h[1])],e=p&&h[2];
 if(p&&!e)run.push(p);else if(run.length){runs.push(run);run=[]}
 if(e){if(!er){er=[];const q=H[i-1];if(q&&q[1]!=null&&!q[2])er.push([X(i-1),Y(q[1])])}er.push(p)}else if(er){if(p)er.push(p);est.push(er);er=null}});if(run.length)runs.push(run);if(er)est.push(er);
 est.forEach(rn=>{if(rn.length>1)g+='<path d="'+rn.map((p,j)=>(j?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join('')+'" fill="none" stroke="#ffd23f" stroke-width="2" stroke-dasharray="4 5" opacity=".55"/>'});
-runs.forEach(rn=>{if(rn.length<2){g+='<circle cx="'+rn[0][0].toFixed(1)+'" cy="'+rn[0][1].toFixed(1)+'" r="3" fill="#ffd23f"/>';return}const c=curve(rn,t,t+ph);
-g+='<path d="'+c+'L'+rn[rn.length-1][0].toFixed(1)+' '+(t+ph)+'L'+rn[0][0].toFixed(1)+' '+(t+ph)+'Z" fill="url(#pa)"/><path d="'+c+'" fill="none" stroke="url(#pl)" stroke-width="3" stroke-linecap="round"/>'});
+runs.forEach(rn=>{if(rn.length<2){g+='<circle cx="'+rn[0][0].toFixed(1)+'" cy="'+rn[0][1].toFixed(1)+'" r="3" fill="#ffd23f"/>';return}const c=curve(rn);
+g+='<path d="'+c+'L'+rn[rn.length-1][0].toFixed(1)+' '+(t+ph)+'L'+rn[0][0].toFixed(1)+' '+(t+ph)+'Z" fill="url(#pa)"/><path d="'+c+'" fill="none" stroke="#ffd23f" stroke-width="3" stroke-linecap="round"/>'});
 g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+Y(avg).toFixed(1)+'" y2="'+Y(avg).toFixed(1)+'" stroke="#a8a8a8" stroke-dasharray="5 5" opacity=".8"/>';
-let li=n-1;while(li>0&&(H[li][1]==null||(v.length&&H[li][2])))li--;const lx=X(li),ly=Y(H[li][1]),lt=fmt(H[li][1]),bw=lt.length*8+16,bx=Math.min(W-r-bw,Math.max(l,lx-bw/2));
-g+='<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="5" fill="#ffd23f" stroke="#000" stroke-width="2"/><rect x="'+bx.toFixed(1)+'" y="'+Math.max(2,ly-30).toFixed(1)+'" width="'+bw+'" height="20" rx="6" fill="#000" stroke="#2e2e2e"/><text class="pbv" x="'+(bx+bw/2).toFixed(1)+'" y="'+(Math.max(2,ly-30)+14).toFixed(1)+'" text-anchor="middle">'+lt+'</text>';
+let li=n-1;while(li>0&&(H[li][1]==null||(v.length&&H[li][2])))li--;const lx=X(li),ly=Y(H[li][1]),lt=fmt(H[li][1]),bw=lt.length*8+16,bx=Math.min(W-r-bw,Math.max(l,lx-bw/2)),
+near=H.map((h,i)=>h[1]==null?null:[X(i),Y(h[1])]).filter(q=>q&&q[0]>=bx-8&&q[0]<=bx+bw+8).concat([[0,Y(avg)]]),top=Math.min(ly,...near.map(q=>q[1])),bot=Math.max(ly,...near.map(q=>q[1])),by=top-26>=2?top-26:Math.min(bot+8,t+ph-20);
+g+='<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="5" fill="#ffd23f" stroke="#000" stroke-width="2"/><rect x="'+bx.toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+bw+'" height="20" rx="6" fill="#000" stroke="#2e2e2e"/><text class="pbv" x="'+(bx+bw/2).toFixed(1)+'" y="'+(by+14).toFixed(1)+'" text-anchor="middle">'+lt+'</text>';
 g+='<text x="'+l+'" y="'+(Hh-6)+'">'+n+'h ago</text><text x="'+(W-r)+'" y="'+(Hh-6)+'" text-anchor="end" class="pbv">now</text>';
 return '<svg class="pchs" viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="Points earned per hour, last '+n+' hours">'+g+'</svg>'+(est.length?'<p class="st pgap">Dashed: no full scan ran then, so those hours show the average for that stretch.</p>':'')}
 function renderPlayer(V){const id=V.id,u=U[id],img=IM[id],kinds=['Clan','League'].filter(k=>V[k].t);
 let k=PKIND[id];if(!kinds.includes(k))k=kinds.includes('Clan')&&(!V.Clan.s||V.Clan.s.has||!kinds.includes('League'))?'Clan':kinds.includes('League')?'League':kinds[0];
 const P=k?V[k]:null,s=P&&P.s,war=k==='League'?'league':'clan',title=k==='Clan'?(BREC?BREC.title:'Clan war'):'League';
 let h='<section class="pc"><div class="pch"><span class="av big">'+'<b>'+esc(((u?u[0]:'?')[0]||'?').toUpperCase())+'</b>'+(img?'<img src="'+esc(img)+'" alt="">':'')+'</span><div class="pcn"><h2>'+esc(u?u[0]:'User '+id)+'</h2>'
-+'<p class="meta">'+(P&&P.d?'<span class="tag">['+esc(P.d.name)+']</span>':'')+esc(k?title:V.unk?'Teams could not load':'Not in a top 2,000 team')+'</p>'+(u&&u[1]!==u[0]?'<p class="meta">'+esc(u[1])+'</p>':'')+'</div><button class="share" data-share>Share</button></div>';
++(u&&u[1]!==u[0]?'<p class="meta">'+esc(u[1])+'</p>':'')+'<p class="meta">'+(P&&P.d?'<span class="tag">['+esc(P.d.name)+']</span>':'')+esc(k?title:V.unk?'Teams could not load':'Not in a top 2,000 team')+'</p></div><button class="share" data-share>Share</button></div>';
 const miss=['League','Clan'].filter(x=>V[x].unk&&!V[x].t);if(k&&miss.length)h+='<p class="st">Could not check their '+miss.map(x=>x==='Clan'?'clan':'league').join(' or ')+' right now. Trying again every minute.</p>';
 if(kinds.length>1)h+='<div class="seg pct">'+kinds.map(x=>'<button data-pk="'+x+'" aria-pressed="'+(x===k)+'">'+(x==='Clan'?'Clan war':'League')+'</button>').join('')+'</div>';
 const PZP=k?pzInfo(k):null;if(PZP)h+='<p class="pz">'+esc(PZP.card)+'</p>';
@@ -727,11 +737,11 @@ h+='<div class="pgx"><div><div class="pcg pt"><div class="pk c1">'+ico('star')+'
 +'<div class="pk c5">'+ico('cup')+'<small>'+(k==='Clan'?'Clan':'League')+' rank · '+esc(P.d.name)+'</small><b>'+(s.rank?s.rank+'/'+s.size:'-')+'</b>'+(s.share!=null?'<small>'+pc(s.share,100)+'% of its points</small>':'')+'</div>'
 +prank(s,P.nb)+'</div>'
 +'<div class="pcg four"><div class="pk c1">'+ico('star')+'<small>Points · 24h</small><b>'+(s.day==null?'-':fmt(s.day)+so)+'</b></div>'
-+'<div class="pk c2">'+ico('bars')+'<small>Average / hour</small><b>'+(avg==null?'-':fmt(avg))+'</b></div>'
++'<div class="pk c2">'+ico('bars')+'<small>Avg / hour</small><b>'+(avg==null?'-':fmt(avg))+'</b></div>'
 +'<div class="pk c3">'+ico('cup')+'<small>Best hour</small><b>'+(s.best==null?'-':fmt(s.best))+'</b></div>'
 +'<div class="pk c4">'+ico('bolt')+'<small>Latest hour</small><b>'+(s.latest==null?'-':fmt(s.latest))+'</b></div></div>'
 +(s.day==null||avg==null||s.best==null||s.latest==null?'<p class="st pnote">Boxes showing "-" fill in as points come in: at every full scan (every 15 minutes), and every minute while this page is open.</p>':'')+'</div>'
-+'<div><div class="pcc"><div class="pcch"><div><b>Hourly performance</b><small>Points earned per hour · last '+(s.H.length===1?'hour':(s.H.length||24)+' hours')+'</small></div><div class="pleg"><span><i class="d"></i>Hourly points</span><span><i class="ds"></i>Average</span></div></div>'+pchart(s.H)+'</div></div></div>'
++'<div><div class="pcc"><div class="pcch"><div><b>Hourly performance</b><small>Points earned per hour · last '+(s.H.length===1?'hour':(s.H.length||24)+' hours')+'</small></div><div class="pleg"><span><i class="d"></i>Hourly points</span><span><i class="ds"></i>Average</span></div></div>'+pchart(s.H,avg)+'</div></div></div>'
 +(s.has?'':'<p class="st">A member, but no points'+(k==='Clan'?' in this clan war':'')+' yet.</p>')+(s.member?'':'<p class="st">Not a member any more; these are the points left in this '+war+'.</p>')
 +'<p class="st">'+(s.ri&&s.ri.rank?'Global rank based on: '+basis(s.ri)+'. ':'')+'Points over time come from full scans (every 15 minutes) and this device while the page is open.'+(s.last?' Last earned '+war+' points '+ago(Date.now()/1000-s.last)+'.':'')+'</p>'}
 if(k&&P.d)h+='<button class="more" data-open="'+k+'" data-n="'+esc(P.d.name)+'">Open '+esc(P.d.name)+'</button>';
@@ -762,7 +772,7 @@ new MutationObserver(()=>{placeTops();fitNums();const s=document.querySelector('
 if(s&&g&&CHX!=null&&g.style.display==='none'&&LAST&&LAST.d.key===CHK){const R=s.getBoundingClientRect();chHit({target:s,clientX:R.left+CHX*R.width})}}).observe($('dash'),{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['class']});
 const refit=()=>{fitName();fitNums()};let RZ=0;
 // After a resize the charts are drawn again at the new width.
-addEventListener('resize',()=>{clearTimeout(RZ);RZ=setTimeout(()=>{if(LAST&&$('chw')&&cwNow()!==CW)$('chw').innerHTML=chartHtml(LAST.a,LAST.d);
+addEventListener('resize',()=>{clearTimeout(RZ);RZ=setTimeout(()=>{if(LAST&&$('chw')&&$('chw').querySelector('.seg')&&cwNow()!==CW)$('chw').innerHTML=chartHtml(LAST.a,LAST.d);
 if(mode==='Player'&&PV&&$('dash').querySelector('.pchs')&&pW()!==PW)drawPlayer(PV)},250)});document.fonts&&(document.fonts.ready.then(refit),document.fonts.addEventListener('loadingdone',refit));addEventListener('resize',refit);
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pk]');if(!b||!PV)return;PKIND[PV.id]=b.dataset.pk;drawPlayer(PV)});
 async function paintPlayer(show){const q=S.Player,seq=++PSEQ,box=$('dash'),ok=()=>seq===PSEQ&&mode==='Player';if(!q){box.innerHTML='';return}
@@ -856,7 +866,11 @@ document.addEventListener('click',e=>{const b=e.target.closest('.seg button[data
 const chHit=e=>{const s=e.target.closest&&e.target.closest('.ch');if(!s||!CHD)return;const R=s.getBoundingClientRect(),x=(e.clientX-R.left)/R.width*CW;CHX=x/CW;CHK=LAST&&LAST.d.key;const p=CHD.ser[0].pts;let bi=0,bd=1e9;p.forEach((q,i)=>{const dx=Math.abs(CHD.X(q[0])-x);if(dx<bd){bd=dx;bi=i}});
 const tm=p[bi][0],g=$('gl');g.setAttribute('x1',CHD.X(tm));g.setAttribute('x2',CHD.X(tm));g.style.display='';
 CHD.ser.forEach((q,i)=>{const c=$('gd'+i),v=q.pts[bi][1];if(v==null){c.style.display='none'}else{c.setAttribute('cx',CHD.X(tm));c.setAttribute('cy',CHD.Y(v));c.style.display=''}});
-$('cap').innerHTML=new Date(tm*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+': '+CHD.ser.map(q=>q.pts[bi][1]==null?'no data':'<span style="color:'+q.c+'">'+(CHD.ser.length>1?esc(q.n)+' ':'')+(q.pts[bi][2]?'about ':'')+'+'+fmt(q.pts[bi][1])+'/hr'+(q.pts[bi][2]?' (no snapshot)':'')+'</span>').join(', ')};
+const many=CHD.ser.length>1,cp=$('cap');cp.innerHTML=new Date(tm*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+': '+CHD.ser.map(q=>{const v=q.pts[bi];return v[1]==null?(many?'<span style="color:'+q.c+'">-</span>':'no data'):'<span style="color:'+q.c+';white-space:nowrap">'+(v[2]?'about ':'')+'+'+fmt(v[1])+'/hr'+(v[2]&&!many?' (no snapshot)':'')+'</span>'}).join(many?' · ':', ');
+cp.style.minHeight=Math.max(cp.offsetHeight,parseFloat(cp.style.minHeight)||0)+'px'};
+// A mouse leaving the chart clears the readout (a finger's readout stays, so it can be read).
+document.addEventListener('pointerout',e=>{const s=e.target.closest&&e.target.closest('.ch');if(!s||e.pointerType!=='mouse'||s.contains(e.relatedTarget))return;
+CHX=null;s.querySelectorAll('#gl,[id^=gd]').forEach(x=>x.style.display='none');const c=$('cap');if(c&&c.dataset.d)c.textContent=c.dataset.d});
 document.addEventListener('pointermove',chHit);document.addEventListener('pointerdown',chHit);
 document.addEventListener('click',e=>{const m=e.target.closest('.mem');if(!m||e.target.closest('a,button'))return;const id=m.dataset.id;OPEN.has(id)?OPEN.delete(id):OPEN.add(id);m.classList.toggle('open');m.setAttribute('aria-expanded',m.classList.contains('open'))});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-all]');if(!b)return;SHOWALL.add(b.dataset.all);document.querySelectorAll('.mem.hid').forEach(x=>x.classList.remove('hid'));b.remove()});
