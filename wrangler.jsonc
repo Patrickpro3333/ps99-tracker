@@ -5,6 +5,8 @@
   "name": "ps99-tracker",
   "main": "cloudflare/worker.js",
   "compatibility_date": "2026-10-01",
+  // Keep variables added in the dashboard when Cloudflare redeploys from GitHub.
+  "keep_vars": true,
   "assets": {
     "directory": ".",
     "binding": "ASSETS",
