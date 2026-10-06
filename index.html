@@ -129,7 +129,7 @@ h3{font-size:22px;line-height:1.1;margin:22px 0 8px;color:var(--y)}
 .pcc{background:#000;border:2px solid var(--ed);border-radius:14px;padding:12px;margin:0 0 10px}
 .pcch{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;margin-bottom:6px}.pcch b{display:block;font:400 20px "Lilita One",Impact,sans-serif;color:var(--y)}.pcch small{color:var(--mut);font-size:13px}
 .pleg{display:flex;gap:12px;align-items:center;font-size:13px;color:var(--mut)}.pleg span{display:inline-flex;align-items:center;gap:6px}.pleg .d{width:8px;height:8px;border-radius:50%;background:var(--y)}.pleg .ds{width:16px;border-top:2px dashed var(--mut)}
-.pchs{width:100%;height:auto;display:block}.pchs text{fill:#a8a8a8;font:10px "Atkinson Hyperlegible",system-ui,sans-serif}.pchs .pbv{fill:var(--y);font-weight:700}
+.pchs{width:100%;height:auto;display:block}.pgap{margin:6px 0 0;font-size:13px}.pchs text{fill:#a8a8a8;font:10px "Atkinson Hyperlegible",system-ui,sans-serif}.pchs .pbv{fill:var(--y);font-weight:700}
 @media(min-width:640px){.pcg.pt{grid-template-columns:1fr 1.7fr}.pcg.pt .pk{grid-column:1}.pcg.pt .pr{grid-column:2;grid-row:1/3}.pcg.four{grid-template-columns:repeat(4,1fr)}}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;padding:10px 16px;border-radius:12px;background:#f5f5f5;color:#111;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.6)}
 .av{position:relative;width:52px;height:52px;border-radius:50%;background:#262626;display:grid;place-items:center;overflow:hidden;color:var(--y);font:400 22px "Lilita One",Impact,sans-serif}
@@ -434,8 +434,10 @@ const logo=(ic,name,c)=>{const id=iid(ic);return '<span class="lg '+(c||'')+'"><
 function interp(a,get,t,gap){for(let i=0;i<a.length-1;i++){const s=a[i],e=a[i+1];if(s[0]<=t&&t<=e[0]){const x=get(s),y=get(e);if(x==null||y==null||e[0]-s[0]>gap)return null;return x+(y-x)*(t-s[0])/Math.max(1,e[0]-s[0])}}return null}
 function series(a,get,hrs){const now=a[a.length-1][0],t0=Math.max(a[0][0],now-hrs*3600),span=now-t0,k=Math.min(36,Math.max(3,Math.floor(span/120))),step=span/k,gap=5400,v=[];
 for(let j=0;j<=k;j++)v.push(interp(a,get,t0+step*j,gap));
-return v.slice(1).map((q,j)=>[t0+step*(j+1),v[j]!=null&&q!=null?Math.max(0,(q-v[j])/(step/3600)):null])}
-const smooth=p=>p.map((q,i)=>{if(q[1]==null)return q;const w=[p[i-1],q,p[i+1]].filter(x=>x&&x[1]!=null);return[q[0],w.reduce((s,x)=>s+x[1],0)/w.length]});
+// Across a gap with no snapshot the rate is estimated from the points on either side (marked with a 1).
+const u=v.map((x,j)=>x!=null?x:interp(a,get,t0+step*j,Infinity)),r=(x,y)=>Math.max(0,(y-x)/(step/3600));
+return v.slice(1).map((q,j)=>{const t=t0+step*(j+1);return v[j]!=null&&q!=null?[t,r(v[j],q)]:u[j]!=null&&u[j+1]!=null?[t,r(u[j],u[j+1]),1]:[t,null]})}
+const smooth=p=>p.map((q,i)=>{if(q[1]==null||q[2])return q;const w=[p[i-1],q,p[i+1]].filter(x=>x&&x[1]!=null&&!x[2]);return[q[0],w.reduce((s,x)=>s+x[1],0)/w.length]});
 const nice=m=>{const e=Math.pow(10,Math.floor(Math.log10(m))),f=m/e;return(f<=1?1:f<=2?2:f<=5?5:10)*e};
 function curve(p,T,B){let s='M'+p[0][0].toFixed(1)+' '+p[0][1].toFixed(1);const cl=y=>Math.min(Math.max(y,T),B).toFixed(1);
 for(let i=0;i<p.length-1;i++){const a=p[i-1]||p[i],b=p[i],c=p[i+1],d=p[i+2]||c;
@@ -458,13 +460,16 @@ CHD={ser,X,Y};
 let g='<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+COL[0]+'" stop-opacity=".4"/><stop offset="1" stop-color="'+COL[0]+'" stop-opacity="0"/></linearGradient></defs><text x="'+l+'" y="11">points per hour</text>';
 [0,.25,.5,.75,1].forEach(f=>{const y=Y(mx*f);g+='<line x1="'+l+'" x2="'+(CW-r)+'" y1="'+y+'" y2="'+y+'" stroke="'+(f?'#242424':'#3a3a3a')+'"/><text x="'+(l-6)+'" y="'+(y+4)+'" text-anchor="end">'+fax(mx*f)+'</text>'});
 [0,.33,.66,1].forEach(f=>{const tm=x0+(x1-x0)*f;g+='<text x="'+X(tm)+'" y="'+(CH-8)+'" text-anchor="'+(f===0?'start':f===1?'end':'middle')+'">'+(f===1?'now':hm(tm))+'</text>'});
-ser.forEach(q=>{let run=[];const runs=[];q.pts.forEach(p=>{if(p[1]==null){if(run.length)runs.push(run);run=[]}else run.push([X(p[0]),Y(p[1])])});if(run.length)runs.push(run);
+let EST=0;ser.forEach(q=>{let run=[],er=null;const runs=[],est=[];q.pts.forEach((p,i)=>{const pt=p[1]==null?null:[X(p[0]),Y(p[1])],e=pt&&p[2];
+if(pt&&!e)run.push(pt);else if(run.length){runs.push(run);run=[]}
+if(e){if(!er){er=[];const b=q.pts[i-1];if(b&&b[1]!=null&&!b[2])er.push([X(b[0]),Y(b[1])])}er.push(pt)}else if(er){if(pt)er.push(pt);est.push(er);er=null}});if(run.length)runs.push(run);if(er)est.push(er);
+est.forEach(rn=>{if(rn.length>1){EST=1;g+='<path d="'+rn.map((p,j)=>(j?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join('')+'" fill="none" stroke="'+q.c+'" stroke-width="2" stroke-dasharray="4 5" opacity=".55"/>'}});
 runs.forEach(rn=>{const c1=curve(rn,t,t+ph);if(ser.length===1&&rn.length>1)g+='<path d="'+c1+'L'+rn[rn.length-1][0].toFixed(1)+' '+(t+ph)+'L'+rn[0][0].toFixed(1)+' '+(t+ph)+'Z" fill="url(#ga)"/>';g+='<path d="'+c1+'" fill="none" stroke="'+q.c+'" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"/>'});
-const lp=q.pts.filter(p=>p[1]!=null).pop();if(lp)g+='<circle cx="'+X(lp[0]).toFixed(1)+'" cy="'+Y(lp[1]).toFixed(1)+'" r="4.5" fill="'+q.c+'" stroke="#000" stroke-width="2"/>'});
+const lp=q.pts.filter(p=>p[1]!=null&&!p[2]).pop();if(lp)g+='<circle cx="'+X(lp[0]).toFixed(1)+'" cy="'+Y(lp[1]).toFixed(1)+'" r="4.5" fill="'+q.c+'" stroke="#000" stroke-width="2"/>'});
 g+='<line id="gl" y1="'+t+'" y2="'+(t+ph)+'" stroke="#fff" opacity=".5" style="display:none"/>'+ser.map((q,i)=>'<circle id="gd'+i+'" r="5.5" fill="'+q.c+'" stroke="#fff" stroke-width="2" style="display:none"/>').join('');
-const v1=ser[0].pts.map(p=>p[1]).filter(v=>v!=null),sum=ser.length===1&&v1.length?'<div class="sum"><div class="cell"><small>Now</small><b>+'+fmt(v1[v1.length-1])+'</b></div><div class="cell"><small>Average</small><b>+'+fmt(v1.reduce((s,v)=>s+v,0)/v1.length)+'</b></div><div class="cell"><small>Peak</small><b>+'+fmt(Math.max(...v1))+'</b></div></div>':'';
+const v1=ser[0].pts.filter(p=>p[1]!=null&&!p[2]).map(p=>p[1]),sum=ser.length===1&&v1.length?'<div class="sum"><div class="cell"><small>Now</small><b>+'+fmt(v1[v1.length-1])+'</b></div><div class="cell"><small>Average</small><b>+'+fmt(v1.reduce((s,v)=>s+v,0)/v1.length)+'</b></div><div class="cell"><small>Peak</small><b>+'+fmt(Math.max(...v1))+'</b></div></div>':'';
 const leg=ser.length>1?'<div class="leg">'+ser.map(q=>'<span class="lgd">'+av(q.r).replace('class="av"','class="av sm" style="border:2px solid '+q.c+'"')+'<span style="color:'+q.c+'">'+esc(q.n)+'</span></span>').join('')+'</div>':'';
-return ctl(hrs,d.kind)+sum+'<svg class="ch" viewBox="0 0 '+CW+' '+CH+'" role="img" aria-label="Points per hour chart">'+g+'</svg><p class="cap" id="cap">Touch or drag on the chart to see exact numbers. Gaps mean no snapshot was taken then.</p>'+leg}
+return ctl(hrs,d.kind)+sum+'<svg class="ch" viewBox="0 0 '+CW+' '+CH+'" role="img" aria-label="Points per hour chart">'+g+'</svg><p class="cap" id="cap">Touch or drag on the chart to see exact numbers.'+(EST?' Dashed parts had no snapshot, so they show the average for that stretch.':' Gaps mean no snapshot was taken then.')+'</p>'+leg}
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
 const ldS=k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){return{}}};
 try{localStorage.removeItem('ps99g:League');localStorage.removeItem('ps99g:Clan');
@@ -652,11 +657,15 @@ function psnap(kind,id,p,team){const k='ps99p:'+kind+':'+id+':'+String(team).toL
 a=a.filter(s=>now-s[0]<93600);if(!a.length||now-a[a.length-1][0]>=55){a.push([now,p]);store(k,JSON.stringify(a))}return a}
 // Points at any moment, read between the two snapshots around it; gaps over 4.5 hours (a missed scan) stay unknown.
 const pval=(a,t)=>{for(let i=0;i<a.length-1;i++){const s=a[i],e=a[i+1];if(s[0]<=t&&t<=e[0])return e[0]-s[0]>16200?null:s[1]+(e[1]-s[1])*(t-s[0])/Math.max(1,e[0]-s[0])}return a.length&&t>=a[a.length-1][0]?a[a.length-1][1]:null};
+// The same without the 4.5-hour limit: across a missed scan this gives the average for that stretch.
+const pvalU=(a,t)=>{for(let i=0;i<a.length-1;i++){const s=a[i],e=a[i+1];if(s[0]<=t&&t<=e[0])return s[1]+(e[1]-s[1])*(t-s[0])/Math.max(1,e[0]-s[0])}return null};
+// Points earned in each of the last 24 hours; hours inside a long gap are estimates (marked with a 1).
 function hourly(a){if(a.length<2)return[];const now=a[a.length-1][0],n=Math.min(24,Math.floor((now-Math.max(a[0][0],now-86400))/3600)),out=[];
-for(let h=n;h>=1;h--){const v1=pval(a,now-(h-1)*3600),v0=pval(a,now-h*3600);out.push([now-(h-1)*3600,v1!=null&&v0!=null?Math.max(0,v1-v0):null])}return out}
+for(let h=n;h>=1;h--){const t1=now-(h-1)*3600,t0=now-h*3600,v1=pval(a,t1),v0=pval(a,t0);
+if(v1!=null&&v0!=null)out.push([t1,Math.max(0,v1-v0)]);else{const u1=pvalU(a,t1),u0=pvalU(a,t0);out.push(u1!=null&&u0!=null?[t1,Math.max(0,u1-u0),1]:[t1,null])}}return out}
 function pstat(kind,t,d,id,pm){const rows=d.rows.filter(r=>!r.z),i=rows.findIndex(r=>String(r.id)===String(id)),r=rows[i],p=r?r.p:0,tp=d.pts!=null?d.pts:d.sum;
 const member=(d.members||[]).some(m=>String(m)===String(id)),loc=r?psnap(kind,id,p,d.name):[],old=kind==='Clan'&&pm&&pm.battle&&BREC&&pm.battle!==BREC.id;let a=merge(loc,old?[]:t.hist||[]).map(s=>[s[0],s[1]]);if(kind==='Clan')a=sinceReset(a);
-const H=hourly(a),hv=H.map(h=>h[1]).filter(v=>v!=null),now=a.length?a[a.length-1][0]:0,from=a.length?Math.max(a[0][0],now-86400):0,v0=a.length?pval(a,from):null;
+const H=hourly(a),hv=H.filter(h=>h[1]!=null&&!h[2]).map(h=>h[1]),now=a.length?a[a.length-1][0]:0,from=a.length?Math.max(a[0][0],now-86400):0,v0=a.length?pval(a,from):null;
 return{kind,team:d.name,teamRank:d.i>=0?d.rank:null,size:d.rows.length,rank:r?i+1:null,has:!!r,member,p,share:r&&tp?p/tp*100:null,ri:r?rinfo(kind,p,id):null,last:r&&r.t,
 a,H,day:v0!=null&&a.length>1?Math.max(0,p-v0):null,span:now-from,best:hv.length?Math.max(...hv):null,latest:hv.length?hv[hv.length-1]:null}}
 // Players just ahead and behind: exact from the live top list, otherwise from the full scan's ranking
@@ -684,20 +693,24 @@ return '<div class="pr"><div class="prt">'+side(nb&&nb.b,'Behind')+'<div class="
 +(ap!=null?'<div class="prb"><i style="width:'+ap.toFixed(2)+'%"></i><em style="left:'+ap.toFixed(2)+'%"></em></div><div class="prp"><div><b>'+tl+ap.toFixed(2)+'%</b><small>players behind</small></div><div><b>'+tl+ah.toFixed(2)+'%</b><small>players ahead</small></div></div>':'')
 +(nb===null?'<small class="prx">The players just ahead and behind show after the next full scan.</small>':'')
 +(tl||nb&&!nb.live&&(nb.a||nb.b)?'<small class="prx">~ means an estimate.</small>':'')+'</div>'}
-function pchart(H){const v=H.map(h=>h[1]).filter(x=>x!=null);
-if(v.length<2)return '<p class="st">No hourly points yet. The chart fills in the same way as the boxes above.</p>';
-if(!v.some(x=>x>=1))return '<p class="st">No points earned in the last '+H.length+' hour'+(H.length>1?'s':'')+'.</p>';
-const W=PW=pW(),Hh=200,l=46,r=14,t=28,b=24,pw=W-l-r,ph=Hh-t-b,mx=nice(Math.max(1,...v)),n=H.length,X=i=>l+(n<2?pw:i*pw/(n-1)),Y=x=>t+ph-x/mx*ph,avg=v.reduce((s,x)=>s+x,0)/v.length;
+function pchart(H){const va=H.filter(h=>h[1]!=null).map(h=>h[1]),v=H.filter(h=>h[1]!=null&&!h[2]).map(h=>h[1]),av=v.length?v:va;
+if(va.length<2)return '<p class="st">No hourly points yet. The chart fills in the same way as the boxes above.</p>';
+if(!va.some(x=>x>=1))return '<p class="st">No points earned in the last '+H.length+' hour'+(H.length>1?'s':'')+'.</p>';
+const W=PW=pW(),Hh=200,l=46,r=14,t=28,b=24,pw=W-l-r,ph=Hh-t-b,mx=nice(Math.max(1,...va)),n=H.length,X=i=>l+(n<2?pw:i*pw/(n-1)),Y=x=>t+ph-x/mx*ph,avg=av.reduce((s,x)=>s+x,0)/av.length;
 let g='<defs><linearGradient id="pl" x1="0" x2="1"><stop offset="0" stop-color="#ffd23f"/><stop offset="1" stop-color="#ffd23f"/></linearGradient><linearGradient id="pa" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#ffd23f" stop-opacity=".35"/><stop offset="1" stop-color="#ffd23f" stop-opacity="0"/></linearGradient></defs>';
 for(let k=0;k<=5;k++){const y=Y(mx*k/5);g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+y.toFixed(1)+'" y2="'+y.toFixed(1)+'" stroke="#242424"/><text x="'+(l-6)+'" y="'+(y+3).toFixed(1)+'" text-anchor="end">'+fax(mx*k/5)+'</text>'}
-let run=[];const runs=[];H.forEach((h,i)=>{if(h[1]==null){if(run.length)runs.push(run);run=[]}else run.push([X(i),Y(h[1])])});if(run.length)runs.push(run);
+// Measured hours as the solid line; estimated hours (a missed scan) dashed, joined to the measured hours beside them.
+let run=[],er=null;const runs=[],est=[];H.forEach((h,i)=>{const p=h[1]==null?null:[X(i),Y(h[1])],e=p&&h[2];
+if(p&&!e)run.push(p);else if(run.length){runs.push(run);run=[]}
+if(e){if(!er){er=[];const q=H[i-1];if(q&&q[1]!=null&&!q[2])er.push([X(i-1),Y(q[1])])}er.push(p)}else if(er){if(p)er.push(p);est.push(er);er=null}});if(run.length)runs.push(run);if(er)est.push(er);
+est.forEach(rn=>{if(rn.length>1)g+='<path d="'+rn.map((p,j)=>(j?'L':'M')+p[0].toFixed(1)+' '+p[1].toFixed(1)).join('')+'" fill="none" stroke="#ffd23f" stroke-width="2" stroke-dasharray="4 5" opacity=".55"/>'});
 runs.forEach(rn=>{if(rn.length<2){g+='<circle cx="'+rn[0][0].toFixed(1)+'" cy="'+rn[0][1].toFixed(1)+'" r="3" fill="#ffd23f"/>';return}const c=curve(rn,t,t+ph);
 g+='<path d="'+c+'L'+rn[rn.length-1][0].toFixed(1)+' '+(t+ph)+'L'+rn[0][0].toFixed(1)+' '+(t+ph)+'Z" fill="url(#pa)"/><path d="'+c+'" fill="none" stroke="url(#pl)" stroke-width="3" stroke-linecap="round"/>'});
 g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+Y(avg).toFixed(1)+'" y2="'+Y(avg).toFixed(1)+'" stroke="#a8a8a8" stroke-dasharray="5 5" opacity=".8"/>';
-let li=n-1;while(li>0&&H[li][1]==null)li--;const lx=X(li),ly=Y(H[li][1]),lt=fmt(H[li][1]),bw=lt.length*8+16,bx=Math.min(W-r-bw,Math.max(l,lx-bw/2));
+let li=n-1;while(li>0&&(H[li][1]==null||(v.length&&H[li][2])))li--;const lx=X(li),ly=Y(H[li][1]),lt=fmt(H[li][1]),bw=lt.length*8+16,bx=Math.min(W-r-bw,Math.max(l,lx-bw/2));
 g+='<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="5" fill="#ffd23f" stroke="#000" stroke-width="2"/><rect x="'+bx.toFixed(1)+'" y="'+Math.max(2,ly-30).toFixed(1)+'" width="'+bw+'" height="20" rx="6" fill="#000" stroke="#2e2e2e"/><text class="pbv" x="'+(bx+bw/2).toFixed(1)+'" y="'+(Math.max(2,ly-30)+14).toFixed(1)+'" text-anchor="middle">'+lt+'</text>';
 g+='<text x="'+l+'" y="'+(Hh-6)+'">'+n+'h ago</text><text x="'+(W-r)+'" y="'+(Hh-6)+'" text-anchor="end" class="pbv">now</text>';
-return '<svg class="pchs" viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="Points earned per hour, last '+n+' hours">'+g+'</svg>'}
+return '<svg class="pchs" viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="Points earned per hour, last '+n+' hours">'+g+'</svg>'+(est.length?'<p class="st pgap">Dashed: no full scan ran then, so those hours show the average for that stretch.</p>':'')}
 function renderPlayer(V){const id=V.id,u=U[id],img=IM[id],kinds=['Clan','League'].filter(k=>V[k].t);
 let k=PKIND[id];if(!kinds.includes(k))k=kinds.includes('Clan')&&(!V.Clan.s||V.Clan.s.has||!kinds.includes('League'))?'Clan':kinds.includes('League')?'League':kinds[0];
 const P=k?V[k]:null,s=P&&P.s,war=k==='League'?'league':'clan',title=k==='Clan'?(BREC?BREC.title:'Clan war'):'League';
@@ -843,7 +856,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('.seg button[data
 const chHit=e=>{const s=e.target.closest&&e.target.closest('.ch');if(!s||!CHD)return;const R=s.getBoundingClientRect(),x=(e.clientX-R.left)/R.width*CW;CHX=x/CW;CHK=LAST&&LAST.d.key;const p=CHD.ser[0].pts;let bi=0,bd=1e9;p.forEach((q,i)=>{const dx=Math.abs(CHD.X(q[0])-x);if(dx<bd){bd=dx;bi=i}});
 const tm=p[bi][0],g=$('gl');g.setAttribute('x1',CHD.X(tm));g.setAttribute('x2',CHD.X(tm));g.style.display='';
 CHD.ser.forEach((q,i)=>{const c=$('gd'+i),v=q.pts[bi][1];if(v==null){c.style.display='none'}else{c.setAttribute('cx',CHD.X(tm));c.setAttribute('cy',CHD.Y(v));c.style.display=''}});
-$('cap').innerHTML=new Date(tm*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+': '+CHD.ser.map(q=>q.pts[bi][1]==null?'no data':'<span style="color:'+q.c+'">'+(CHD.ser.length>1?esc(q.n)+' ':'')+'+'+fmt(q.pts[bi][1])+'/hr</span>').join(', ')};
+$('cap').innerHTML=new Date(tm*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+': '+CHD.ser.map(q=>q.pts[bi][1]==null?'no data':'<span style="color:'+q.c+'">'+(CHD.ser.length>1?esc(q.n)+' ':'')+(q.pts[bi][2]?'about ':'')+'+'+fmt(q.pts[bi][1])+'/hr'+(q.pts[bi][2]?' (no snapshot)':'')+'</span>').join(', ')};
 document.addEventListener('pointermove',chHit);document.addEventListener('pointerdown',chHit);
 document.addEventListener('click',e=>{const m=e.target.closest('.mem');if(!m||e.target.closest('a,button'))return;const id=m.dataset.id;OPEN.has(id)?OPEN.delete(id):OPEN.add(id);m.classList.toggle('open');m.setAttribute('aria-expanded',m.classList.contains('open'))});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-all]');if(!b)return;SHOWALL.add(b.dataset.all);document.querySelectorAll('.mem.hid').forEach(x=>x.classList.remove('hid'));b.remove()});
