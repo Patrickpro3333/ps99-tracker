@@ -43,7 +43,13 @@ async function jobsCheck(env) {
       headers: { Authorization: `Bearer ${t.trim()}`, Accept: 'application/vnd.github+json', 'User-Agent': 'ps99-tracker-trigger' },
     })
     out.github = r.status
-    out.needs = r.headers.get('x-accepted-github-permissions') || undefined
+    // Write test: "enable" the scan workflow, which is already enabled, so nothing changes (204 = allowed).
+    const w = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/scan.yml/enable`, {
+      method: 'PUT',
+      headers: { Authorization: `Bearer ${t.trim()}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'ps99-tracker-trigger' },
+    })
+    out.write = w.status
+    if (!w.ok) out.writeError = (await w.text()).slice(0, 160)
   }
   return new Response(JSON.stringify(out), { headers: { 'content-type': 'application/json', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } })
 }
