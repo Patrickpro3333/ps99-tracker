@@ -35,9 +35,23 @@ async function startJobs(env) {
   console.log((await Promise.all(jobs.map(w => start(env, w)))).join('; '))
 }
 
+// Temporary check for the hourly trigger: is the secret set, and does GitHub accept it? Never shows the token.
+async function jobsCheck(env) {
+  const t = env.GH_DISPATCH_TOKEN, out = { secretSet: !!t, kind: !t ? null : t.startsWith('github_pat_') ? 'fine-grained' : t.startsWith('ghp_') ? 'classic' : 'other', spaces: !!t && t !== t.trim() }
+  if (t) {
+    const r = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/scan.yml`, {
+      headers: { Authorization: `Bearer ${t.trim()}`, Accept: 'application/vnd.github+json', 'User-Agent': 'ps99-tracker-trigger' },
+    })
+    out.github = r.status
+    out.needs = r.headers.get('x-accepted-github-permissions') || undefined
+  }
+  return new Response(JSON.stringify(out), { headers: { 'content-type': 'application/json', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } })
+}
+
 export default {
   fetch(request, env) {
     const name = new URL(request.url).pathname.split('/')[1]
+    if (name === '__jobs') return jobsCheck(env)
     if (name === 'ps99api' || name === 'rbx' || name === 'rbxt') return proxy({ request }, name)
     return env.ASSETS.fetch(request)
   },

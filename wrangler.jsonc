@@ -9,7 +9,7 @@
     "directory": ".",
     "binding": "ASSETS",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/ps99api/*", "/rbx/*", "/rbxt/*"]
+    "run_worker_first": ["/ps99api/*", "/rbx/*", "/rbxt/*", "/__jobs"]
   },
   "triggers": { "crons": ["*/15 * * * *"] },
   "observability": { "enabled": true }
