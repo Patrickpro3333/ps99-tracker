@@ -1,6 +1,6 @@
 name: Scan PS99 leaderboards
 
-# Started every hour by Cloudflare (cloudflare/cron-worker.js), because GitHub's scheduler
+# Started every 15 minutes by Cloudflare (cloudflare/worker.js), because GitHub's scheduler
 # skipped its runs. Three steps: "plan" reads the clan war and both top lists and works out which teams
 # changed; "fetch" reads those teams' pages on several machines at once (BIG Games agreed to this for
 # PS99 Tracker), together at TOTAL_RATE requests a minute; "merge" builds the files and saves them.
