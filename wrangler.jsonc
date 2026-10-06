@@ -13,7 +13,7 @@
     "not_found_handling": "404-page",
     "run_worker_first": ["/ps99api/*", "/rbx/*", "/rbxt/*", "/__jobs"]
   },
-  "triggers": { "crons": ["*/15 * * * *"] },
+  "triggers": { "crons": ["0,15,30,45 * * * *"] },
   // Small store where each timer run notes its result (shown at /__jobs).
   "kv_namespaces": [{ "binding": "STATUS", "id": "1e6c28e3452a4905bf7fc8bc45066932" }],
   "observability": { "enabled": true }
