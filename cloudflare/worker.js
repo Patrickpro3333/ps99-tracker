@@ -27,12 +27,17 @@ async function start(env, workflow) {
 }
 
 async function startJobs(env) {
-  if (!env.GH_DISPATCH_TOKEN) {
-    console.log('GH_DISPATCH_TOKEN is not set, so nothing was started.')
-    return
-  }
+  if (!env.GH_DISPATCH_TOKEN) return 'GH_DISPATCH_TOKEN is not set, so nothing was started.'
   const jobs = ['history.yml', 'scan.yml']
-  console.log((await Promise.all(jobs.map(w => start(env, w)))).join('; '))
+  return (await Promise.all(jobs.map(w => start(env, w)))).join('; ')
+}
+
+// Each timer run is logged and its result kept in the STATUS store, so /__jobs can show the last one.
+async function timerRun(event, env) {
+  let result
+  try { result = await startJobs(env) } catch (e) { result = `error: ${e.message}` }
+  console.log(result)
+  if (env.STATUS) await env.STATUS.put('last', JSON.stringify({ planned: new Date(event.scheduledTime).toISOString(), ran: new Date().toISOString(), cron: event.cron, result }))
 }
 
 // Temporary check for the hourly trigger: is the secret set, and does GitHub accept it? Never shows the token.
@@ -51,6 +56,7 @@ async function jobsCheck(env) {
     out.write = w.status
     if (!w.ok) out.writeError = (await w.text()).slice(0, 160)
   }
+  out.lastTimerRun = env.STATUS ? JSON.parse((await env.STATUS.get('last')) || 'null') : 'no store'
   return new Response(JSON.stringify(out), { headers: { 'content-type': 'application/json', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } })
 }
 
@@ -62,6 +68,6 @@ export default {
     return env.ASSETS.fetch(request)
   },
   scheduled(event, env, ctx) {
-    ctx.waitUntil(startJobs(env))
+    ctx.waitUntil(timerRun(event, env))
   },
 }
