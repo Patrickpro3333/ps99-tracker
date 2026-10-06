@@ -7,11 +7,11 @@ saved to two data branches that the page reads straight from GitHub:
 
 | Job | When | Saves to | Used for |
 |---|---|---|---|
-| `history.py` (`.github/workflows/history.yml`) | every hour | `data-history` branch | points per hour, gains, rank change and the chart, instantly for every visitor |
-| `scan.py` (`.github/workflows/scan.yml`) | every hour, about 3 minutes per run (about 5 when every team changed; teams whose points didn't change are reused). The changed teams are read by 17 machines at once, 1,530 requests a minute together (90 each), which BIG Games agreed to; `SHARDS` and `TOTAL_RATE` at the top of the workflow set this | `data-ranks` branch (`ranks.json`, `players/`, `teams/`) | exact "Better than X%" player ranks with no waiting, and the player search (which top-2,000 league and clan each player is in) |
+| `history.py` (`.github/workflows/history.yml`) | every 15 minutes | `data-history` branch | points per hour, gains, rank change and the chart, instantly for every visitor |
+| `scan.py` (`.github/workflows/scan.yml`) | every 15 minutes, about 3 minutes per run (about 5 when every team changed; teams whose points didn't change are reused). The changed teams are read by 17 machines at once, 1,530 requests a minute together (90 each), which BIG Games agreed to; `SHARDS` and `TOTAL_RATE` at the top of the workflow set this | `data-ranks` branch (`ranks.json`, `players/`, `teams/`) | exact "Better than X%" player ranks with no waiting, and the player search (which top-2,000 league and clan each player is in) |
 
 Data never goes on `main`: every commit to `main` is a site deploy (free on Cloudflare). Builds for
-other branches must stay off (see Setup), or every hourly push to the data branches would start a
+other branches must stay off (see Setup), or every push to the data branches (every 15 minutes) would start a
 failing build.
 
 Both data branches are a single commit that is force-pushed on every run, so the repository
@@ -21,10 +21,10 @@ is missing.
 ### What starts the jobs
 
 GitHub's own scheduler skipped most runs, so Cloudflare starts them instead: the Worker's Cron
-Trigger (`wrangler.jsonc`) runs `scheduled` in `cloudflare/worker.js` every hour on the hour, which
+Trigger (`wrangler.jsonc`) runs `scheduled` in `cloudflare/worker.js` every 15 minutes, which
 asks GitHub to run the history job and the scan. GitHub's
 schedules stay on as a backup that only does the work when Cloudflare missed (history: no snapshot
-in the last 45 minutes; scan: none finished in the last 50 minutes), so snapshots stay on the hour
+in the last 45 minutes; scan: none finished in the last 50 minutes), so snapshots stay on schedule
 and nothing runs twice.
 
 The Worker needs a secret `GH_DISPATCH_TOKEN`: a fine-grained GitHub token with access to this
@@ -51,7 +51,7 @@ served as a static asset, free and unlimited; `.assetsignore` keeps scripts and 
    empty, deploy command `npx wrangler deploy`. In the Worker's Settings > Build, turn off builds for
    non-production branches, so the data branches never build.
 5. In the Worker's Settings > Variables and Secrets add the secret `GH_DISPATCH_TOKEN` (see above).
-   The hourly Cron Trigger comes from `wrangler.jsonc`. From then on the jobs run on their own.
+   The 15-minute Cron Trigger comes from `wrangler.jsonc`. From then on the jobs run on their own.
 
 If the repository or its owner changes, update `RAW` in `index.html`. If the site address
 changes, update it in `index.html` (canonical and share tags), `robots.txt` and `sitemap.xml`.

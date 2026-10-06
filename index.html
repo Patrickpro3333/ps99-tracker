@@ -45,7 +45,7 @@
 {"@type":"FAQPage","@id":"https://ps99-tracker.patrick9.workers.dev/#faq","mainEntity":[
 {"@type":"Question","name":"How do I check my league rank in Pet Simulator 99?","acceptedAnswer":{"@type":"Answer","text":"Pick League, type your league name, and tap Show stats. If your league is in the top 2,000 you get its rank, points and gap to the next league."}},
 {"@type":"Question","name":"How do I check my clan rank?","acceptedAnswer":{"@type":"Answer","text":"Pick Clan, type your clan name, and tap Show stats. You also see who contributed the most points and how fast your clan is gaining."}},
-{"@type":"Question","name":"How often does the leaderboard update?","acceptedAnswer":{"@type":"Answer","text":"The top 100 and the team you look up refresh within seconds of the official BIG Games public API having new numbers, which it does about once a minute, and the full top 2,000 every 5 minutes. Points per hour, gains and the chart use snapshots the site saves every hour and keeps for 24 hours."}},
+{"@type":"Question","name":"How often does the leaderboard update?","acceptedAnswer":{"@type":"Answer","text":"The top 100 and the team you look up refresh within seconds of the official BIG Games public API having new numbers, which it does about once a minute, and the full top 2,000 every 5 minutes. Points per hour, gains and the chart use snapshots the site saves every 15 minutes and keeps for 24 hours."}},
 {"@type":"Question","name":"What does \"better than 98%\" mean?","acceptedAnswer":{"@type":"Answer","text":"The player has more points than 98 in 100 players. It compares a player with every player in the top 2,000 leagues, or the top 2,000 clans for the clan war. A ~ means it is an estimate while the scan of those teams is still running."}},
 {"@type":"Question","name":"How do I look up a player?","acceptedAnswer":{"@type":"Answer","text":"Pick Player, type their Roblox username or user ID, and tap Show stats. You see their points, rank and share of points in their league and in the clan war, as long as their league or clan is in the top 2,000."}},
 {"@type":"Question","name":"Is this an official tool?","acceptedAnswer":{"@type":"Answer","text":"No. It is fan-made and not affiliated with BIG Games or Roblox."}}]}]}</script>
@@ -255,7 +255,7 @@ summary{list-style:none}summary::-webkit-details-marker{display:none}
 <p>PS99 Tracker is a free fan-made tool for Pet Simulator 99 (Pet Sim 99, PS99) on Roblox. Look up any league or clan in the top 2,000 to see its rank, points, points per hour, gains over 1, 6, 12 and 24 hours, and the gap to the teams above and below it. Every contributor shows with their Roblox avatar and how they compare to other players in the league war or clan war.</p>
 <details class="faq"><summary>How do I check my league rank in Pet Simulator 99?</summary><p>Pick League, type your league name, and tap Show stats. If your league is in the top 2,000 you get its rank, points and gap to the next league.</p></details>
 <details class="faq"><summary>How do I check my clan rank?</summary><p>Pick Clan, type your clan name, and tap Show stats. You also see who contributed the most points and how fast your clan is gaining.</p></details>
-<details class="faq"><summary>How often does the leaderboard update?</summary><p>The top 100 and the team you look up refresh within seconds of the official BIG Games public API having new numbers, which it does about once a minute, and the full top 2,000 every 5 minutes. Points per hour, gains and the chart use snapshots the site saves every hour and keeps for 24 hours.</p></details>
+<details class="faq"><summary>How often does the leaderboard update?</summary><p>The top 100 and the team you look up refresh within seconds of the official BIG Games public API having new numbers, which it does about once a minute, and the full top 2,000 every 5 minutes. Points per hour, gains and the chart use snapshots the site saves every 15 minutes and keeps for 24 hours.</p></details>
 <details class="faq"><summary>What does "better than 98%" mean?</summary><p>The player has more points than 98 in 100 players. It compares a player with every player in the top 2,000 leagues, or the top 2,000 clans for the clan war. A ~ means it is an estimate while the scan of those teams is still running.</p></details>
 <details class="faq"><summary>How do I look up a player?</summary><p>Pick Player, type their Roblox username or user ID, and tap Show stats. You see their points, rank and share of points in their league and in the clan war, as long as their league or clan is in the top 2,000.</p></details>
 <details class="faq"><summary>Is this an official tool?</summary><p>No. It is fan-made and not affiliated with BIG Games or Roblox.</p></details></section>
@@ -523,7 +523,7 @@ const scanText=k=>{const s=sstat(k),w=k==='League'?'leagues':'clans';
 if(s.file)return 'Exact ranks from a full scan of '+s.tot.toLocaleString()+' '+w+', finished '+ago(Date.now()/1000-s.file)+'.';
 const pct=Math.round(s.done/Math.max(1,s.tot)*100),left=s.tot-s.done,rate=cn>8?(Date.now()-t0)/cn:800;
 return (k==='League'?'Global rank among '+popL().toLocaleString()+' players in the top 2,000 leagues. ':'')+(s.done>=s.tot&&s.tot?'Full scan finished: all '+s.tot.toLocaleString()+' '+w+' counted, so ranks are exact.':'Full scan: '+s.done.toLocaleString()+' of '+s.tot.toLocaleString()+' '+w+' ('+pct+'%), about '+fmtETA(left*rate)+' left. Numbers marked ~ are estimates until it finishes.')+'<div class="bar"><i style="width:'+pct+'%"></i></div>'};
-let LRT=0;const ranksOld=()=>Date.now()-LRT>600000&&['League','Clan'].some(k=>!fileFor(k)||Date.now()/1000-FS[k].file>5400);
+let LRT=0;const ranksOld=()=>Date.now()-LRT>300000&&['League','Clan'].some(k=>!fileFor(k)||Date.now()/1000-FS[k].file>1500);
 async function loadRanks(){LRT=Date.now();try{const j=await rawj('data-ranks/ranks.json').catch(()=>null);if(!j)return;
 ['League','Clan'].forEach(k=>{const f=j[k];if(f&&f.points&&f.points.length>50&&Date.now()/1000-(j.updated||0)<172800){const n=f.names||f.points.length;f.points.sort((a,b)=>a-b);FS[k]={arr:f.points,n:f.points.length,cov:n,done:n,tot:n,sh:null,nl:999,file:j.updated,battle:f.battle||''}}});
 const el=$('scan');if(el)el.innerHTML=scanText(el.dataset.k);if(live&&S[mode]&&DEAD!==mode+':'+String(S[mode]).toLowerCase()&&($('chw')||mode==='Player'&&PV))paint(false)}catch(e){}}
@@ -556,7 +556,7 @@ const SHOWALL=new Set(),LIMIT=10;
 function render(d,a){LAST={a,d};const kind=d.kind,war=kind==='League'?'league':'clan',tot=kind==='League'?LT:CT;
 const now=Math.floor(Date.now()/1000),last=a[a.length-1]||[0,0,0,{}],G=[1,6,12,24].map(h=>a.length>1?gain(a,h):null),g1=G[0],g24=G[3];
 const loc=d.loc||a,lastL=loc[loc.length-1],lg1=loc.length>1?gain(loc,1):null,r0=lg1&&lg1[2],hs=d.hs;
-const hist=hs&&hs.ok&&hs.h.length?'From hourly snapshots (latest '+(hs.up?ago(now-hs.up):'unknown')+') and this page while it is open.'
+const hist=hs&&hs.ok&&hs.h.length?'From snapshots every 15 minutes (latest '+(hs.up?ago(now-hs.up):'unknown')+') and this page while it is open.'
 :hs&&hs.ok?(d.i<0?'Only the top 2,000 get saved history, so these fill in while this page is open.':'No saved history yet, so these fill in while this page is open.')
 :'Saved history is unavailable right now, so these only use what this device has collected.';
 const pph=g1&&g1[1]>=120?g1[0]/(g1[1]/3600):null;
@@ -717,10 +717,10 @@ h+='<div class="pgx"><div><div class="pcg pt"><div class="pk c1">'+ico('star')+'
 +'<div class="pk c2">'+ico('bars')+'<small>Average / hour</small><b>'+(avg==null?'-':fmt(avg))+'</b></div>'
 +'<div class="pk c3">'+ico('cup')+'<small>Best hour</small><b>'+(s.best==null?'-':fmt(s.best))+'</b></div>'
 +'<div class="pk c4">'+ico('bolt')+'<small>Latest hour</small><b>'+(s.latest==null?'-':fmt(s.latest))+'</b></div></div>'
-+(s.day==null||avg==null||s.best==null||s.latest==null?'<p class="st pnote">Boxes showing "-" fill in as points come in: at every full scan (every hour), and every minute while this page is open.</p>':'')+'</div>'
++(s.day==null||avg==null||s.best==null||s.latest==null?'<p class="st pnote">Boxes showing "-" fill in as points come in: at every full scan (every 15 minutes), and every minute while this page is open.</p>':'')+'</div>'
 +'<div><div class="pcc"><div class="pcch"><div><b>Hourly performance</b><small>Points earned per hour · last '+(s.H.length===1?'hour':(s.H.length||24)+' hours')+'</small></div><div class="pleg"><span><i class="d"></i>Hourly points</span><span><i class="ds"></i>Average</span></div></div>'+pchart(s.H)+'</div></div></div>'
 +(s.has?'':'<p class="st">A member, but no points'+(k==='Clan'?' in this clan war':'')+' yet.</p>')+(s.member?'':'<p class="st">Not a member any more; these are the points left in this '+war+'.</p>')
-+'<p class="st">'+(s.ri&&s.ri.rank?'Global rank based on: '+basis(s.ri)+'. ':'')+'Points over time come from full scans (every hour) and this device while the page is open.'+(s.last?' Last earned '+war+' points '+ago(Date.now()/1000-s.last)+'.':'')+'</p>'}
++'<p class="st">'+(s.ri&&s.ri.rank?'Global rank based on: '+basis(s.ri)+'. ':'')+'Points over time come from full scans (every 15 minutes) and this device while the page is open.'+(s.last?' Last earned '+war+' points '+ago(Date.now()/1000-s.last)+'.':'')+'</p>'}
 if(k&&P.d)h+='<button class="more" data-open="'+k+'" data-n="'+esc(P.d.name)+'">Open '+esc(P.d.name)+'</button>';
 h+='<p class="st">'+(V.pm&&V.pm.updated?'Teams come from the full scan of the top 2,000 leagues and clans, '+ago(Date.now()/1000-V.pm.updated)+'. Points are live.':'Teams come from the official top player lists until the full scan has run. Points are live.')+'</p></section>';
 return h}

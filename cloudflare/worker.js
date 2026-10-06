@@ -1,11 +1,11 @@
 // The PS99 Tracker Worker. Cloudflare serves the site's files itself (free and unlimited); this code
-// only runs for the three API proxies and the hourly timer (see wrangler.jsonc).
+// only runs for the three API proxies and the 15-minute timer (see wrangler.jsonc).
 import { proxy } from './proxy.js'
 
 const REPO = 'Patrickpro3333/ps99-tracker'
 
 // Starts the GitHub Actions that save the site's data. GitHub's own scheduler skipped most runs, so
-// this presses the button every hour instead: history and the ranks scan. The jobs skip themselves if
+// this presses the button every 15 minutes instead: history and the ranks scan. The jobs skip themselves if
 // they ran recently, so GitHub's schedule can stay on as a backup.
 // Needs the secret GH_DISPATCH_TOKEN: a fine-grained GitHub token for this repository only, with Actions: read and write.
 async function start(env, workflow) {
