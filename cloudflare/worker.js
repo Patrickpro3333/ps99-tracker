@@ -1,5 +1,5 @@
 // The PS99 Tracker Worker. Cloudflare serves the site's files itself (free and unlimited); this code
-// only runs for the three API proxies and the 15-minute timer (see wrangler.jsonc).
+// only runs for the page itself, the three API proxies and the 15-minute timer (see wrangler.jsonc).
 import { proxy } from './proxy.js'
 
 const REPO = 'Patrickpro3333/ps99-tracker'
@@ -60,9 +60,14 @@ async function jobsCheck(env) {
   return new Response(JSON.stringify(out), { headers: { 'content-type': 'application/json', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } })
 }
 
+// The site's address is ps99tracker.xyz. The page on the old workers.dev address forwards there, keeping the
+// search (for example ?clan=LSQ); the proxies and files stay reachable on the old address.
+const HOME = 'https://ps99tracker.xyz/'
+
 export default {
   fetch(request, env) {
-    const name = new URL(request.url).pathname.split('/')[1]
+    const url = new URL(request.url), name = url.pathname.split('/')[1]
+    if (url.hostname.endsWith('.workers.dev') && (url.pathname === '/' || url.pathname === '/index.html')) return Response.redirect(HOME + url.search, 301)
     if (name === '__jobs') return jobsCheck(env)
     if (name === 'ps99api' || name === 'rbx' || name === 'rbxt') return proxy({ request }, name)
     return env.ASSETS.fetch(request)
