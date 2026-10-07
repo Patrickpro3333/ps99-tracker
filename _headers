@@ -4,6 +4,8 @@
   X-Frame-Options: SAMEORIGIN
 /*.png
   Cache-Control: public, max-age=604800
+/*.jpg
+  Cache-Control: public, max-age=604800
 /favicon.*
   Cache-Control: public, max-age=604800
 /site.webmanifest
