@@ -56,173 +56,193 @@
 html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
 *,*::before,*::after{box-sizing:border-box}
 body{margin:0;background:#000;color:var(--tx);font:17px/1.5 "Atkinson Hyperlegible",system-ui,sans-serif;-webkit-tap-highlight-color:transparent}
-.wrap{max-width:720px;margin:0 auto;padding:0 16px 40px}
-h1,h2,h3,.big,button,input{font-family:"Lilita One",Impact,system-ui,sans-serif;font-weight:400}
-h1{font-size:clamp(36px,11vw,54px);line-height:1.05;margin:24px 0 6px}
+/* Everything is centred: text, headers, rows and boxes mirror around the middle of their card. */
+.wrap{max-width:720px;margin:0 auto;padding:0 16px 40px;text-align:center}
+h1,h2,h3,button,input{font-family:"Lilita One",Impact,system-ui,sans-serif;font-weight:400}
+h1{font-size:clamp(38px,12vw,60px);line-height:1.05;margin:24px 0 6px}
 h1 span{color:var(--y)}
-.sub{color:var(--mut);margin:0 0 18px}
+.sub{max-width:34em;margin:0 auto 18px;color:var(--mut)}
 .card{background:var(--pn);border:2px solid var(--ed);border-radius:18px;padding:16px;margin-bottom:16px}.card>b,.card p,#dash>p{overflow-wrap:anywhere}
 .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 .tab{min-height:50px;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx);font-size:20px;cursor:pointer}
 .tab[aria-pressed="true"]{background:var(--y);color:#111;border-color:var(--y)}
 label{display:block;margin:0 0 6px;font-weight:700}
-input[type=search]{-webkit-appearance:none;appearance:none}
-input{width:100%;min-height:54px;font-size:20px;padding:10px 14px;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx)}
+input[type=search]{-webkit-appearance:none;appearance:none}input::-webkit-search-cancel-button{display:none}
+input{width:100%;min-height:54px;font-size:20px;padding:10px 14px;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx);text-align:center}
 :focus-visible{outline:3px solid var(--y);outline-offset:2px}
 .go{width:100%;min-height:54px;margin-top:10px;border:0;border-radius:14px;background:var(--y);color:#111;font-size:22px;cursor:pointer}
 .go:active{transform:scale(.98)}
 .st{font-size:14px;color:var(--mut);margin:10px 0 0}
 small{color:var(--mut);font-size:14px}
-.dash h2,.card h2{font-size:28px;margin:0 0 6px;overflow-wrap:anywhere}
+.dash h2,.card h2{font-size:30px;line-height:1.2;margin:0 0 6px;overflow-wrap:anywhere}
 .meta{color:var(--mut);margin:0 0 12px;font-size:15px}
-.hd{display:grid;grid-template-columns:1fr 1fr;gap:12px}
-.big{font-size:36px;line-height:1.1;display:block}
-.big.sm{font-size:26px;line-height:1.3;padding-top:6px}
 .up{color:var(--g)}.dn{color:var(--r)}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
 .cell{background:#000;border:2px solid var(--ed);border-radius:14px;padding:10px 12px;min-width:0}
-.cell b{display:block;font:400 30px/1.15 "Lilita One",Impact,sans-serif;overflow-wrap:anywhere;letter-spacing:.01em}
-h3{font-size:22px;line-height:1.1;margin:22px 0 8px;color:var(--y)}
-.gr{display:grid;grid-template-columns:88px 1fr;gap:10px;align-items:center;margin:8px 0}
-.gr b{display:block;text-align:center;font:400 22px/1.2 "Lilita One",Impact,sans-serif}.gr b small{font:400 13px "Atkinson Hyperlegible",system-ui,sans-serif}
+.cell b{display:block;font:400 36px/1.15 "Lilita One",Impact,sans-serif;overflow-wrap:anywhere;letter-spacing:.01em}
+h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
+/* Bars fill out from the middle. */
 .bar{height:10px;border-radius:99px;background:#262626;overflow:hidden;margin-top:5px}
-.bar i{display:block;height:100%;background:var(--g);border-radius:99px}
-.mem{display:grid;grid-template-columns:34px 40px minmax(0,1fr);gap:10px;align-items:center;min-height:56px;padding:8px 0;border-top:1px solid var(--ed);cursor:pointer}
-.mem .rn{font:400 16px "Lilita One",Impact,sans-serif;color:var(--mut);text-align:center}
-.mem .av{width:40px;height:40px;font-size:18px}
-.mi{min-width:0}.mn{display:block;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.mi small{display:block;font-size:14px}.mp{font:400 20px/1.1 "Lilita One",Impact,sans-serif;color:var(--y)}.ml .mp+small{display:inline}
-.mi .bar{height:4px;margin-top:4px}
-.ml{display:block}.ml .mp+small{margin-left:8px}.ml .chip{display:table;margin-top:3px}.ml small{display:inline}
-.chip{display:inline-block;padding:2px 8px;border-radius:10px;background:#262626;color:var(--y);font-size:13px;font-weight:700;white-space:nowrap}
+.bar i{display:block;height:100%;margin:0 auto;background:var(--g);border-radius:99px}.bar i.neg{background:var(--r)}
+/* Stat boxes: label, number and note line up across a row even when one label wraps. */
+.keys .cell,.gns .cell,.pcg .pk{display:grid;grid-template-rows:subgrid;row-gap:0;align-content:start;grid-template-columns:minmax(0,1fr)}
+.keys .cell,.pcg .pk{grid-row:span 3}.gns .cell{grid-row:span 4}
+.keys .cell small{display:block}.keys .cell small:last-child{margin-top:2px;font-size:13px}.gns .cell small+b+small{margin-top:2px;font-size:13px}.gns .bar{margin-top:8px}
+.keys .cell b,.gns .cell b{white-space:nowrap}.keys .cell b small,.pk b small{display:block;white-space:normal;line-height:1.3;margin-top:2px;font:400 13px "Atkinson Hyperlegible",system-ui,sans-serif}
+/* Members: the rank on the left and the open sign on the right mirror each other; picture, name, points and bar sit in the middle. */
+.mems{--rkw:46px}
+.mem{display:grid;grid-template-columns:var(--rkw) minmax(0,1fr) var(--rkw);gap:0 8px;align-items:center;min-height:56px;padding:10px 0;border-top:1px solid var(--ed);cursor:pointer}
+.mem::after{content:"+";grid-area:1/3;justify-self:end;width:24px;margin-right:4px;color:var(--y);font:400 26px/1 "Lilita One",Impact,sans-serif}.mem.open::after{content:"\2212"}
+.mem .rn{justify-self:start;padding-left:4px;font:400 19px "Lilita One",Impact,sans-serif;color:var(--mut)}
+.mi{grid-column:2;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px}
+.mw{display:flex;align-items:center;justify-content:center;gap:8px;max-width:100%}
+.mem .av{flex:none;width:36px;height:36px;font-size:16px}
+.mn{min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.ml{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2px 10px}
+.mp{font:400 26px/1.1 "Lilita One",Impact,sans-serif;color:var(--y)}
+.mi .bar{align-self:stretch;height:5px;margin-top:4px}
+.chip{display:inline-block;padding:2px 9px;border-radius:10px;background:#262626;color:var(--y);font-size:14px;font-weight:700;white-space:nowrap}
 .mem.hid{display:none}
-.mem .det{grid-column:1/-1;display:none;padding:2px 0 6px}.mem.open .det{display:block}.mem.open{background:#0b0b0b}
+.mem .det{grid-column:1/-1;display:none;padding:10px 4px 4px}.mem.open .det{display:block}.mem.open{background:#0b0b0b}
 .det .st{margin:0 0 8px}
+.dcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-bottom:8px}
+.det .cell{display:grid;align-content:center;gap:2px;padding:8px 12px}.det .cell b{font-size:26px}
 .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}.acts .more{margin-top:0;display:grid;place-items:center;text-decoration:none;font-size:16px}
-.keys .cell small{display:block}.keys .cell small:last-child{margin-top:2px;font-size:13px}.keys .cell b small{display:inline;font:400 13px "Atkinson Hyperlegible",system-ui,sans-serif}
-.share{flex:none;margin-left:auto;min-height:44px;padding:0 14px;border:2px solid var(--ed);border-radius:12px;background:#000;color:var(--tx);font-size:16px;cursor:pointer}
-.recent{display:flex;flex-wrap:wrap;align-items:center;gap:8px;margin-top:10px}.recent:empty{display:none}
+/* Headers: picture, name, details and Share stacked in the middle. */
+.top,.pch{display:flex;flex-direction:column;align-items:center;gap:8px;margin:0 0 14px}
+.top>div,.pcn{min-width:0;max-width:100%;align-self:stretch}
+.top h2,.pch h2{margin:0 0 2px}.top .meta,.pch .meta{margin:0}.pch .meta+.meta{margin-top:4px}
+.share{min-height:44px;padding:0 26px;border:2px solid var(--ed);border-radius:12px;background:#000;color:var(--tx);font-size:16px;cursor:pointer}
+.own{display:inline-block;max-width:100%}.nw{white-space:nowrap}
+.recent{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin-top:10px}.recent:empty{display:none}
 .recent button{min-height:40px;max-width:100%;padding:0 14px;border:2px solid var(--ed);border-radius:20px;background:#000;color:var(--tx);font:700 15px "Atkinson Hyperlegible",system-ui,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
-.notes{margin-top:16px;border-top:1px solid var(--ed)}.notes summary{cursor:pointer;min-height:48px;display:flex;align-items:center;color:var(--mut);font-weight:700}
-.fab{position:fixed;right:16px;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;width:60px;height:60px;border:0;border-radius:50%;background:var(--y);color:#111;display:grid;place-items:center;box-shadow:0 6px 24px rgba(0,0,0,.6);cursor:pointer}
+.fab{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;width:60px;height:60px;margin-left:-30px;border:0;border-radius:50%;background:var(--y);color:#111;display:grid;place-items:center;box-shadow:0 6px 24px rgba(0,0,0,.6);cursor:pointer}
 .fab svg{width:28px;height:28px}
+/* Player card. */
 .pc{position:relative;background:var(--pn);border:2px solid var(--ed);border-radius:18px;padding:20px 14px 14px;margin-bottom:16px;overflow:hidden}
 .pc::before{content:"";position:absolute;left:14px;right:14px;top:10px;height:4px;border-radius:4px;background:var(--y)}
-.pch{display:flex;gap:14px;align-items:center;margin:8px 0 12px}.pch h2{font-size:28px;margin:0 0 4px;overflow-wrap:anywhere}.pcn{flex:1;min-width:0}.pch .meta{margin:0}
-.pch .av.big{border:3px solid var(--y)}
-.tag{display:inline-block;margin-right:8px;padding:1px 9px;border:2px solid var(--y);border-radius:8px;background:#000;color:var(--y);font-weight:700;font-size:14px}
+.pch{margin-top:8px}.pch .av.big{border:3px solid var(--y)}
+.tag{display:inline-block;margin-right:6px;padding:1px 9px;border:2px solid var(--y);border-radius:8px;background:#000;color:var(--y);font-weight:700;font-size:14px}
 .pct{margin:0 0 12px}
 .pcg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 10px}
-.pk{position:relative;min-width:0;background:#000;border:2px solid var(--ed);border-radius:14px;padding:10px 10px 12px;text-align:center}
-.pk small{display:block;color:var(--mut);font-size:13px;padding:0 26px}.pk b{display:block;font:400 36px/1.15 "Lilita One",Impact,sans-serif;color:var(--y);overflow-wrap:anywhere}.pk b small{display:inline;padding:0;font:400 12px "Atkinson Hyperlegible",system-ui,sans-serif}
+.pk{position:relative;min-width:0;background:#000;border:2px solid var(--ed);border-radius:14px;padding:40px 10px 12px}
+.pk small{display:block;color:var(--mut);font-size:13px}.pk b{display:block;font:400 42px/1.15 "Lilita One",Impact,sans-serif;color:var(--y);overflow-wrap:anywhere}
 .pk.c3 b,.pk.c5 b{color:var(--g)}
-.ic{position:absolute;right:8px;top:8px;width:26px;height:26px;border-radius:8px;background:#262626;display:grid;place-items:center;color:var(--y)}.ic svg{width:16px;height:16px}
+/* Each box's icon sits in the middle above its label. */
+.ic{position:absolute;left:50%;top:9px;width:26px;height:26px;margin-left:-13px;border-radius:8px;background:#262626;display:grid;place-items:center;color:var(--y)}.ic svg{width:16px;height:16px}
 .pk.c3 .ic,.pk.c5 .ic{color:var(--g)}
+/* Global rank: the rank on top and the two neighbours side by side below it; on wider screens the rank sits between them. */
 .pr{grid-column:1/-1;background:#000;border:2px solid var(--ed);border-radius:14px;padding:12px}
-.prt{display:grid;grid-template-columns:1fr auto 1fr;gap:8px;align-items:start;text-align:center}
-.prn{min-width:0;display:grid;justify-items:center;gap:4px}.prn small{color:var(--mut);font-size:12px}.prn>span:last-child{max-width:100%;font-weight:700;font-size:13px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.prt{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
+.prn{min-width:0;display:grid;grid-template-columns:minmax(0,1fr);grid-row:span 3;grid-template-rows:subgrid;justify-items:center;align-items:start;gap:4px}.prn small{color:var(--mut);font-size:12px}
+.prn>span:last-child{max-width:100%;font-weight:700;font-size:13px;line-height:1.25;overflow:hidden;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
+.prm{grid-column:1/-1;grid-row:1}
 .av.pav{width:40px;height:40px;font-size:16px;border:2px solid var(--ed)}
-.prm small{display:block;color:var(--mut);font-size:12px;letter-spacing:.04em}.prm b{display:block;font:400 44px/1.05 "Lilita One",Impact,sans-serif;color:var(--y)}
+.prm small{display:block;color:var(--mut);font-size:12px;letter-spacing:.04em}.prm b{display:block;font:400 52px/1.05 "Lilita One",Impact,sans-serif;color:var(--y)}
 .prb{position:relative;height:8px;margin:12px 4px 8px;border-radius:8px;background:#262626}.prb i{display:block;height:100%;border-radius:8px;background:var(--g)}
 .prb em{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;border:3px solid var(--g)}
-.prx{display:block;margin-top:8px;text-align:center;color:var(--mut);font-size:12px}.pz{margin:0 0 12px;padding:10px 12px;border:2px solid var(--y);border-radius:14px;background:#000;color:var(--y);font-weight:700;font-size:15px;line-height:1.4}.pnote{margin:-2px 0 10px;font-size:13px}
-.prp{display:grid;grid-template-columns:1fr 1fr;text-align:center}.prp b{display:block;font:400 28px "Lilita One",Impact,sans-serif;color:var(--g)}.prp div+div b{color:var(--tx)}.prp small{color:var(--mut);font-size:13px}
+.prx{display:block;margin-top:8px;color:var(--mut);font-size:12px}
+.pz{margin:0 0 12px;padding:10px 12px;border:2px solid var(--y);border-radius:14px;background:#000;color:var(--y);font-weight:700;font-size:15px;line-height:1.4}.pnote{margin:-2px 0 10px;font-size:13px}
+.prp{display:grid;grid-template-columns:1fr 1fr}.prp b{display:block;font:400 34px "Lilita One",Impact,sans-serif;color:var(--g)}.prp div+div b{color:var(--tx)}.prp small{color:var(--mut);font-size:13px}
 .pcc{background:#000;border:2px solid var(--ed);border-radius:14px;padding:12px;margin:0 0 10px}
-.pcch{display:flex;flex-wrap:wrap;justify-content:space-between;gap:6px 12px;margin-bottom:6px}.pcch b{display:block;font:400 20px "Lilita One",Impact,sans-serif;color:var(--y)}.pcch small{color:var(--mut);font-size:13px}
-.pleg{display:flex;gap:12px;align-items:center;font-size:13px;color:var(--mut)}.pleg span{display:inline-flex;align-items:center;gap:6px}.pleg .d{width:8px;height:8px;border-radius:50%;background:var(--y)}.pleg .ds{width:16px;border-top:2px dashed var(--mut)}
-.pchs{width:100%;height:auto;display:block}.pgap{margin:6px 0 0;font-size:13px}.pchs text{fill:#a8a8a8;font:10px "Atkinson Hyperlegible",system-ui,sans-serif}.pchs .pbv{fill:var(--y);font-weight:700}
-@media(min-width:640px){.pcg.pt{grid-template-columns:1fr 1.7fr}.pcg.pt .pk{grid-column:1}.pcg.pt .pr{grid-column:2;grid-row:1/3}.pcg.four{grid-template-columns:repeat(4,1fr)}}
+.pcch{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:8px}.pcch b{display:block;font:400 22px "Lilita One",Impact,sans-serif;color:var(--y)}.pcch small{color:var(--mut);font-size:13px}
+.pleg{display:flex;justify-content:center;gap:14px;align-items:center;font-size:13px;color:var(--mut)}.pleg span{display:inline-flex;align-items:center;gap:6px}.pleg .d{width:8px;height:8px;border-radius:50%;background:var(--y)}.pleg .ds{width:16px;border-top:2px dashed var(--mut)}
+.pchs{width:100%;height:auto;display:block}.pgap{margin:6px 0 0;font-size:13px}.pchs text{fill:#a8a8a8;font:11px "Atkinson Hyperlegible",system-ui,sans-serif}.pchs .pbv{fill:var(--y);font-weight:700}
+.pcc:not(:has(.pchs)) .pleg{display:none}
 .toast{position:fixed;left:50%;bottom:calc(90px + env(safe-area-inset-bottom,0px));transform:translateX(-50%);z-index:30;padding:10px 16px;border-radius:12px;background:#f5f5f5;color:#111;font-weight:700;box-shadow:0 6px 24px rgba(0,0,0,.6)}
 .av{position:relative;width:52px;height:52px;border-radius:50%;background:#262626;display:grid;place-items:center;overflow:hidden;color:var(--y);font:400 22px "Lilita One",Impact,sans-serif}
 .ok b{visibility:hidden}
 .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.av.big{flex:none;width:72px;height:72px;font-size:30px}
-.rk small{display:block;font-weight:400;font-size:13px;color:var(--mut)}
+.av.big{flex:none;width:76px;height:76px;font-size:32px}
+.av.sm{width:28px;height:28px;font-size:13px}
+.lg{position:relative;flex:none;width:38px;height:38px;border-radius:10px;background:#262626;display:grid;place-items:center;overflow:hidden;color:var(--y);font:400 18px "Lilita One",Impact,sans-serif}
+.lg.lgb{width:76px;height:76px;border-radius:16px;font-size:32px}
+.lg.lgs{width:30px;height:30px;border-radius:8px;font-size:15px}
+.lg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+.cell .lg b,.rk .lg b{font:inherit;color:inherit;letter-spacing:0}
+/* Charts. */
 .ch{width:100%;height:auto;display:block;touch-action:pan-y;background:#000;border:2px solid var(--ed);border-radius:14px}
-.ch text{fill:#a8a8a8;font:10px "Atkinson Hyperlegible",system-ui,sans-serif}
+.ch text{fill:#a8a8a8;font:11px "Atkinson Hyperlegible",system-ui,sans-serif}
 .seg{display:flex;gap:6px;margin:8px 0}
 .seg button{flex:1;min-height:44px;border:2px solid var(--ed);border-radius:12px;background:#000;color:var(--tx);font-size:16px;cursor:pointer}
 .seg button[aria-pressed="true"]{background:var(--y);color:#111;border-color:var(--y)}
 .sum{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
-.sum .cell{padding:8px}.sum .cell b{font-size:28px}
+.sum .cell{padding:8px}.sum .cell small{display:block}.sum .cell b{font-size:32px}
 .cap{min-height:3em;margin:8px 0 0;font-size:15px;color:var(--mut)}
-.lg{position:relative;flex:none;width:38px;height:38px;border-radius:10px;background:#262626;display:grid;place-items:center;overflow:hidden;color:var(--y);font:400 18px "Lilita One",Impact,sans-serif}
-.lg.lgb{width:72px;height:72px;border-radius:16px;font-size:30px}
-.lg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.top{display:flex;gap:14px;align-items:center;margin-bottom:12px}.top h2{margin:0 0 4px}.top .meta{margin:0}
-.rk{display:grid;grid-template-columns:var(--rkw,44px) 38px 1fr auto;gap:8px;align-items:center;width:100%;min-height:52px;padding:6px 4px;background:none;border:0;border-top:1px solid var(--ed);color:var(--tx);text-align:left;font:inherit;font-size:18px;cursor:pointer}
-.rk:first-child{border-top:0}.rk b{font-family:"Lilita One",Impact,sans-serif;font-weight:400;color:var(--mut)}.rk span{overflow-wrap:anywhere;font-weight:700}.rk i{font:400 21px "Lilita One",Impact,sans-serif;font-style:normal;color:var(--y)}
-.help summary{cursor:pointer;font:400 20px "Lilita One",Impact,sans-serif;min-height:44px;display:flex;align-items:center}
-.help ul{padding-left:20px;margin:6px 0 0}.help li{margin-bottom:8px}
-footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}
-.pill{display:block;width:fit-content;max-width:100%;margin-top:6px;padding:4px 10px;border-radius:12px;background:#262626;color:var(--y);font-size:13px;font-weight:700}
-.faq{border-top:1px solid var(--ed)}.faq summary{cursor:pointer;font-weight:700;min-height:48px;display:flex;align-items:center}.faq p{margin:0 0 12px;color:var(--mut)}
-.det .cell{display:flex;justify-content:space-between;align-items:center;gap:10px;margin-bottom:6px;padding:8px 12px}.det .cell b{font-size:22px;white-space:nowrap}.det .cell small{min-width:0}
-.nb{display:flex;flex-direction:column;align-items:center;gap:6px}.nb>div{align-self:stretch;min-width:0}.keys .cell,.sum .cell,.rvs .cell{text-align:center}.grid.rvs{grid-template-columns:1fr}.lg.lgs{width:30px;height:30px;border-radius:8px;font-size:15px}
-.av.sm{width:28px;height:28px;font-size:13px}
-.leg{display:flex;flex-wrap:wrap;gap:8px 16px;margin-top:10px}.lgd{display:inline-flex;align-items:center;gap:8px;font-size:15px;font-weight:700}
+.leg{display:flex;flex-wrap:wrap;justify-content:center;gap:8px 16px;margin-top:10px}.lgd{display:inline-flex;align-items:center;gap:8px;max-width:100%;min-width:0;font-size:15px;font-weight:700}
+.lgd>.av{flex:none}.lgd>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+/* Close rivals. */
+.nb{display:flex;flex-direction:column;align-items:center;gap:6px}.nb>div{align-self:stretch;min-width:0}
+.grid.rvs{grid-template-columns:1fr}.rvs .cell:not(.nb){display:grid;place-items:center}.rvs small{overflow-wrap:anywhere}
+/* Lists (top 10 and suggestions): the rank or logo on the left and an arrow on the right mirror each other. */
+.rk{display:grid;grid-template-columns:var(--rkw,44px) minmax(0,1fr) var(--rkw,44px);gap:8px;align-items:center;width:100%;min-height:56px;padding:6px 4px;background:none;border:0;border-top:1px solid var(--ed);color:var(--tx);text-align:center;font:inherit;font-size:18px;cursor:pointer}
+.rk:first-child{border-top:0}.rk>b{justify-self:start;font:400 21px "Lilita One",Impact,sans-serif;color:var(--mut)}
+.rk::after,.sg::after{content:"";justify-self:end;width:11px;height:11px;margin-right:10px;border:solid var(--y);border-width:3px 3px 0 0;transform:rotate(45deg)}
+.rkm{min-width:0;display:flex;flex-direction:column;align-items:center}.rkn .lg{width:32px;height:32px;border-radius:9px;font-size:16px}
+.rkn{display:flex;align-items:center;justify-content:center;gap:8px;max-width:100%}.rkn>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.rkv{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:0 8px}
+.rk i{font:400 25px/1.1 "Lilita One",Impact,sans-serif;font-style:normal;color:var(--y)}.rk small{font-size:13px;color:var(--mut)}
 #sg{margin-top:8px}
-.sg{display:grid;grid-template-columns:38px 1fr auto;gap:10px;align-items:center;width:100%;min-height:52px;padding:6px 8px;background:#000;border:1px solid var(--ed);border-radius:12px;color:var(--tx);text-align:left;font:inherit;font-size:17px;margin-top:6px;cursor:pointer}
-.sg i{font-style:normal;color:var(--y);font-size:14px}
-.more{width:100%;min-height:48px;margin-top:10px;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx);font-size:18px;cursor:pointer}
+.sg{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;gap:10px;align-items:center;width:100%;min-height:56px;padding:6px 8px;background:#000;border:1px solid var(--ed);border-radius:12px;color:var(--tx);text-align:center;font:inherit;font-size:17px;margin-top:6px;cursor:pointer}
+.sgm{min-width:0;display:grid}.sgm>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
+.sg i{font-style:normal;color:var(--y);font-size:15px}.sg::after{margin-right:6px}
+.more{width:100%;min-height:48px;margin-top:10px;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx);font-family:"Lilita One",Impact,system-ui,sans-serif;font-size:18px;cursor:pointer}
+/* Open/close signs on the expandable sections; a hidden twin on the left keeps each title in the middle. */
+summary{list-style:none;cursor:pointer}summary::-webkit-details-marker{display:none}
+.help summary,.faq summary,.notes summary{display:flex;align-items:center;justify-content:center;gap:10px}
+.help summary::before,.faq summary::before,.notes summary::before,.help summary::after,.faq summary::after,.notes summary::after{content:"+";flex:none;width:16px;color:var(--y);font:400 24px/1 "Lilita One",Impact,sans-serif}
+.help summary::before,.faq summary::before,.notes summary::before{visibility:hidden}
+.help[open]>summary::after,.faq[open]>summary::after,.notes[open]>summary::after{content:"\2212"}
+.notes{margin-top:16px;border-top:1px solid var(--ed)}.notes summary{min-height:48px;color:var(--mut);font-weight:700}
+.help summary{min-height:44px;font:400 22px "Lilita One",Impact,sans-serif}
+.help ul{list-style:none;max-width:60ch;margin:8px auto 0;padding:0}.help li{margin-bottom:10px}
+.faq{border-top:1px solid var(--ed)}.faq summary{min-height:48px;padding:10px 0;font-weight:700}.faq p{max-width:70ch;margin:0 auto 12px;color:var(--mut)}
+.about>p{max-width:70ch;margin-inline:auto}
+footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}footer p{max-width:80ch;margin:16px auto}
 #ld{position:fixed;inset:0;z-index:50;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;touch-action:none;transition:opacity .35s}
 [hidden]{display:none!important}
-/* Open/close signs on the expandable sections. */
-summary{list-style:none}summary::-webkit-details-marker{display:none}
-.help summary::after,.faq summary::after,.notes summary::after{content:"+";flex:none;margin-left:auto;padding-left:12px;color:var(--y);font:400 24px/1 "Lilita One",Impact,sans-serif}
-.help[open]>summary::after,.faq[open]>summary::after,.notes[open]>summary::after{content:"\2212"}.faq summary{padding:10px 0}
-.more{font-family:"Lilita One",Impact,system-ui,sans-serif}.rvs .cell:not(.nb){display:grid;place-items:center}.rvs small{overflow-wrap:anywhere}
-.cell .lg b,.rk .lg b{font:inherit;color:inherit;letter-spacing:0}.pcc:not(:has(.pchs)) .pleg{display:none}
 #ldslow[hidden]{display:block!important;visibility:hidden}#ld:has(#ldbtns:not([hidden])) :is(.ldb,#lddet,#ldslow){display:none!important}#ld:has(#ldbtns:not([hidden])) svg{animation:none}
-@media(max-width:1099px){.wrap{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}html{scroll-padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}}
-@media(hover:hover){.rk:hover,.mem:hover,.sg:hover{background:#1a1a1a}.tab:not([aria-pressed=true]):hover,.seg button:not([aria-pressed=true]):hover,.share:hover,.more:hover,.recent button:hover{border-color:#555}.go:hover{filter:brightness(1.08)}}
-
-/* Phones: header on one row (picture, name, Share) with the details full width underneath. */
-.own{display:inline-block;max-width:100%}.nw{white-space:nowrap}
-@media(max-width:400px){.top,.pch{display:grid;grid-template-columns:auto minmax(0,1fr) auto;gap:6px 12px;align-items:center}
-.top>div,.pch>.pcn{display:contents}.top>.lg.lgb,.pch>.av.big{width:56px;height:56px;font-size:24px}
-.top h2,.pch h2{grid-column:2;grid-row:1;margin:0}.top .share,.pch .share{grid-column:3;grid-row:1;padding:0 10px}.top .meta,.pch .meta{grid-column:1/-1}}
-/* Global rank: names may take two lines; on phones the rank sits on top and the two neighbours share the row below. */
-.prn{grid-template-columns:minmax(0,1fr)}.prn>span:last-child{white-space:normal;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2;line-height:1.25}
-.prt{align-items:start}.prn{grid-row:span 3;grid-template-rows:subgrid;align-items:start}.prm{align-self:start;grid-row:span 3}
-@media(max-width:639px){.prt{grid-template-columns:1fr 1fr}.prm{grid-column:1/-1;grid-row:1}}
-/* Stat boxes: label, number and note line up across a row even when one label wraps. */
-.keys .cell,.pcg.four .pk{display:grid;grid-row:span 3;grid-template-rows:subgrid;row-gap:0;align-content:start}.keys .cell,.pcg .pk{grid-template-columns:minmax(0,1fr)}
-@media(max-width:639px){.pcg.pt .pk{display:grid;grid-row:span 3;grid-template-rows:subgrid;row-gap:0;align-content:start}}
-.pk b~small{padding:0}@media(max-width:379px){.pk .ic{display:none}.pk>small{padding:0}}
-.keys .cell b{white-space:nowrap}.keys .cell b small,.pk b small{display:block;white-space:normal;line-height:1.3;margin-top:2px}
-.rk>.lg+span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.gr b small{white-space:nowrap}
-
-/* Round-2 audit fixes. */
-.det .cell{flex-wrap:wrap}.det .cell b{margin-left:auto}.det .cell small{min-width:auto}
-.dash h2,.card h2{line-height:1.2}
-.lgd{max-width:100%;min-width:0}.lgd>.av{flex:none}.lgd>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.gr .bar i.neg{background:var(--r)}
-@media(max-width:399px){.cap{min-height:4.5em}}
-@media(min-width:1300px){.mems>.mem.open{grid-column:1/-1}}
-@media(max-width:479px){.sum{grid-template-columns:1fr;gap:6px}.sum .cell{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:6px 12px}.sum .cell small{font-size:14px}}
-
 #ld.out{opacity:0;pointer-events:none}
 #ld svg{width:84px;animation:ldw 1.2s ease-in-out infinite}
 @keyframes ldw{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(10deg)}}
 @media(prefers-reduced-motion:reduce){#ld svg{animation:none}}
 .ldt{font:400 30px/1.1 "Lilita One",Impact,system-ui,sans-serif;color:var(--y)}
 #ld p{margin:0;max-width:22em}
-.ldb{width:min(320px,80vw);margin-top:6px}.ldb i{transition:width .3s}
+.ldb{width:min(320px,80vw);margin-top:6px}.ldb i{margin:0;transition:width .3s}
 .ldbtn{display:grid;gap:10px;width:min(320px,80vw);margin-top:8px}
-@media(min-width:640px){.grid{grid-template-columns:repeat(4,1fr)}.grid.rvs{grid-template-columns:1fr 1fr}.keys{grid-template-columns:repeat(3,1fr)}}
-/* PC (16:9 and other wide screens): search (and the top 10 while a team is shown) in a column on the
-   left that stays in view, the stats filling the rest of the screen. */
-@media(min-width:1100px){html{scroll-padding-bottom:12px}.wrap{max-width:none;padding:0 24px;display:grid;grid-template-columns:clamp(360px,24vw,520px) minmax(0,1fr);gap:0 24px;align-items:start}
-.side{position:sticky;top:0;max-height:100vh;overflow-y:auto;scrollbar-width:thin;scrollbar-color:#333 transparent;scrollbar-gutter:stable;scroll-padding-block:12px}.mainc{margin-top:24px;min-width:0}.wrap>footer{grid-column:2;padding-bottom:24px}
-#dash{scroll-margin-top:24px}#dash>.st:first-child{margin-top:0}#fab{display:none!important}.about p,.help ul{max-width:80ch}
-.mainc>.tops #top{columns:2;column-gap:28px}.mainc>.tops .rk{break-inside:avoid}.mainc>.tops #more{column-span:all;display:block}.mainc>.tops .rk:first-child{border-top:1px solid var(--ed)}}
-@media(min-width:1300px){.dg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 28px;align-items:start}
-.mems{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px;align-items:start}}
+@media(max-width:1199px){.wrap{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}html{scroll-padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}}
+@media(min-width:900px) and (max-width:1199px){.wrap{max-width:none;padding-left:24px;padding-right:24px}}
+@media(max-width:399px){.cap{min-height:4.5em}}
+@media(hover:hover){.rk:hover,.mem:hover,.sg:hover{background:#1a1a1a}.tab:not([aria-pressed=true]):hover,.seg button:not([aria-pressed=true]):hover,.share:hover,.more:hover,.recent button:hover{border-color:#555}.go:hover{filter:brightness(1.08)}}
+/* Inside the stats, sizes follow the width of the main column (and of each half of it), so the same
+   rules work on phones and in the middle column on PC. */
+.mainc{min-width:0;container:main/inline-size}.dg>div{min-width:0;container:half/inline-size}.dg.one{display:block}
+.grid.gns{grid-template-columns:1fr 1fr}
+@container half (min-width:440px){.grid.rvs{grid-template-columns:1fr 1fr}}
+@container half (min-width:600px){.grid.gns{grid-template-columns:repeat(4,1fr)}}
+@container half (max-width:419px){.sum{grid-template-columns:1fr;gap:6px}.sum .cell{display:flex;justify-content:center;align-items:baseline;gap:12px;padding:6px 12px}.sum .cell small{font-size:15px}}
+@container main (min-width:600px){.keys{grid-template-columns:repeat(3,1fr)}.pcg.four{grid-template-columns:repeat(4,1fr)}.prt{grid-template-columns:1fr auto 1fr}.prm{grid-column:auto;grid-row:span 3;align-self:start}}
+/* Narrow phones: slimmer side columns in the lists, so names keep their room. */
+@container main (max-width:399px){.mems{--rkw:34px}.mem .rn{padding-left:0;font-size:17px}.mem::after{width:20px;margin-right:0}
+.rk{grid-template-columns:calc(var(--rkw,44px) - 10px) minmax(0,1fr) calc(var(--rkw,44px) - 10px);gap:6px}.rk>b{font-size:18px}.rk::after{margin-right:6px}}
+@container main (min-width:660px){.mems{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px;align-items:start}}
+@container main (min-width:860px){.dg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 28px;align-items:start}
+.tops #top{columns:2;column-gap:28px}.tops .rk{break-inside:avoid}.tops #more{column-span:all;display:block}.tops .rk:first-child{border-top:1px solid var(--ed)}}
+@container main (min-width:1250px){.pgx{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 14px;align-items:start}.pgx .pcg.four{grid-template-columns:1fr 1fr}}
+@container main (min-width:1300px){.keys{grid-template-columns:repeat(6,1fr)}}
+@container main (min-width:1500px){.mems{grid-template-columns:repeat(3,minmax(0,1fr))}.mems>.mem.hid:nth-child(-n+12){display:grid}.mems:not(:has(>.mem:nth-child(13)))+.more{display:none}}
+@container main (min-width:2000px){.mems{grid-template-columns:repeat(4,minmax(0,1fr))}}
+/* PC (16:9 and other wide screens): the title across the top, then search on the left and the top 10 on the
+   right in columns of the same width that stay in view, with the stats in the middle. */
+@media(min-width:1200px){html{scroll-padding-bottom:12px}
+.wrap{--sw:clamp(280px,21vw,520px);max-width:none;padding:0 24px;display:grid;grid-template-columns:var(--sw) minmax(0,1fr) var(--sw);grid-template-areas:"h h h" "s m r" "f f f";gap:0 24px;align-items:start}
+.hdr{grid-area:h}.side{grid-area:s}.mainc{grid-area:m}.rside{grid-area:r}.wrap>footer{grid-area:f;padding-bottom:12px}
+h1{font-size:60px;margin-top:28px}.sub{margin-bottom:26px}
+.side,.rside{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:#333 transparent;scrollbar-gutter:stable;scroll-padding-block:12px}
+/* Each column keeps its scrollbar space on its outer edge (the left one by reading right to left), so the two mirror each other. */
+.side{direction:rtl}.side>*{direction:ltr}
+#dash{scroll-margin-top:16px}#dash>.st:first-child{margin-top:0}#fab{display:none!important}}
 @media(min-width:1500px){.wrap{gap:0 32px}}
-@media(min-width:1700px){.keys{grid-template-columns:repeat(6,1fr)}}
-@media(min-width:1800px){.pgx{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 14px;align-items:start}.pgx .pcg.four{grid-template-columns:1fr 1fr}}
-@media(min-width:2200px){.mems{grid-template-columns:repeat(3,minmax(0,1fr))}.mems>.mem.hid:nth-child(-n+12){display:grid}.mems:not(:has(>.mem:nth-child(13)))+.more{display:none}}
-@media(min-width:2800px){.mems{grid-template-columns:repeat(4,minmax(0,1fr))}.mainc>.tops #top:has(>.rk:nth-child(11)){columns:3}}
 </style></head>
 <body><div id="ld" role="status" aria-live="polite"><svg viewBox="0 0 120 150" aria-hidden="true"><path d="M60 6C92 6 114 58 114 94c0 30-24 50-54 50S6 124 6 94C6 58 28 6 60 6Z" fill="#fff" stroke="#14204a" stroke-width="7" stroke-linejoin="round"/><path d="M14 84l17-13 15 15 15-17 15 15 17-13 13 11" fill="none" stroke="#14204a" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="40" cy="42" r="8" fill="#ff9ec7"/><circle cx="82" cy="34" r="6" fill="#ffd23f"/><circle cx="78" cy="118" r="9" fill="#7ee6ff"/><circle cx="36" cy="112" r="6" fill="#b98cff"/></svg>
 <div class="ldt" id="ldh">Loading all API data</div>
@@ -233,9 +253,9 @@ summary{list-style:none}summary::-webkit-details-marker{display:none}
 <div class="ldbtn" id="ldbtns" hidden><button class="go" id="ldretry">Try again</button><button class="tab" id="ldopen">Open anyway</button></div></div>
 <noscript><style>#ld{display:none}</style></noscript>
 <main class="wrap">
+<header class="hdr"><h1>PS99 <span>Tracker</span></h1>
+<p class="sub">Look up any Pet Simulator 99 league, clan or player. See their rank, points per hour and gains, live.</p></header>
 <div class="side">
-<h1>PS99 <span>Tracker</span></h1>
-<p class="sub">Look up any Pet Simulator 99 league, clan or player. See their rank, points per hour and gains, live.</p>
 <noscript><p class="st">PS99 Tracker needs JavaScript to load the live Pet Simulator 99 league and clan leaderboards.</p></noscript>
 <section class="card" id="find">
 <div class="tabs" role="group" aria-label="What to look up"><button class="tab" id="tL" aria-pressed="true">League</button><button class="tab" id="tC" aria-pressed="false">Clan</button><button class="tab" id="tP" aria-pressed="false">Player</button></div>
@@ -268,6 +288,7 @@ summary{list-style:none}summary::-webkit-details-marker{display:none}
 <details class="faq"><summary>How do I look up a player?</summary><p>Pick Player, type their Roblox username or user ID, and tap Show stats. You see their points, rank and share of points in their league and in the clan war, as long as their league or clan is in the top 2,000.</p></details>
 <details class="faq"><summary>Is this an official tool?</summary><p>No. It is fan-made and not affiliated with BIG Games or Roblox.</p></details></section>
 </div>
+<aside class="rside"></aside>
 <footer><p>Fan-made and unofficial. Data comes from the <a href="https://github.com/BIG-Games-LLC/ps99-public-api-docs">BIG Games public API</a>. Pet Simulator 99 belongs to BIG Games, and Roblox is a trademark of Roblox Corporation.</p></footer>
 </main>
 <button id="fab" class="fab" hidden aria-label="Search again"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg></button>
@@ -428,11 +449,12 @@ const COL=['#ffd23f','#ff9ec7','#3ddc84','#6cc8ff'],CH=200;let CW=340;
 // On PC the charts get wider instead of taller: the drawing width follows the chart's column (sizes
 // mirror the CSS), so text stays readable and the height stays low. Half-width columns start at
 // "two" (1300px for the team page, 1800px for the player card); below that the chart is full width.
-function colW(pad,two){const V=innerWidth,W=document.documentElement.clientWidth;if(V<1100)return Math.max(0,Math.min(720,W)-68);
-const m=W-48-Math.min(520,Math.max(360,V*.24))-(V>=1500?32:24);return V<(two||1300)?m-36:(m-pad)/2}
+// The main column is measured; its halves follow the same widths as the container rules (.dg from 860px, .pgx from 1250px).
+const MC=document.querySelector('.mainc');
+function colW(pad,two){const m=MC.clientWidth||Math.min(720,document.documentElement.clientWidth)-32;return m>=two?(m-pad)/2:m-36}
 // Phones draw at about their real size (so labels are not shrunk); wider screens draw wider instead of taller.
-const cwNow=()=>{const c=colW(64);return Math.max(Math.min(340,c),Math.round(c/1.3),260)};
-const pW=()=>{const c=colW(46,1800)-28;return Math.max(Math.min(340,c),Math.round(c/1.5))};let PW=340;
+const cwNow=()=>{const c=colW(64,860);return Math.max(Math.min(340,c),Math.round(c/1.3),260)};
+const pW=()=>{const c=colW(46,1250)-28;return Math.max(Math.min(340,c),Math.round(c/1.5))};let PW=340;
 // Axis labels without trailing zeros (100m, 37.5m), so they stay clear of the chart's edge.
 const fax=v=>v<1000&&v%1?String(+v.toFixed(2)):fmt(v).replace(/\.?0+(?=[kmbt]$)/,'');
 let RG=0,CM='tot',LAST=null,CHD=null;
@@ -466,7 +488,7 @@ if(!all.some(v=>v>=1)){CHD=null;return ctl(hrs,d.kind)+'<p class="st">No points 
 const mx=nice(Math.max(1,...all),4),l=48,t=18,r=10,b=26,pw=CW-l-r,ph=CH-t-b,x0=ser[0].pts[0][0],x1=ser[0].pts[ser[0].pts.length-1][0];
 const X=tm=>l+(tm-x0)/(x1-x0||1)*pw,Y=v=>t+ph-v/mx*ph,hm=tm=>new Date(tm*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
 CHD={ser,X,Y};
-let g='<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+COL[0]+'" stop-opacity=".4"/><stop offset="1" stop-color="'+COL[0]+'" stop-opacity="0"/></linearGradient></defs><text x="'+l+'" y="11">points per hour</text>';
+let g='<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+COL[0]+'" stop-opacity=".4"/><stop offset="1" stop-color="'+COL[0]+'" stop-opacity="0"/></linearGradient></defs><text x="'+(l+pw/2)+'" y="12" text-anchor="middle">points per hour</text>';
 [0,.25,.5,.75,1].forEach(f=>{const y=Y(mx*f);g+='<line x1="'+l+'" x2="'+(CW-r)+'" y1="'+y+'" y2="'+y+'" stroke="'+(f?'#242424':'#3a3a3a')+'"/><text x="'+(l-6)+'" y="'+(y+4)+'" text-anchor="end">'+fax(mx*f)+'</text>'});
 [0,.33,.66,1].forEach(f=>{const tm=x0+(x1-x0)*f;g+='<text x="'+X(tm)+'" y="'+(CH-8)+'" text-anchor="'+(f===0?'start':f===1?'end':'middle')+'">'+(f===1?'now':hm(tm))+'</text>'});
 let EST=0;ser.forEach(q=>{let run=[],er=null;const runs=[],est=[];q.pts.forEach((p,i)=>{const pt=p[1]==null?null:[X(p[0]),Y(p[1])],e=pt&&p[2];
@@ -581,27 +603,28 @@ const keys=[['Rank',d.i>=0?'#'+d.rank.toLocaleString():unk?'Unavailable':'Not ra
 ['Rank change, 24h','<span class="'+cc+'">'+ct+'</span>',''],['Points',d.pts==null?'n/a':fmt(d.pts),kind==='Clan'?'This clan war':''],['Points per hour',PZ?PZ.short:pph==null?'Collecting':sg(pph),PZ?PZ.sub:''],
 ['Members',d.mem+' of '+d.cap,''],['Average per member',d.pts==null||!d.mem?'n/a':fmt(d.pts/d.mem),'']];
 const mx=Math.max(1,...G.map(x=>x?Math.abs(x[0]):0)),lab=['1 hour','6 hours','12 hours','24 hours'];
-const gains=[1,6,12,24].map((h,k)=>{const x=G[k];return '<div class="gr"><span>'+lab[k]+'</span><div><b'+(x&&x[0]<0?' class="dn"':'')+'>'+(x?sg(x[0])+(x[1]<h*3600-120?' <small>('+durf(x[1])+' so far)</small>':x[1]>h*3600+120?' <small>(over '+durf(x[1])+')</small>':''):'Collecting')+'</b><div class="bar"><i'+(x&&x[0]<0?' class="neg"':'')+' style="width:'+(x&&x[0]?Math.max(2,Math.abs(x[0])/mx*100):0)+'%"></i></div></div></div>'}).join('');
+const gains='<div class="grid gns">'+[1,6,12,24].map((h,k)=>{const x=G[k],ng=x&&x[0]<0;return '<div class="cell"><small>'+lab[k]+'</small><b'+(ng?' class="dn"':'')+'>'+(x?sg(x[0]):'Collecting')+'</b><small>'+(x?x[1]<h*3600-120?durf(x[1])+' so far':x[1]>h*3600+120?'over '+durf(x[1]):'':'')+'</small><div class="bar"><i'+(ng?' class="neg"':'')+' style="width:'+(x&&x[0]?Math.max(2,Math.abs(x[0])/mx*100):0)+'%"></i></div></div>'}).join('')+'</div>';
 const A=d.i>0?d.list[d.i-1]:null,B=d.i>=0?d.list[d.i+1]:null,ok=d.pts!=null&&d.i>=0,me=ok?d.pts:0;
 const riv=(T,lab,val,none)=>T&&ok?'<div class="cell nb">'+logo(T[3],T[0],'lgs')+'<div><small>'+lab+' '+esc(T[0])+'</small><b>'+val+'</b></div></div>':'<div class="cell"><small>'+(ok?none:unk?'Unavailable right now':'Not ranked')+'</small></div>';
 const gap=riv(A,'Needed to pass','+'+fmt(Math.max(0,(A?A[1]:0)-me)),'Already #1')+riv(B,'Ahead of','by '+fmt(Math.max(0,me-(B?B[1]:0))),tot&&d.rank<tot?'Teams below #'+d.list.length.toLocaleString()+' are not tracked':'Nobody behind');
 const top=Math.max(1,...d.rows.map(r=>r.p)),tp=d.pts!=null?d.pts:d.sum,all=SHOWALL.has(d.key),pcs=x=>Math.min(99.9,Math.max(0,x)).toFixed(1);
 const mem=d.rows.map((r,k)=>{const m0=r0&&r0[3]?r0[3][r.id]:null,m1=lastL&&lastL[3]?lastL[3][r.id]:null,pp=m0!=null&&m1!=null&&lastL[0]-r0[0]>=120?(m1-m0)/((lastL[0]-r0[0])/3600):null,u=U[r.id],sh=tp?pc(r.p/tp*100,100):null,ri=r.z?null:rinfo(kind,r.p,r.id),open=OPEN.has(String(r.id));
 const chip=!ri?'':ri.pct!=null?'Better than '+(ri.est||ri.nEst||ri.rEst?'~':'')+pcs(ri.pct)+'%':ri.rank?'Rank #'+ri.rank.toLocaleString():'';
-return '<div class="mem'+(open?' open':'')+(k>=LIMIT&&!all?' hid':'')+'" data-id="'+r.id+'" tabindex="0" role="button" aria-expanded="'+open+'"><b class="rn">'+(r.z?'-':'#'+(k+1))+'</b>'+av(r)
-+'<div class="mi"><span class="mn">'+esc(nm(r))+'</span><div class="ml">'+(r.z?'<small>No points yet</small>':'<b class="mp">'+fmt(r.p)+'</b>'+(pp==null?'':'<small>'+sg(pp)+'/hr</small>'))+''+(chip?'<span class="chip">'+chip+'</span>':'')+'</div><div class="bar"><i style="width:'+(r.z?0:Math.max(2,r.p/top*100))+'%"></i></div></div>'
+return '<div class="mem'+(open?' open':'')+(k>=LIMIT&&!all?' hid':'')+'" data-id="'+r.id+'" tabindex="0" role="button" aria-expanded="'+open+'"><b class="rn">'+(r.z?'-':'#'+(k+1))+'</b>'
++'<div class="mi"><span class="mw">'+av(r)+'<span class="mn">'+esc(nm(r))+'</span></span><div class="ml">'+(r.z?'<small>No points yet</small>':'<b class="mp">'+fmt(r.p)+'</b>'+(pp==null?'':'<small>'+sg(pp)+'/hr</small>'))+''+(chip?'<span class="chip">'+chip+'</span>':'')+'</div><div class="bar"><i style="width:'+(r.z?0:Math.max(2,r.p/top*100))+'%"></i></div></div>'
 +'<div class="det">'+(u&&u[1]!==u[0]?'<p class="st">Display name: '+esc(u[1])+'</p>':'')
 +(r.z?'<p class="st">No points'+(kind==='Clan'?' in this clan war':'')+' yet.</p>'
-:'<div class="cell"><small>Share of '+war+' points</small><b>'+(sh==null?'n/a':sh+'%')+'</b></div><div class="cell"><small>Global rank</small><b>'+(ri.rank?(ri.est||ri.rEst?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' of '+(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString():''):'Working it out')+'</b></div>'
+:'<div class="dcs"><div class="cell"><small>Share of '+war+' points</small><b>'+(sh==null?'n/a':sh+'%')+'</b></div><div class="cell"><small>Global rank</small><b>'+(ri.rank?(ri.est||ri.rEst?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' <small>of '+(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString()+'</small>':''):'Working it out')+'</b></div></div>'
 +'<p class="st">'+(ri.pct!=null?'Better than '+(ri.est||ri.nEst||ri.rEst?'~':'')+pcs(ri.pct)+'% of '+war+' war players. ':'')+(ri.rank?'Based on: '+basis(ri)+'.':'')+(r.t?' Last earned points '+ago(now-r.t)+'.':'')+'</p>')
 +'<div class="acts"><button class="more" data-open="Player" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:r.id)+'">Player stats</button><a class="more" href="https://www.roblox.com/users/'+r.id+'/profile" target="_blank" rel="noopener">Roblox profile</a></div></div></div>'}).join('')||'<p class="st">No contributor data.</p>';
 const own=d.oid?nm({id:d.oid,n:d.owner||d.oid}):d.owner||'',lost=kind==='Clan'&&d.pts!=null&&d.pts-d.sum>d.pts*0.005;
 return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2><p class="meta">'+(kind==='Clan'&&BREC?esc(BREC.title):kind)+(own?' · <span class="own">Owner '+esc(own)+'</span>':'')+'</p></div><button class="share" data-share>Share</button></div>'
 +(PZ?'<p class="pz">'+esc(PZ.page)+'</p>':'')
 +'<div class="grid keys">'+keys.map(c=>'<div class="cell"><small>'+c[0]+'</small><b>'+c[1]+'</b>'+(c[2]?'<small>'+c[2]+'</small>':'')+'</div>').join('')+'</div>'
-+'<div class="dg"><div><h3>Points gained</h3>'+(PZ&&!G.some(x=>x&&x[0])?'<p class="st">'+PZ.none+'</p>':'<p class="st" style="margin:0 0 4px">'+hist+'</p>'+gains)
-+'<h3>Close rivals</h3><div class="grid rvs">'+gap+'</div></div>'
-+'<div><h3>Points per hour</h3><div id="chw">'+(PZ&&!G.some(x=>x&&x[0])?'<p class="st">'+PZ.none+'</p>':chartHtml(a,d))+'</div></div></div>'
+// While the war is paused there are no gains or chart to show (the note above says why), so the rivals get the full width.
++(PZ&&!G.some(x=>x&&x[0])?'<div class="dg one"><div><h3>Close rivals</h3><div class="grid rvs">'+gap+'</div></div></div>'
+:'<div class="dg"><div><h3>Points gained</h3><p class="st" style="margin:0 0 4px">'+hist+'</p>'+gains+'<h3>Close rivals</h3><div class="grid rvs">'+gap+'</div></div>'
++'<div><h3>Points per hour</h3><div id="chw">'+chartHtml(a,d)+'</div></div></div>')
 +'<h3>'+(kind==='Clan'?'Members ('+d.rows.length+')':'Contributors'+(d.nAll?' ('+d.nAll+')':''))+'</h3><p class="st" style="margin:0 0 4px">'+(kind==='Clan'&&d.rows.length>d.nAll?d.nAll+' have points in this war, '+(d.rows.length-d.nAll)+' not yet. ':'')+'Tap a player for details.</p>'
 +'<div class="mems">'+mem+'</div>'+(d.rows.length>LIMIT&&!all?'<button class="more" data-all="'+esc(d.key)+'">Show all '+d.rows.length+' '+(kind==='Clan'?'members':'contributors')+'</button>':'')
 +'<details class="notes"'+(NOTESOPEN?' open':'')+'><summary>About these numbers</summary><div class="st" id="scan" data-k="'+kind+'">'+scanText(kind)+'</div>'
@@ -644,12 +667,12 @@ const when=t=>new Date(Math.round(t/60)*60000).toLocaleString([],{weekday:'short
 const pwhen=p=>p.least?'for at least '+durf(Date.now()/1000-p.t):'since '+when(p.t);
 // What each part of the page says while a war is paused, over or not started yet.
 function pzInfo(kind){if(kind==='League'){const p=lpause();if(!p)return null;const w='no league has earned points '+pwhen(p);
-return{short:'Paused',sub:'League war paused',none:'No points while the league war is paused.',board:'League war looks paused: '+w+'.',card:'League war looks paused: '+w+'.',page:'League war looks paused. No league in the top 2,000 has earned points '+pwhen(p)+', so points and ranks stay as they are until it starts again.'}}
+return{short:'Paused',sub:'League war paused',board:'League war looks paused: '+w+'.',card:'League war looks paused: '+w+'.',page:'League war looks paused. No league in the top 2,000 has earned points '+pwhen(p)+', so points and ranks stay as they are until it starts again.'}}
 const c=cwar();if(!c)return null;const T=BREC.title;
-if(c.state==='ended')return{short:'Ended',sub:'Clan war over',none:'No points since the clan war ended.',board:'Clan war '+T+' ended '+when(c.t)+'. Points are final until the next war starts.',card:'Clan war '+T+' ended '+when(c.t)+'. Points are final.',page:'Clan war '+T+' ended '+when(c.t)+'. Points and ranks are final until the next war starts.'};
-if(c.state==='upcoming')return{short:'Not started',sub:'Starts '+when(c.t),none:'No points until the clan war starts.',board:'Next clan war: '+T+', starts '+when(c.t)+'.',card:'The next clan war, '+T+', starts '+when(c.t)+'.',page:'The next clan war, '+T+', starts '+when(c.t)+'. Clan points start again at zero then.'};
+if(c.state==='ended')return{short:'Ended',sub:'Clan war over',board:'Clan war '+T+' ended '+when(c.t)+'. Points are final until the next war starts.',card:'Clan war '+T+' ended '+when(c.t)+'. Points are final.',page:'Clan war '+T+' ended '+when(c.t)+'. Points and ranks are final until the next war starts.'};
+if(c.state==='upcoming')return{short:'Not started',sub:'Starts '+when(c.t),board:'Next clan war: '+T+', starts '+when(c.t)+'.',card:'The next clan war, '+T+', starts '+when(c.t)+'.',page:'The next clan war, '+T+', starts '+when(c.t)+'. Clan points start again at zero then.'};
 const w='no clan has earned points '+pwhen(c);
-return{short:'Paused',sub:'Clan war paused',none:'No points while the clan war is paused.',board:'Clan war '+T+' looks paused: '+w+'.',card:'Clan war looks paused: '+w+'.',page:'Clan war '+T+' looks paused. No clan in the top 2,000 has earned points '+pwhen(c)+', so points and ranks stay as they are until it starts again.'}}
+return{short:'Paused',sub:'Clan war paused',board:'Clan war '+T+' looks paused: '+w+'.',card:'Clan war looks paused: '+w+'.',page:'Clan war '+T+' looks paused. No clan in the top 2,000 has earned points '+pwhen(c)+', so points and ranks stay as they are until it starts again.'}}
 let PMC=null;const pmeta=()=>{if(PMC&&Date.now()-PMC.at<PMC.ttl)return PMC.pr;const e=PMC={at:Date.now(),ttl:300000,pr:rawj('data-ranks/players/meta.json').catch(()=>null)};e.pr.then(r=>{if(!r)e.ttl=30000});return e.pr};
 async function teamOf(kind,id){const sh=await rawj('data-ranks/players/'+kind.toLowerCase()+'/'+(id%256)+'.json').catch(()=>null),e=sh&&sh[id];
 if(e)return{name:e[0],cur:!!e[2],idx:true,hist:Array.isArray(e[3])?e[3]:[]};
@@ -749,7 +772,7 @@ h+='<p class="st">'+(V.pm&&V.pm.updated?'Teams come from the full scan of the to
 return h}
 // Long names shrink until they fit on one line (down to 16px; past that they wrap).
 function fitName(){const e=document.querySelector('.pch h2');if(!e)return;e.style.fontSize='';e.style.whiteSpace='nowrap';
-let f=28;while(f>16&&e.scrollWidth>e.clientWidth)e.style.fontSize=--f+'px';e.style.whiteSpace=''}
+let f=parseFloat(getComputedStyle(e).fontSize);while(f>16&&e.scrollWidth>e.clientWidth)e.style.fontSize=--f+'px';e.style.whiteSpace=''}
 // Refreshes rebuild the stats and the top 10; keyboard focus goes back to the same control.
 function keepFocus(box,write){const a=document.activeElement;let q=null;
 if(a&&a!==document.body&&box.contains(a)){const d=a.dataset;q=a.id?'#'+CSS.escape(a.id):d.id?'[data-id="'+CSS.escape(d.id)+'"]':d.r?'[data-r="'+d.r+'"]':d.m?'[data-m="'+d.m+'"]':d.pk?'[data-pk="'+d.pk+'"]':d.n!=null?'[data-n="'+CSS.escape(d.n)+'"]':d.all?'[data-all]':a.hasAttribute('data-share')?'[data-share]':null}
@@ -760,13 +783,12 @@ bs.forEach(b=>{b.style.fontSize='';b.style.overflowWrap='normal'});
 bs.forEach(b=>{const w=b.clientWidth;if(!w||b.scrollWidth<=w+1)return;let s=Math.max(14,Math.floor(parseFloat(getComputedStyle(b).fontSize)*w/b.scrollWidth));b.style.fontSize=s+'px';
 while(s>14&&b.scrollWidth>w+1)b.style.fontSize=--s+'px';if(b.scrollWidth>w+1)b.style.overflowWrap=''});
 // When a number in a row had to shrink, the others in that row shrink to the same size.
-const rows=new Map();bs.forEach(b=>{const c=b.parentElement,g=c.parentElement;if(!b.clientWidth||!g.matches('.sum,.keys,.pcg,.prp'))return;const k=g;const t=Math.round(c.getBoundingClientRect().top);
+const rows=new Map();bs.forEach(b=>{const c=b.parentElement,g=c.parentElement;if(!b.clientWidth||!g.matches('.sum,.keys,.gns,.pcg,.prp'))return;const k=g;const t=Math.round(c.getBoundingClientRect().top);
 const m=rows.get(k)||new Map();rows.set(k,m);(m.get(t)||m.set(t,[]).get(t)).push(b)});
 rows.forEach(m=>m.forEach(a=>{if(a.length<2||!a.some(b=>b.style.fontSize))return;const z=Math.min(...a.map(b=>parseFloat(getComputedStyle(b).fontSize)));a.forEach(b=>{if(parseFloat(getComputedStyle(b).fontSize)>z)b.style.fontSize=z+'px'})}))}
-// The top 10 sits under the search on PC while a team or player is shown, and in the wide column
-// when nothing is. On phones it always follows the stats (its place in the HTML).
-const TOPS=document.querySelector('.tops'),PCQ=matchMedia('(min-width:1100px)');
-function placeTops(){if(PCQ.matches&&$('dash').firstChild){if(TOPS.previousElementSibling!==$('find'))$('find').after(TOPS)}else if(TOPS.previousElementSibling!==$('dash'))$('dash').after(TOPS)}
+// On PC the top 10 has the right-hand column to itself (the search is on the left); on phones it follows the stats.
+const TOPS=document.querySelector('.tops'),RS=document.querySelector('.rside'),PCQ=matchMedia('(min-width:1200px)');
+function placeTops(){if(PCQ.matches){if(TOPS.parentElement!==RS)RS.append(TOPS)}else if(TOPS.previousElementSibling!==$('dash'))$('dash').after(TOPS)}
 PCQ.addEventListener?PCQ.addEventListener('change',placeTops):PCQ.addListener(placeTops);placeTops();
 new MutationObserver(()=>{placeTops();fitNums();const s=document.querySelector('#chw .ch'),g=$('gl');
 if(s&&g&&CHX!=null&&g.style.display==='none'&&LAST&&LAST.d.key===CHK){const R=s.getBoundingClientRect();chHit({target:s,clientX:R.left+CHX*R.width})}}).observe($('dash'),{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['class']});
@@ -813,7 +835,7 @@ catch(e){if(GONE(e))DEAD=k+':'+name.toLowerCase();if(k===mode&&seq===PSEQ&&(show
 // In Player mode the list shows the official top league players (the API's top 500 sample).
 const TRIED=new Set();
 function boardPlayers(){const g=GPX.League,k=Math.min(BN,g.list.length);rkw(k);$('th').textContent='Top '+(k||10)+' league players';$('war').hidden=true;
-keepFocus($('top'),()=>$('top').innerHTML=g.list.length?g.list.slice(0,k).map((x,i)=>{const u=U[x.id];return '<button class="rk" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:x.id)+'"><b>#'+(i+1)+'</b><span class="lg"><b>'+esc((u?u[0][0]:'?').toUpperCase())+'</b>'+(IM[x.id]?'<img src="'+esc(IM[x.id])+'" alt="" loading="lazy">':'')+'</span><span>'+esc(u?'@'+u[0]:'User '+x.id)+(x.team?'<small>'+esc(x.team)+'</small>':'')+'</span><i>'+fmt(x.p)+'</i></button>'}).join('')+(k<g.list.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>');
+keepFocus($('top'),()=>$('top').innerHTML=g.list.length?g.list.slice(0,k).map((x,i)=>{const u=U[x.id];return '<button class="rk" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:x.id)+'"><b>#'+(i+1)+'</b><span class="rkm"><span class="rkn"><span class="lg"><b>'+esc((u?u[0][0]:'?').toUpperCase())+'</b>'+(IM[x.id]?'<img src="'+esc(IM[x.id])+'" alt="" loading="lazy">':'')+'</span><span>'+esc(u?'@'+u[0]:'User '+x.id)+'</span></span><span class="rkv"><i>'+fmt(x.p)+'</i>'+(x.team?'<small>'+esc(x.team)+'</small>':'')+'</span></span></button>'}).join('')+(k<g.list.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>');
 if(!g.at){if(Date.now()-(g.tr||0)>30000){g.tr=Date.now();gplay('League').then(()=>{if(mode==='Player'&&GPX.League.at)board()})}return}
 const ids=g.list.slice(0,k).map(x=>x.id).filter(i=>!TRIED.has(i)&&(!U[i]||!IM[i]));ids.forEach(i=>TRIED.add(i));
 if(ids.length)Promise.all([names(ids),pics(ids)]).then(()=>{if(mode==='Player')boardPlayers()})}
@@ -823,7 +845,7 @@ const rkw=k=>$('top').style.setProperty('--rkw',k>999?'64px':k>99?'54px':'44px')
 function board(){exPH();if(mode==='Player')return boardPlayers();const a=mode==='League'?L:C,k=Math.min(BN,a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(mode==='League'?'leagues':'clans');
 const pz=mode!=='Player'?pzInfo(mode):null;
 if(pz){w.textContent=pz.board;w.hidden=false}else if(mode==='Clan'&&BREC){w.textContent='Current clan war: '+BREC.title+(BREC.end>Date.now()?', ends '+new Date(BREC.end).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'')+'.';w.hidden=false}else w.hidden=true;
-keepFocus($('top'),()=>$('top').innerHTML=a.length?a.slice(0,k).map((x,i)=>'<button class="rk" data-n="'+esc(x[0])+'"><b>#'+(i+1)+'</b>'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span><i>'+fmt(x[1])+'</i></button>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>')}
+keepFocus($('top'),()=>$('top').innerHTML=a.length?a.slice(0,k).map((x,i)=>'<button class="rk" data-n="'+esc(x[0])+'"><b>#'+(i+1)+'</b><span class="rkm"><span class="rkn">'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span></span><span class="rkv"><i>'+fmt(x[1])+'</i></span></span></button>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>')}
 function setMode(m,np){mode=m;BN=10;$('sg').innerHTML='';S.mode=m;save();$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');$('tP').setAttribute('aria-pressed',m==='Player');
 $('q').value=S[m]||'';exPH();$('ql').textContent=m==='Player'?'Roblox username':m+' name';showRecent();board();$('dash').innerHTML='';setURL();pzLoad();if(S[m]&&live&&!np)paint(true)}
 // One refresh at a time: a slow one is never doubled up by the next minute's.
@@ -893,7 +915,7 @@ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.tar
 function sugg(){const q=$('q').value.trim().toLowerCase(),a=mode==='League'?L:C;if(!q||!a.length||mode==='Player'){$('sg').innerHTML='';return}
 const m=[];for(let i=0;i<a.length&&m.length<6;i++)if(String(a[i][0]).toLowerCase().startsWith(q))m.push(i);
 for(let i=0;i<a.length&&m.length<6;i++)if(!m.includes(i)&&String(a[i][0]).toLowerCase().includes(q))m.push(i);
-$('sg').innerHTML=m.map(i=>'<button class="sg" data-n="'+esc(a[i][0])+'">'+logo(a[i][3],a[i][0])+'<span>'+esc(a[i][0])+'</span><i>#'+(i+1)+', '+fmt(a[i][1])+'</i></button>').join('')}
+$('sg').innerHTML=m.map(i=>'<button class="sg" data-n="'+esc(a[i][0])+'">'+logo(a[i][3],a[i][0])+'<span class="sgm"><span>'+esc(a[i][0])+'</span><i>#'+(i+1)+' · '+fmt(a[i][1])+'</i></span></button>').join('')}
 $('q').oninput=sugg;$('sg').onclick=e=>{const b=e.target.closest('.sg');if(b){$('q').value=b.dataset.n;$('sg').innerHTML='';go()}};
 // A shared link (?league=, ?clan= or ?player=) opens straight to that page.
 {const q=new URLSearchParams(location.search);for(const m of ['League','Clan','Player']){const v=(q.get(m.toLowerCase())||'').trim().slice(0,64);if(v){S.mode=m;S[m]=v;save(m);break}}}
