@@ -91,14 +91,15 @@ h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
 .keys .cell b,.gns .cell b{white-space:nowrap}.keys .cell b small,.pk b small{display:block;white-space:normal;line-height:1.3;margin-top:2px;font:400 13px "Atkinson Hyperlegible",system-ui,sans-serif}
 /* Members: the rank on the left and the open sign on the right mirror each other; picture, name, points and bar sit in the middle. */
 .mems{--rkw:46px}
-.mem{display:grid;grid-template-columns:var(--rkw) minmax(0,1fr) var(--rkw);gap:0 8px;align-items:center;min-height:56px;padding:10px 0;border-top:1px solid var(--ed);cursor:pointer}
-.mem::after{content:"+";grid-area:1/3;justify-self:end;width:24px;margin-right:4px;color:var(--y);font:400 26px/1 "Lilita One",Impact,sans-serif}.mem.open::after{content:"\2212"}
+.mem{container:mem/inline-size;display:grid;grid-template-columns:var(--rkw) minmax(0,1fr) var(--rkw);gap:0 8px;align-items:center;min-height:56px;padding:10px 0;border-top:1px solid var(--ed);cursor:pointer}
+.mem::after{content:"+";grid-area:1/3;justify-self:end;width:24px;margin-right:4px;text-align:right;color:var(--y);font:400 26px/1 "Lilita One",Impact,sans-serif}.mem.open::after{content:"\2212"}
 .mem .rn{justify-self:start;padding-left:4px;font:400 19px "Lilita One",Impact,sans-serif;color:var(--mut)}
 .mi{grid-column:2;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px}
 .mw{display:flex;align-items:center;justify-content:center;gap:8px;max-width:100%}
 .mem .av{flex:none;width:36px;height:36px;font-size:16px}
 .mn{min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ml{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2px 10px}
+.ml{display:flex;flex-direction:column;align-items:center;gap:4px}.mpv{display:flex;align-items:baseline;justify-content:center;gap:8px}
+@container mem (min-width:440px){.ml{flex-direction:row;justify-content:center;gap:12px}}
 .mp{font:400 26px/1.1 "Lilita One",Impact,sans-serif;color:var(--y)}
 .mi .bar{align-self:stretch;height:5px;margin-top:4px}
 .chip{display:inline-block;padding:2px 9px;border-radius:10px;background:#262626;color:var(--y);font-size:14px;font-weight:700;white-space:nowrap}
@@ -177,7 +178,7 @@ h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
 /* Lists (top 10 and suggestions): the rank or logo on the left and an arrow on the right mirror each other. */
 .rk{display:grid;grid-template-columns:var(--rkw,44px) minmax(0,1fr) var(--rkw,44px);gap:8px;align-items:center;width:100%;min-height:56px;padding:6px 4px;background:none;border:0;border-top:1px solid var(--ed);color:var(--tx);text-align:center;font:inherit;font-size:18px;cursor:pointer}
 .rk:first-child{border-top:0}.rk>b{justify-self:start;font:400 21px "Lilita One",Impact,sans-serif;color:var(--mut)}
-.rk::after,.sg::after{content:"";justify-self:end;width:11px;height:11px;margin-right:10px;border:solid var(--y);border-width:3px 3px 0 0;transform:rotate(45deg)}
+.rk::after,.sg::after{content:"";justify-self:end;width:11px;height:11px;border:solid var(--y);border-width:3px 3px 0 0;transform:rotate(45deg);margin-right:4px}
 .rkm{min-width:0;display:flex;flex-direction:column;align-items:center}.rkn .lg{width:32px;height:32px;border-radius:9px;font-size:16px}
 .rkn{display:flex;align-items:center;justify-content:center;gap:8px;max-width:100%}.rkn>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
 .rkv{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:0 8px}
@@ -185,18 +186,18 @@ h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
 #sg{margin-top:8px}
 .sg{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;gap:10px;align-items:center;width:100%;min-height:56px;padding:6px 8px;background:#000;border:1px solid var(--ed);border-radius:12px;color:var(--tx);text-align:center;font:inherit;font-size:17px;margin-top:6px;cursor:pointer}
 .sgm{min-width:0;display:grid}.sgm>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
-.sg i{font-style:normal;color:var(--y);font-size:15px}.sg::after{margin-right:6px}
+.sg i{font-style:normal;color:var(--y);font-size:15px}.sg::after{margin-right:2px}
 .more{width:100%;min-height:48px;margin-top:10px;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx);font-family:"Lilita One",Impact,system-ui,sans-serif;font-size:18px;cursor:pointer}
 /* Open/close signs on the expandable sections; a hidden twin on the left keeps each title in the middle. */
 summary{list-style:none;cursor:pointer}summary::-webkit-details-marker{display:none}
-.help summary,.faq summary,.notes summary{display:flex;align-items:center;justify-content:center;gap:10px}
-.help summary::before,.faq summary::before,.notes summary::before,.help summary::after,.faq summary::after,.notes summary::after{content:"+";flex:none;width:16px;color:var(--y);font:400 24px/1 "Lilita One",Impact,sans-serif}
-.help summary::before,.faq summary::before,.notes summary::before{visibility:hidden}
-.help[open]>summary::after,.faq[open]>summary::after,.notes[open]>summary::after{content:"\2212"}
-.notes{margin-top:16px;border-top:1px solid var(--ed)}.notes summary{min-height:48px;color:var(--mut);font-weight:700}
-.help summary{min-height:44px;font:400 22px "Lilita One",Impact,sans-serif}
+.help summary,.faq summary,.notes summary{display:block}
+.help summary::before,.faq summary::before,.notes summary::before,.help summary::after,.faq summary::after,.notes summary::after{content:"\00a0+";vertical-align:-1px;color:var(--y);font:400 24px/1 "Lilita One",Impact,sans-serif}
+.help summary::before,.faq summary::before,.notes summary::before{content:"+\00a0";visibility:hidden}
+.help[open]>summary::after,.faq[open]>summary::after,.notes[open]>summary::after{content:"\00a0\2212"}
+.notes{margin-top:16px;border-top:1px solid var(--ed)}.notes summary{padding:12px 0;color:var(--mut);font-weight:700}
+.help summary{padding:8px 0;font:400 22px/1.2 "Lilita One",Impact,sans-serif}
 .help ul{list-style:none;max-width:60ch;margin:8px auto 0;padding:0}.help li{margin-bottom:10px}
-.faq{border-top:1px solid var(--ed)}.faq summary{min-height:48px;padding:10px 0;font-weight:700}.faq p{max-width:70ch;margin:0 auto 12px;color:var(--mut)}
+.faq{border-top:1px solid var(--ed)}.faq summary{padding:12px 0;font-weight:700}.faq p{max-width:70ch;margin:0 auto 12px;color:var(--mut)}
 .about>p{max-width:70ch;margin-inline:auto}
 footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}footer p{max-width:80ch;margin:16px auto}
 #ld{position:fixed;inset:0;z-index:50;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;touch-action:none;transition:opacity .35s}
@@ -219,28 +220,26 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}footer p{max-wi
 .mainc{min-width:0;container:main/inline-size}.dg>div{min-width:0;container:half/inline-size}.dg.one{display:block}
 .grid.gns{grid-template-columns:1fr 1fr}
 @container half (min-width:440px){.grid.rvs{grid-template-columns:1fr 1fr}}
-@container half (min-width:600px){.grid.gns{grid-template-columns:repeat(4,1fr)}}
 @container half (max-width:419px){.sum{grid-template-columns:1fr;gap:6px}.sum .cell{display:flex;justify-content:center;align-items:baseline;gap:12px;padding:6px 12px}.sum .cell small{font-size:15px}}
 @container main (min-width:600px){.keys{grid-template-columns:repeat(3,1fr)}.pcg.four{grid-template-columns:repeat(4,1fr)}.prt{grid-template-columns:1fr auto 1fr}.prm{grid-column:auto;grid-row:span 3;align-self:start}}
 /* Narrow phones: slimmer side columns in the lists, so names keep their room. */
-@container main (max-width:399px){.mems{--rkw:34px}.mem .rn{padding-left:0;font-size:17px}.mem::after{width:20px;margin-right:0}
-.rk{grid-template-columns:calc(var(--rkw,44px) - 10px) minmax(0,1fr) calc(var(--rkw,44px) - 10px);gap:6px}.rk>b{font-size:18px}.rk::after{margin-right:6px}}
+@container main (max-width:399px){.mems{--rkw:34px}.mem .rn{padding-left:0;font-size:17px}.mem::after{width:20px;margin-right:0}.cell{padding-left:6px;padding-right:6px}
+.rk{grid-template-columns:calc(var(--rkw,44px) - 10px) minmax(0,1fr) calc(var(--rkw,44px) - 10px);gap:6px}.rk>b{font-size:18px}}
+.rside .rk{grid-template-columns:calc(var(--rkw,44px) - 10px) minmax(0,1fr) calc(var(--rkw,44px) - 10px);gap:6px}.rside .rk>b{font-size:18px}
 @container main (min-width:660px){.mems{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:28px;align-items:start}}
 @container main (min-width:860px){.dg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 28px;align-items:start}
 .tops #top{columns:2;column-gap:28px}.tops .rk{break-inside:avoid}.tops #more{column-span:all;display:block}.tops .rk:first-child{border-top:1px solid var(--ed)}}
-@container main (min-width:1250px){.pgx{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 14px;align-items:start}.pgx .pcg.four{grid-template-columns:1fr 1fr}}
+@container main (min-width:1250px){.pgx{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 14px}.pgx>div:last-child{display:flex;flex-direction:column}.pgx>div:last-child>.pcc{flex:1;display:flex;flex-direction:column}.pgx .pchs{margin-block:auto}}
 @container main (min-width:1300px){.keys{grid-template-columns:repeat(6,1fr)}}
 @container main (min-width:1500px){.mems{grid-template-columns:repeat(3,minmax(0,1fr))}.mems>.mem.hid:nth-child(-n+12){display:grid}.mems:not(:has(>.mem:nth-child(13)))+.more{display:none}}
 @container main (min-width:2000px){.mems{grid-template-columns:repeat(4,minmax(0,1fr))}}
 /* PC (16:9 and other wide screens): the title across the top, then search on the left and the top 10 on the
    right in columns of the same width that stay in view, with the stats in the middle. */
 @media(min-width:1200px){html{scroll-padding-bottom:12px}
-.wrap{--sw:clamp(280px,21vw,520px);max-width:none;padding:0 24px;display:grid;grid-template-columns:var(--sw) minmax(0,1fr) var(--sw);grid-template-areas:"h h h" "s m r" "f f f";gap:0 24px;align-items:start}
+.wrap{--sw:clamp(300px,21vw,520px);max-width:none;padding:0 24px;display:grid;grid-template-columns:var(--sw) minmax(0,1fr) var(--sw);grid-template-areas:"h h h" "s m r" "f f f";gap:0 24px;align-items:start}
 .hdr{grid-area:h}.side{grid-area:s}.mainc{grid-area:m}.rside{grid-area:r}.wrap>footer{grid-area:f;padding-bottom:12px}
 h1{font-size:60px;margin-top:28px}.sub{margin-bottom:26px}
-.side,.rside{position:sticky;top:16px;max-height:calc(100vh - 32px);overflow-y:auto;scrollbar-width:thin;scrollbar-color:#333 transparent;scrollbar-gutter:stable;scroll-padding-block:12px}
-/* Each column keeps its scrollbar space on its outer edge (the left one by reading right to left), so the two mirror each other. */
-.side{direction:rtl}.side>*{direction:ltr}
+.side,.rside{position:sticky;top:16px}
 #dash{scroll-margin-top:16px}#dash>.st:first-child{margin-top:0}#fab{display:none!important}}
 @media(min-width:1500px){.wrap{gap:0 32px}}
 </style></head>
@@ -454,7 +453,7 @@ const MC=document.querySelector('.mainc');
 function colW(pad,two){const m=MC.clientWidth||Math.min(720,document.documentElement.clientWidth)-32;return m>=two?(m-pad)/2:m-36}
 // Phones draw at about their real size (so labels are not shrunk); wider screens draw wider instead of taller.
 const cwNow=()=>{const c=colW(64,860);return Math.max(Math.min(340,c),Math.round(c/1.3),260)};
-const pW=()=>{const c=colW(46,1250)-28;return Math.max(Math.min(340,c),Math.round(c/1.5))};let PW=340;
+const pW=()=>{const c=colW(46,1250)-28;return Math.max(Math.min(340,c),Math.round(c/(MC.clientWidth>=1250?2:1.5)))};let PW=340;
 // Axis labels without trailing zeros (100m, 37.5m), so they stay clear of the chart's edge.
 const fax=v=>v<1000&&v%1?String(+v.toFixed(2)):fmt(v).replace(/\.?0+(?=[kmbt]$)/,'');
 let RG=0,CM='tot',LAST=null,CHD=null;
@@ -478,7 +477,7 @@ function ctl(hrs,kind){return '<div class="seg">'+[1,6,24].map(h=>'<button data-
 function chartHtml(a,d){
 CW=cwNow();if(CM==='pl'&&d.loc)a=d.loc;
 const sp=a.length>1?a[a.length-1][0]-a[0][0]:0;
-if(a.length<3||sp<240){CHD=null;return (CM==='pl'?ctl(RG||1,d.kind):'')+'<svg class="ch" viewBox="0 0 '+CW+' '+CH+'"><g transform="scale('+(CW/340).toFixed(3)+' 1)"><line x1="48" x2="330" y1="170" y2="170" stroke="#3a3a3a"/><path d="M48 150C100 118 140 160 190 130S280 108 330 98" fill="none" stroke="#3a3a3a" stroke-width="3" stroke-dasharray="6 6" vector-effect="non-scaling-stroke"/></g><text x="'+Math.round(CW*189/340)+'" y="76" text-anchor="middle">Collecting data</text></svg><p class="cap">'+(CM==='pl'?'Points per player only come from this device, not the server. Keep this page open and the chart fills in.':'The chart starts after about 4 minutes. Keep this page open and it fills in.')+'</p>'}
+if(a.length<3||sp<240){CHD=null;return (CM==='pl'?ctl(RG||1,d.kind):'')+'<svg class="ch" viewBox="0 0 '+CW+' '+CH+'"><g transform="scale('+(CW/340).toFixed(3)+' 1)"><line x1="10" x2="330" y1="170" y2="170" stroke="#3a3a3a"/><path d="M10 150C70 118 120 160 170 130S270 108 330 98" fill="none" stroke="#3a3a3a" stroke-width="3" stroke-dasharray="6 6" vector-effect="non-scaling-stroke"/></g><text x="'+Math.round(CW/2)+'" y="76" text-anchor="middle">Collecting data</text></svg><p class="cap">'+(CM==='pl'?'Points per player only come from this device, not the server. Keep this page open and the chart fills in.':'The chart starts after about 4 minutes. Keep this page open and it fills in.')+'</p>'}
 const hrs=RG||(sp<=3900?1:sp<=22200?6:24);
 const mk=(c,n,r,get)=>{const raw=series(a,get,hrs);return{c,n,r,raw,pts:smooth(raw)}};
 const ser=CM==='pl'?d.rows.filter(r=>!r.z).slice(0,4).map((r,i)=>mk(COL[i],nm(r),r,s=>s[3]&&s[3][r.id]!=null?s[3][r.id]:null)):[mk(COL[0],d.kind,null,s=>s[1])];
@@ -605,13 +604,13 @@ const keys=[['Rank',d.i>=0?'#'+d.rank.toLocaleString():unk?'Unavailable':'Not ra
 const mx=Math.max(1,...G.map(x=>x?Math.abs(x[0]):0)),lab=['1 hour','6 hours','12 hours','24 hours'];
 const gains='<div class="grid gns">'+[1,6,12,24].map((h,k)=>{const x=G[k],ng=x&&x[0]<0;return '<div class="cell"><small>'+lab[k]+'</small><b'+(ng?' class="dn"':'')+'>'+(x?sg(x[0]):'Collecting')+'</b><small>'+(x?x[1]<h*3600-120?durf(x[1])+' so far':x[1]>h*3600+120?'over '+durf(x[1]):'':'')+'</small><div class="bar"><i'+(ng?' class="neg"':'')+' style="width:'+(x&&x[0]?Math.max(2,Math.abs(x[0])/mx*100):0)+'%"></i></div></div>'}).join('')+'</div>';
 const A=d.i>0?d.list[d.i-1]:null,B=d.i>=0?d.list[d.i+1]:null,ok=d.pts!=null&&d.i>=0,me=ok?d.pts:0;
-const riv=(T,lab,val,none)=>T&&ok?'<div class="cell nb">'+logo(T[3],T[0],'lgs')+'<div><small>'+lab+' '+esc(T[0])+'</small><b>'+val+'</b></div></div>':'<div class="cell"><small>'+(ok?none:unk?'Unavailable right now':'Not ranked')+'</small></div>';
-const gap=riv(A,'Needed to pass','+'+fmt(Math.max(0,(A?A[1]:0)-me)),'Already #1')+riv(B,'Ahead of','by '+fmt(Math.max(0,me-(B?B[1]:0))),tot&&d.rank<tot?'Teams below #'+d.list.length.toLocaleString()+' are not tracked':'Nobody behind');
+const riv=(T,lab,val,none,note)=>T&&ok?'<div class="cell nb">'+logo(T[3],T[0],'lgs')+'<div><small>'+lab+' '+esc(T[0])+'</small><b>'+val+'</b></div></div>':'<div class="cell">'+(ok?'<small>'+lab+'</small><b>'+none+'</b>'+(note?'<small>'+note+'</small>':''):'<small>'+(unk?'Unavailable right now':'Not ranked')+'</small>')+'</div>';
+const gap=riv(A,'Needed to pass','+'+fmt(Math.max(0,(A?A[1]:0)-me)),'Already #1')+(tot&&d.rank<tot?riv(B,'Ahead of','by '+fmt(Math.max(0,me-(B?B[1]:0))),'-','Teams below #'+d.list.length.toLocaleString()+' are not tracked'):riv(B,'Ahead of','by '+fmt(Math.max(0,me-(B?B[1]:0))),'Nobody','Last place'));
 const top=Math.max(1,...d.rows.map(r=>r.p)),tp=d.pts!=null?d.pts:d.sum,all=SHOWALL.has(d.key),pcs=x=>Math.min(99.9,Math.max(0,x)).toFixed(1);
 const mem=d.rows.map((r,k)=>{const m0=r0&&r0[3]?r0[3][r.id]:null,m1=lastL&&lastL[3]?lastL[3][r.id]:null,pp=m0!=null&&m1!=null&&lastL[0]-r0[0]>=120?(m1-m0)/((lastL[0]-r0[0])/3600):null,u=U[r.id],sh=tp?pc(r.p/tp*100,100):null,ri=r.z?null:rinfo(kind,r.p,r.id),open=OPEN.has(String(r.id));
 const chip=!ri?'':ri.pct!=null?'Better than '+(ri.est||ri.nEst||ri.rEst?'~':'')+pcs(ri.pct)+'%':ri.rank?'Rank #'+ri.rank.toLocaleString():'';
 return '<div class="mem'+(open?' open':'')+(k>=LIMIT&&!all?' hid':'')+'" data-id="'+r.id+'" tabindex="0" role="button" aria-expanded="'+open+'"><b class="rn">'+(r.z?'-':'#'+(k+1))+'</b>'
-+'<div class="mi"><span class="mw">'+av(r)+'<span class="mn">'+esc(nm(r))+'</span></span><div class="ml">'+(r.z?'<small>No points yet</small>':'<b class="mp">'+fmt(r.p)+'</b>'+(pp==null?'':'<small>'+sg(pp)+'/hr</small>'))+''+(chip?'<span class="chip">'+chip+'</span>':'')+'</div><div class="bar"><i style="width:'+(r.z?0:Math.max(2,r.p/top*100))+'%"></i></div></div>'
++'<div class="mi"><span class="mw">'+av(r)+'<span class="mn">'+esc(nm(r))+'</span></span><div class="ml">'+(r.z?'<small>No points yet</small>':'<span class="mpv"><b class="mp">'+fmt(r.p)+'</b>'+(pp==null?'':'<small>'+sg(pp)+'/hr</small>')+'</span>')+(chip?'<span class="chip">'+chip+'</span>':'')+'</div><div class="bar"><i style="width:'+(r.z?0:Math.max(2,r.p/top*100))+'%"></i></div></div>'
 +'<div class="det">'+(u&&u[1]!==u[0]?'<p class="st">Display name: '+esc(u[1])+'</p>':'')
 +(r.z?'<p class="st">No points'+(kind==='Clan'?' in this clan war':'')+' yet.</p>'
 :'<div class="dcs"><div class="cell"><small>Share of '+war+' points</small><b>'+(sh==null?'n/a':sh+'%')+'</b></div><div class="cell"><small>Global rank</small><b>'+(ri.rank?(ri.est||ri.rEst?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' <small>of '+(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString()+'</small>':''):'Working it out')+'</b></div></div>'
@@ -778,18 +777,21 @@ function keepFocus(box,write){const a=document.activeElement;let q=null;
 if(a&&a!==document.body&&box.contains(a)){const d=a.dataset;q=a.id?'#'+CSS.escape(a.id):d.id?'[data-id="'+CSS.escape(d.id)+'"]':d.r?'[data-r="'+d.r+'"]':d.m?'[data-m="'+d.m+'"]':d.pk?'[data-pk="'+d.pk+'"]':d.n!=null?'[data-n="'+CSS.escape(d.n)+'"]':d.all?'[data-all]':a.hasAttribute('data-share')?'[data-share]':null}
 write();if(q){const e=box.querySelector(q);if(e)e.focus({preventScroll:true})}}
 function drawPlayer(V){keepFocus($('dash'),()=>{$('dash').innerHTML=renderPlayer(V)});fitName()}
-function fitNums(){const bs=[...document.querySelectorAll('#dash .cell b,#dash .pk b,#dash .prp b')].filter(b=>!b.closest('.det,.lg'));
-bs.forEach(b=>{b.style.fontSize='';b.style.overflowWrap='normal'});
+function fitNums(){const bs=[...document.querySelectorAll('#dash .cell b,#dash .pk b,#dash .prp b')].filter(b=>!b.closest('.det,.lg')),word=b=>!/\d/.test(b.textContent);
+bs.forEach(b=>{b.style.fontSize='';b.style.overflowWrap='normal';b.style.whiteSpace=word(b)?'normal':''});
 bs.forEach(b=>{const w=b.clientWidth;if(!w||b.scrollWidth<=w+1)return;let s=Math.max(14,Math.floor(parseFloat(getComputedStyle(b).fontSize)*w/b.scrollWidth));b.style.fontSize=s+'px';
 while(s>14&&b.scrollWidth>w+1)b.style.fontSize=--s+'px';if(b.scrollWidth>w+1)b.style.overflowWrap=''});
 // When a number in a row had to shrink, the others in that row shrink to the same size.
-const rows=new Map();bs.forEach(b=>{const c=b.parentElement,g=c.parentElement;if(!b.clientWidth||!g.matches('.sum,.keys,.gns,.pcg,.prp'))return;const k=g;const t=Math.round(c.getBoundingClientRect().top);
+const rows=new Map();bs.forEach(b=>{const c=b.parentElement,g=c.parentElement;if(!b.clientWidth||word(b)||!g.matches('.sum,.keys,.gns,.pcg,.prp'))return;const k=g;const t=Math.round(c.getBoundingClientRect().top);
 const m=rows.get(k)||new Map();rows.set(k,m);(m.get(t)||m.set(t,[]).get(t)).push(b)});
 rows.forEach(m=>m.forEach(a=>{if(a.length<2||!a.some(b=>b.style.fontSize))return;const z=Math.min(...a.map(b=>parseFloat(getComputedStyle(b).fontSize)));a.forEach(b=>{if(parseFloat(getComputedStyle(b).fontSize)>z)b.style.fontSize=z+'px'})}))}
 // On PC the top 10 has the right-hand column to itself (the search is on the left); on phones it follows the stats.
 const TOPS=document.querySelector('.tops'),RS=document.querySelector('.rside'),PCQ=matchMedia('(min-width:1200px)');
 function placeTops(){if(PCQ.matches){if(TOPS.parentElement!==RS)RS.append(TOPS)}else if(TOPS.previousElementSibling!==$('dash'))$('dash').after(TOPS)}
 PCQ.addEventListener?PCQ.addEventListener('change',placeTops):PCQ.addListener(placeTops);placeTops();
+// The side columns on PC stay in view. One taller than the window scrolls with the page until its end is in view, then stays.
+const stick=()=>document.querySelectorAll('.side,.rside').forEach(e=>{e.style.top=PCQ.matches?Math.min(16,innerHeight-e.offsetHeight-16)+'px':''});
+if(window.ResizeObserver){const ro=new ResizeObserver(stick);document.querySelectorAll('.side,.rside').forEach(e=>ro.observe(e))}addEventListener('resize',stick);
 new MutationObserver(()=>{placeTops();fitNums();const s=document.querySelector('#chw .ch'),g=$('gl');
 if(s&&g&&CHX!=null&&g.style.display==='none'&&LAST&&LAST.d.key===CHK){const R=s.getBoundingClientRect();chHit({target:s,clientX:R.left+CHX*R.width})}}).observe($('dash'),{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['class']});
 const refit=()=>{fitName();fitNums()};let RZ=0;
