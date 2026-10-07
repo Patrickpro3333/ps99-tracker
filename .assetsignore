@@ -10,3 +10,4 @@ wrangler.jsonc
 README.md
 *.py
 scan.yml
+*.log
