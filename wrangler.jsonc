@@ -1,6 +1,7 @@
 // Cloudflare Worker settings. Cloudflare builds and deploys this on every push to main.
 // The site's files are served as static assets (free, unlimited); .assetsignore keeps the
-// scripts and docs out. Code runs only for the proxies and the Cron Trigger (every 15 minutes).
+// scripts and docs out. Code runs only for the page itself (to forward the old address), the proxies
+// and the Cron Trigger (every 15 minutes).
 {
   "name": "ps99-tracker",
   "main": "cloudflare/worker.js",
@@ -11,7 +12,7 @@
     "directory": ".",
     "binding": "ASSETS",
     "not_found_handling": "404-page",
-    "run_worker_first": ["/ps99api/*", "/rbx/*", "/rbxt/*", "/__jobs"]
+    "run_worker_first": ["/", "/index.html", "/ps99api/*", "/rbx/*", "/rbxt/*", "/__jobs"]
   },
   "triggers": { "crons": ["0,15,30,45 * * * *"] },
   // Small store where each timer run notes its result (shown at /__jobs).
