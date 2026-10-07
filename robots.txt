@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://ps99-tracker.patrick9.workers.dev/sitemap.xml
+Sitemap: https://ps99tracker.xyz/sitemap.xml

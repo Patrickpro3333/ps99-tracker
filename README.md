@@ -1,6 +1,6 @@
 # PS99 Tracker
 
-Live site: https://ps99-tracker.patrick9.workers.dev/
+Live site: https://ps99tracker.xyz/
 
 A static site on Cloudflare (one Worker, `ps99-tracker`, set up in `wrangler.jsonc`). All the data work runs on GitHub Actions (free for public repos) and is
 saved to two data branches that the page reads straight from GitHub:
