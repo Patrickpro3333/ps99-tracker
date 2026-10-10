@@ -77,6 +77,7 @@ small{color:var(--mut);font-size:14px}
 .dash h2,.card h2{font-size:30px;line-height:1.2;margin:0 0 6px;overflow-wrap:anywhere}
 .meta{color:var(--mut);margin:0 0 12px;font-size:15px}
 .up{color:var(--g)}.dn{color:var(--r)}
+.pti{display:inline-block;width:auto;height:.74em;margin-right:.16em;vertical-align:-.04em}.icp .pti{height:18px;margin:0}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
 .cell{background:#000;border:2px solid var(--ed);border-radius:14px;padding:10px 12px;min-width:0}
 .cell b{display:block;font:400 36px/1.15 "Lilita One",Impact,sans-serif;overflow-wrap:anywhere;letter-spacing:.01em}
@@ -461,6 +462,8 @@ const fax=v=>v<1000&&v%1?String(+v.toFixed(2)):fmt(v).replace(/\.?0+(?=[kmbt]$)/
 let RG=0,CM='tot',LAST=null,CHD=null;
 const sg=v=>(v<0?'':'+')+fmt(v);
 const pc=(x,m)=>{x=Math.max(0,Math.min(m||99.9,Math.round(x*10)/10));return x%1?x.toFixed(1):''+x};
+// The game's points icon (two gold stars), in front of point totals.
+const PTI='<img class="pti" src="/points.png" width="45" height="41" alt="">',pt=v=>'<span class="nw">'+PTI+v+'</span>';
 const iid=s=>{const m=/\d+/.exec(s||'');return m?m[0]:''};
 const logo=(ic,name,c)=>{const id=iid(ic);return '<span class="lg '+(c||'')+'"><b>'+esc((String(name)[0]||'?').toUpperCase())+'</b>'+(id?'<img data-id="'+id+'" src="https://ps99.biggamesapi.io/image/'+id+'" alt="" loading="lazy">':'')+'</span>'};
 function interp(a,get,t,gap){for(let i=0;i<a.length-1;i++){const s=a[i],e=a[i+1];if(s[0]<=t&&t<=e[0]){const x=get(s),y=get(e);if(x==null||y==null||e[0]-s[0]>gap)return null;return x+(y-x)*(t-s[0])/Math.max(1,e[0]-s[0])}}return null}
@@ -601,7 +604,7 @@ let ct='Collecting',cc='';
 if(g24&&g24[2][2]&&last[2]){const r=g24[2][2]-last[2];ct=r>0?'Up '+r:r<0?'Down '+(-r):'No change';cc=r>0?'up':r<0?'dn':'';if(g24[1]<86000)ct+=' <small>(last '+durf(g24[1])+')</small>'}
 const unk=d.i<0&&(LOK[kind]===false||LOK[kind]===undefined&&d.list.length<=Math.min(2000,tot||2000)-100),PZ=pzInfo(kind),tie=d.i<0&&!unk&&d.pts!=null&&d.list.length&&d.pts<=d.list[d.list.length-1][1];
 const keys=[['Rank',d.i>=0?'#'+d.rank.toLocaleString():unk?'Unavailable':'Not ranked',d.i>=0&&tot?topPct((tot-d.rank)/tot*100)+' of '+tot.toLocaleString()+' '+war+'s':unk?'The leaderboard could not fully load':tie?'Tied with many '+war+'s at '+fmt(d.pts)+' points':'Only the top 2,000 are ranked'],
-['Rank change, 24h','<span class="'+cc+'">'+ct+'</span>',''],['Points',d.pts==null?'n/a':fmt(d.pts),kind==='Clan'?'This clan war':''],['Points per hour',PZ?PZ.short:pph==null?'Collecting':sg(pph),PZ?PZ.sub:''],
+['Rank change, 24h','<span class="'+cc+'">'+ct+'</span>',''],['Points',d.pts==null?'n/a':pt(fmt(d.pts)),kind==='Clan'?'This clan war':''],['Points per hour',PZ?PZ.short:pph==null?'Collecting':sg(pph),PZ?PZ.sub:''],
 ['Members',d.mem+' of '+d.cap,''],['Average per member',d.pts==null||!d.mem?'n/a':fmt(d.pts/d.mem),'']];
 const mx=Math.max(1,...G.map(x=>x?Math.abs(x[0]):0)),lab=['1 hour','6 hours','12 hours','24 hours'];
 const gains='<div class="grid gns">'+[1,6,12,24].map((h,k)=>{const x=G[k],ng=x&&x[0]<0;return '<div class="cell"><small>'+lab[k]+'</small><b'+(ng?' class="dn"':'')+'>'+(x?sg(x[0]):'Collecting')+'</b><small>'+(x?x[1]<h*3600-120?durf(x[1])+' so far':x[1]>h*3600+120?'over '+durf(x[1]):'':'')+'</small><div class="bar"><i'+(ng?' class="neg"':'')+' style="width:'+(x&&x[0]?Math.max(2,Math.abs(x[0])/mx*100):0)+'%"></i></div></div>'}).join('')+'</div>';
@@ -612,7 +615,7 @@ const tp=d.pts!=null?d.pts:d.sum,all=SHOWALL.has(d.key),pcs=x=>Math.min(99.9,Mat
 const mem=d.rows.map((r,k)=>{const m0=r0&&r0[3]?r0[3][r.id]:null,m1=lastL&&lastL[3]?lastL[3][r.id]:null,pp=m0!=null&&m1!=null&&lastL[0]-r0[0]>=120?(m1-m0)/((lastL[0]-r0[0])/3600):null,u=U[r.id],sh=tp?pc(r.p/tp*100,100):null,ri=r.z?null:rinfo(kind,r.p,r.id),open=OPEN.has(String(r.id));
 const chip=!ri?'':ri.pct!=null?'Better than '+(ri.est||ri.nEst||ri.rEst?'~':'')+pcs(ri.pct)+'%':ri.rank?'Rank #'+ri.rank.toLocaleString():'';
 return '<div class="mem'+(open?' open':'')+(k>=LIMIT&&!all?' hid':'')+'" data-id="'+r.id+'" tabindex="0" role="button" aria-expanded="'+open+'"><b class="rn">'+(r.z?'-':'#'+(k+1))+'</b>'
-+'<div class="mi"><span class="mw">'+av(r)+'<span class="mn">'+esc(nm(r))+'</span></span><div class="ml">'+(r.z?'<small>No points yet</small>':'<span class="mpv"><b class="mp">'+fmt(r.p)+'</b>'+(pp==null?'':'<small>'+sg(pp)+'/hr</small>')+'</span>')+(chip?'<span class="chip">'+chip+'</span>':'')+'</div><div class="bar"><i style="width:'+(ri&&ri.pct!=null?pcs(ri.pct):0)+'%"></i></div></div>'
++'<div class="mi"><span class="mw">'+av(r)+'<span class="mn">'+esc(nm(r))+'</span></span><div class="ml">'+(r.z?'<small>No points yet</small>':'<span class="mpv"><b class="mp">'+pt(fmt(r.p))+'</b>'+(pp==null?'':'<small>'+sg(pp)+'/hr</small>')+'</span>')+(chip?'<span class="chip">'+chip+'</span>':'')+'</div><div class="bar"><i style="width:'+(ri&&ri.pct!=null?pcs(ri.pct):0)+'%"></i></div></div>'
 +'<div class="det">'+(u&&u[1]!==u[0]?'<p class="st">Display name: '+esc(u[1])+'</p>':'')
 +(r.z?'<p class="st">No points'+(kind==='Clan'?' in this clan war':'')+' yet.</p>'
 :'<div class="dcs"><div class="cell"><small>Share of '+war+' points</small><b>'+(sh==null?'n/a':sh+'%')+'</b></div><div class="cell"><small>Global rank</small><b>'+(ri.rank?(ri.est||ri.rEst?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' <small>of '+(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString()+'</small>':''):'Working it out')+'</b></div></div>'
@@ -757,10 +760,10 @@ if(!k)h+='<p class="st">'+(V.unk?'Could not check this player\'s league and clan
 else if(!P.d)h+='<p class="st">In '+esc(P.t.name)+', but its data could not load right now.</p>';
 else if(!s.has&&!s.member)h+='<p class="st">Was in '+esc(P.d.name)+' at the last scan, but is not a member any more and has no points left there.</p>';
 else{const avg=s.day==null||s.span<3000?null:s.day/(s.span/3600),so=s.span<86000&&s.day!=null?' <small>('+durf(s.span)+')</small>':'';
-h+='<div class="pgx"><div><div class="pcg pt"><div class="pk c1">'+ico('star')+'<small>'+(k==='Clan'?'War points':'League points')+'</small><b>'+(s.has?fmt(s.p):'0')+'</b></div>'
+h+='<div class="pgx"><div><div class="pcg pt"><div class="pk c1"><i class="ic icp" aria-hidden="true">'+PTI+'</i><small>'+(k==='Clan'?'War points':'League points')+'</small><b>'+(s.has?fmt(s.p):'0')+'</b></div>'
 +'<div class="pk c5">'+ico('cup')+'<small>'+(k==='Clan'?'Clan':'League')+' rank · '+esc(P.d.name)+'</small><b>'+(s.rank?s.rank+'/'+s.size:'-')+'</b>'+(s.share!=null?'<small>'+pc(s.share,100)+'% of its points</small>':'')+'</div>'
 +prank(s,P.nb)+'</div>'
-+'<div class="pcg four"><div class="pk c1">'+ico('star')+'<small>Points · 24h</small><b>'+(s.day==null?'-':fmt(s.day)+so)+'</b></div>'
++'<div class="pcg four"><div class="pk c1">'+'<i class="ic icp" aria-hidden="true">'+PTI+'</i><small>Points · 24h</small><b>'+(s.day==null?'-':fmt(s.day)+so)+'</b></div>'
 +'<div class="pk c2">'+ico('bars')+'<small>Avg / hour</small><b>'+(avg==null?'-':fmt(avg))+'</b></div>'
 +'<div class="pk c3">'+ico('cup')+'<small>Best hour</small><b>'+(s.best==null?'-':fmt(s.best))+'</b></div>'
 +'<div class="pk c4">'+ico('bolt')+'<small>Latest hour</small><b>'+(s.latest==null?'-':fmt(s.latest))+'</b></div></div>'
@@ -838,7 +841,7 @@ catch(e){if(GONE(e))DEAD=k+':'+name.toLowerCase();if(k===mode&&seq===PSEQ&&(show
 // In Player mode the list shows the official top league players (the API's top 500 sample).
 const TRIED=new Set();
 function boardPlayers(){const g=GPX.League,k=Math.min(BN,g.list.length);rkw(k);$('th').textContent='Top '+(k||10)+' league players';$('war').hidden=true;
-keepFocus($('top'),()=>$('top').innerHTML=g.list.length?g.list.slice(0,k).map((x,i)=>{const u=U[x.id];return '<button class="rk" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:x.id)+'"><b>#'+(i+1)+'</b><span class="rkm"><span class="rkn"><span class="lg"><b>'+esc((u?u[0][0]:'?').toUpperCase())+'</b>'+(IM[x.id]?'<img src="'+esc(IM[x.id])+'" alt="" loading="lazy">':'')+'</span><span>'+esc(u?'@'+u[0]:'User '+x.id)+'</span></span><span class="rkv"><i>'+fmt(x.p)+'</i>'+(x.team?'<small>'+esc(x.team)+'</small>':'')+'</span></span></button>'}).join('')+(k<g.list.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>');
+keepFocus($('top'),()=>$('top').innerHTML=g.list.length?g.list.slice(0,k).map((x,i)=>{const u=U[x.id];return '<button class="rk" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:x.id)+'"><b>#'+(i+1)+'</b><span class="rkm"><span class="rkn"><span class="lg"><b>'+esc((u?u[0][0]:'?').toUpperCase())+'</b>'+(IM[x.id]?'<img src="'+esc(IM[x.id])+'" alt="" loading="lazy">':'')+'</span><span>'+esc(u?'@'+u[0]:'User '+x.id)+'</span></span><span class="rkv"><i>'+pt(fmt(x.p))+'</i>'+(x.team?'<small>'+esc(x.team)+'</small>':'')+'</span></span></button>'}).join('')+(k<g.list.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>');
 if(!g.at){if(Date.now()-(g.tr||0)>30000){g.tr=Date.now();gplay('League').then(()=>{if(mode==='Player'&&GPX.League.at)board()})}return}
 const ids=g.list.slice(0,k).map(x=>x.id).filter(i=>!TRIED.has(i)&&(!U[i]||!IM[i]));ids.forEach(i=>TRIED.add(i));
 if(ids.length)Promise.all([names(ids),pics(ids)]).then(()=>{if(mode==='Player')boardPlayers()})}
@@ -848,7 +851,7 @@ const rkw=k=>$('top').style.setProperty('--rkw',k>999?'64px':k>99?'54px':'44px')
 function board(){exPH();if(mode==='Player')return boardPlayers();const a=mode==='League'?L:C,k=Math.min(BN,a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(mode==='League'?'leagues':'clans');
 const pz=mode!=='Player'?pzInfo(mode):null;
 if(pz){w.textContent=pz.board;w.hidden=false}else if(mode==='Clan'&&BREC){w.textContent='Current clan war: '+BREC.title+(BREC.end>Date.now()?', ends '+new Date(BREC.end).toLocaleString([],{weekday:'short',day:'numeric',month:'short',hour:'numeric',minute:'2-digit'}):'')+'.';w.hidden=false}else w.hidden=true;
-keepFocus($('top'),()=>$('top').innerHTML=a.length?a.slice(0,k).map((x,i)=>'<button class="rk" data-n="'+esc(x[0])+'"><b>#'+(i+1)+'</b><span class="rkm"><span class="rkn">'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span></span><span class="rkv"><i>'+fmt(x[1])+'</i></span></span></button>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>')}
+keepFocus($('top'),()=>$('top').innerHTML=a.length?a.slice(0,k).map((x,i)=>'<button class="rk" data-n="'+esc(x[0])+'"><b>#'+(i+1)+'</b><span class="rkm"><span class="rkn">'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span></span><span class="rkv"><i>'+pt(fmt(x[1]))+'</i></span></span></button>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>')}
 function setMode(m,np){mode=m;BN=10;$('sg').innerHTML='';S.mode=m;save();$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');$('tP').setAttribute('aria-pressed',m==='Player');
 $('q').value=S[m]||'';exPH();$('ql').textContent=m==='Player'?'Roblox username':m+' name';showRecent();board();$('dash').innerHTML='';setURL();pzLoad();if(S[m]&&live&&!np)paint(true)}
 // One refresh at a time: a slow one is never doubled up by the next minute's.
@@ -918,7 +921,7 @@ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.tar
 function sugg(){const q=$('q').value.trim().toLowerCase(),a=mode==='League'?L:C;if(!q||!a.length||mode==='Player'){$('sg').innerHTML='';return}
 const m=[];for(let i=0;i<a.length&&m.length<6;i++)if(String(a[i][0]).toLowerCase().startsWith(q))m.push(i);
 for(let i=0;i<a.length&&m.length<6;i++)if(!m.includes(i)&&String(a[i][0]).toLowerCase().includes(q))m.push(i);
-$('sg').innerHTML=m.map(i=>'<button class="sg" data-n="'+esc(a[i][0])+'">'+logo(a[i][3],a[i][0])+'<span class="sgm"><span>'+esc(a[i][0])+'</span><i>#'+(i+1)+' · '+fmt(a[i][1])+'</i></span></button>').join('')}
+$('sg').innerHTML=m.map(i=>'<button class="sg" data-n="'+esc(a[i][0])+'">'+logo(a[i][3],a[i][0])+'<span class="sgm"><span>'+esc(a[i][0])+'</span><i>#'+(i+1)+' · '+pt(fmt(a[i][1]))+'</i></span></button>').join('')}
 $('q').oninput=sugg;$('sg').onclick=e=>{const b=e.target.closest('.sg');if(b){$('q').value=b.dataset.n;$('sg').innerHTML='';go()}};
 // A shared link (?league=, ?clan= or ?player=) opens straight to that page.
 {const q=new URLSearchParams(location.search);for(const m of ['League','Clan','Player']){const v=(q.get(m.toLowerCase())||'').trim().slice(0,64);if(v){S.mode=m;S[m]=v;save(m);break}}}
