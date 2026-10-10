@@ -81,9 +81,8 @@ small{color:var(--mut);font-size:14px}
 .cell{background:#000;border:2px solid var(--ed);border-radius:14px;padding:10px 12px;min-width:0}
 .cell b{display:block;font:400 36px/1.15 "Lilita One",Impact,sans-serif;overflow-wrap:anywhere;letter-spacing:.01em}
 h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
-/* Bars fill out from the middle. */
 .bar{height:10px;border-radius:99px;background:#262626;overflow:hidden;margin-top:5px}
-.bar i{display:block;height:100%;margin:0 auto;background:var(--g);border-radius:99px}.bar i.neg{background:var(--r)}
+.bar i{display:block;height:100%;background:var(--g);border-radius:99px}.bar i.neg{background:var(--r)}
 /* Stat boxes: label, number and note line up across a row even when one label wraps. */
 .keys .cell,.gns .cell,.pcg .pk{display:grid;grid-template-rows:subgrid;row-gap:0;align-content:start;grid-template-columns:minmax(0,1fr)}
 .keys .cell,.pcg .pk{grid-row:span 3}.gns .cell{grid-row:span 4}
@@ -210,7 +209,7 @@ h1,h2,h3,summary,.st,.sub,.meta,.pz,.cap,.prx,label,#ld p{text-wrap:balance}.rk,
 @media(prefers-reduced-motion:reduce){#ld svg{animation:none}}
 .ldt{font:400 30px/1.1 "Lilita One",Impact,system-ui,sans-serif;color:var(--y)}
 #ld p{margin:0;max-width:22em}
-.ldb{width:min(320px,80vw);margin-top:6px}.ldb i{margin:0;transition:width .3s}
+.ldb{width:min(320px,80vw);margin-top:6px}.ldb i{transition:width .3s}
 .ldbtn{display:grid;gap:10px;width:min(320px,80vw);margin-top:8px}
 @media(max-width:1199px){.wrap{padding-bottom:calc(96px + env(safe-area-inset-bottom,0px))}html{scroll-padding-bottom:calc(90px + env(safe-area-inset-bottom,0px))}}
 @media(min-width:900px) and (max-width:1199px){.wrap{max-width:none;padding-left:24px;padding-right:24px}}
