@@ -90,7 +90,7 @@ h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
 .keys .cell small{display:block}.keys .cell small:last-child{margin-top:2px;font-size:13px}.gns .cell small+b+small{margin-top:2px;font-size:13px}.gns .bar{margin-top:8px}
 .keys .cell b,.gns .cell b{white-space:nowrap}.keys .cell>b,.gns .cell>b{align-self:center}.keys .cell b small,.pk b small{display:block;white-space:normal;line-height:1.3;margin-top:2px;font:400 13px "Atkinson Hyperlegible",system-ui,sans-serif}
 /* Members: the rank on the left and the open sign on the right mirror each other; picture, name, points and bar sit in the middle. */
-.mems{--rkw:46px}
+.mems{--rkw:46px}.mems,.mems+.more,.mainc .tops #top{max-width:960px;margin-inline:auto}
 .mem{container:mem/inline-size;display:grid;grid-template-columns:var(--rkw) minmax(0,1fr) var(--rkw);gap:0 8px;align-items:center;min-height:56px;padding:10px 0;border-top:1px solid var(--ed);cursor:pointer}
 .mem::after{content:"+";grid-area:1/3;justify-self:end;width:24px;margin-right:4px;text-align:right;color:var(--y);font:400 26px/1 "Lilita One",Impact,sans-serif}.mem.open::after{content:"\2212"}
 .mem .rn{justify-self:start;padding-left:4px;font:400 19px "Lilita One",Impact,sans-serif;color:var(--mut)}
@@ -193,7 +193,7 @@ summary{list-style:none;cursor:pointer}summary::-webkit-details-marker{display:n
 .help summary,.faq summary,.notes summary{display:grid;grid-template-columns:24px minmax(0,1fr) 24px;align-items:center;column-gap:6px}
 .help summary::before,.faq summary::before,.notes summary::before,.help summary::after,.faq summary::after,.notes summary::after{content:"+";color:var(--y);font:400 24px/1 "Lilita One",Impact,sans-serif}
 .help summary::before,.faq summary::before,.notes summary::before{visibility:hidden}
-.help[open]>summary::after,.faq[open]>summary::after,.notes[open]>summary::after{content:"\2212"}
+.help[open]>summary::after,.faq[open]>summary::after,.notes[open]>summary::after{content:"\2212"}.mem.open::after,.help[open]>summary::after,.faq[open]>summary::after,.notes[open]>summary::after{transform:translateY(-.1em)}
 .notes{margin-top:16px;border-top:1px solid var(--ed)}.notes summary{padding:12px 0;color:var(--mut);font-weight:700}
 .help summary{padding:8px 0;font:400 22px/1.2 "Lilita One",Impact,sans-serif}
 .help ul{list-style:none;max-width:60ch;margin:8px auto 0;padding:0}.help li{margin-bottom:10px}
@@ -202,7 +202,7 @@ summary{list-style:none;cursor:pointer}summary::-webkit-details-marker{display:n
 footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}footer p{max-width:80ch;margin:16px auto}
 #ld{position:fixed;inset:0;z-index:50;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px;text-align:center;touch-action:none;transition:opacity .35s}
 [hidden]{display:none!important}#dash{scroll-margin-top:12px}
-h1,h2,h3,summary,.st,.sub,.meta,.pz,.cap,.prx,label{text-wrap:balance}.about>p,.faq p,.help li,footer p{text-wrap:pretty}
+h1,h2,h3,summary,.st,.sub,.meta,.pz,.cap,.prx,label,#ld p{text-wrap:balance}.rk,.mem,summary,.more{scroll-margin:12px}.about>p,.faq p,.help li,footer p{text-wrap:pretty}
 #ldslow[hidden]{display:block!important;visibility:hidden}#ld:has(#ldbtns:not([hidden])) :is(.ldb,#lddet,#ldslow){display:none!important}#ld:has(#ldbtns:not([hidden])) svg{animation:none}
 #ld.out{opacity:0;pointer-events:none}
 #ld svg{width:84px;animation:ldw 1.2s ease-in-out infinite}
@@ -237,7 +237,8 @@ h1,h2,h3,summary,.st,.sub,.meta,.pz,.cap,.prx,label{text-wrap:balance}.about>p,.
 .hdr{grid-area:h}.cols{grid-area:c;display:grid;grid-template-columns:subgrid;align-items:start}.side{grid-column:1}.mainc{grid-column:2}.rside{grid-column:3}.wrap>footer{grid-area:f;padding-bottom:12px}
 h1{font-size:60px;margin-top:28px}.sub{margin-bottom:26px}
 .side,.rside{position:sticky;top:16px}
-#dash{scroll-margin-top:16px}#dash>.st:first-child{margin-top:0}#fab{display:none!important}}
+#dash{scroll-margin-top:16px}#dash>.st:first-child{margin-top:0}#fab{display:none!important}
+#sg{max-height:max(124px,calc(100vh - 460px));overflow-y:auto;scrollbar-width:thin;scrollbar-color:#333 transparent}}
 @media(min-width:1500px){.wrap{gap:0 32px}}
 </style></head>
 <body><div id="ld" role="status" aria-live="polite"><svg viewBox="0 0 120 150" aria-hidden="true"><path d="M60 6C92 6 114 58 114 94c0 30-24 50-54 50S6 124 6 94C6 58 28 6 60 6Z" fill="#fff" stroke="#14204a" stroke-width="7" stroke-linejoin="round"/><path d="M14 84l17-13 15 15 15-17 15 15 17-13 13 11" fill="none" stroke="#14204a" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="40" cy="42" r="8" fill="#ff9ec7"/><circle cx="82" cy="34" r="6" fill="#ffd23f"/><circle cx="78" cy="118" r="9" fill="#7ee6ff"/><circle cx="36" cy="112" r="6" fill="#b98cff"/></svg>
@@ -348,7 +349,8 @@ function warSeen(id,changed){let s='';try{s=localStorage.getItem('ps99war')||''}
 if(s!==id||changed){SMP.Clan={};SV.Clan++;Q.Clan.length=0;savS();try{localStorage.setItem('ps99war',id)}catch(e){}}
 if(changed){WARNEW=true;GPX.Clan.at=0;for(const k in HS)if(k.startsWith('Clan:'))delete HS[k]}}
 // Clan points restart at zero when a new war begins, so clan history starts at the last such drop.
-const sinceReset=a=>{for(let i=a.length-1;i>0;i--)if(a[i][1]<a[i-1][1]*0.5)return a.slice(i);return a};
+// A drop to under half (clan war) or to almost nothing (new league season) starts the history again.
+const sinceReset=(a,k)=>{const f=k==='League'?.01:.5;for(let i=a.length-1;i>0;i--)if(a[i][1]<a[i-1][1]*f)return a.slice(i);return a};
 const cpts=(d,id)=>{const b=id&&d.Battles&&d.Battles[id];return(b&&b.PointContributions)||(d.Contribution&&d.Contribution.Battle)||[]};
 const GPP={};const gplay=k=>GPP[k]||(GPP[k]=gplay0(k).finally(()=>{delete GPP[k]}));
 async function gplay0(k){const g=GPX[k];if(Date.now()-g.at<180000)return;
@@ -375,12 +377,13 @@ const ldUpd=()=>{const b=$('ldbar');if(!b)return;b.style.width=Math.max(3,Math.m
 let LISTT=0,LISTA=0;
 // The leaderboards are kept for the next visit, so they show at once while fresh ones load.
 const saveLists=()=>{const sl=a=>a.map(x=>[x[0],x[1],x[2],iid(x[3]),x[4]]);store('ps99lists',JSON.stringify({t:Date.now(),LT,CT,L:sl(L),C:sl(C)}))};
+const LOK={};
 async function pull(full){
 const m=full?2000:100,[a,b,ct]=await Promise.all([pages('/v1/leagues?pageSize=100&sort=Points&sortOrder=desc',d=>d.leagues,m,full?(q=>{lp=q;ldUpd()}):null),pages('/api/clans?pageSize=100&sort=Points&sortOrder=desc',d=>d,m,full?(q=>{cp=q;ldUpd()}):null),full?jget('/api/clansTotal').catch(()=>null):null]);
 // New rows first, then every team they don't cover in its last known order: a team that just slipped
 // from #100 to #101 stays in the list instead of showing as "Not ranked".
 const fresh=(r,old)=>{const s=new Set(r.map(x=>String(x[0]).toLowerCase()));return r.concat(old.filter(x=>!s.has(String(x[0]).toLowerCase())))};
-const done=full&&a.complete&&b.complete;if(full)LISTA=Date.now();
+const done=full&&a.complete&&b.complete;if(full){LISTA=Date.now();LOK.League=a.complete;LOK.Clan=b.complete}
 // Points seen changing on this device's own refresh: then neither war is shown as paused.
 const moved=(r,old,k)=>{const rec=Date.now()-PT[k]<300000;PT[k]=Date.now();if(!rec||!old.length)return;const o=new Map(old.map(x=>[String(x[0]).toLowerCase(),x[1]]));if(r.some(x=>{const v=o.get(String(x[0]).toLowerCase());return v!=null&&v!==x[1]}))MOV[k]=Date.now()};
 if(a.rows.length)moved(a.rows,L,'League');if(b.rows.length)moved(b.rows,C,'Clan');
@@ -597,8 +600,8 @@ const hist=hs&&hs.ok&&hs.h.length?'From snapshots every 15 minutes (latest '+(hs
 const pph=g1&&g1[1]>=120?g1[0]/(g1[1]/3600):null;d.pph=pph;
 let ct='Collecting',cc='';
 if(g24&&g24[2][2]&&last[2]){const r=g24[2][2]-last[2];ct=r>0?'Up '+r:r<0?'Down '+(-r):'No change';cc=r>0?'up':r<0?'dn':'';if(g24[1]<86000)ct+=' <small>(last '+durf(g24[1])+')</small>'}
-const unk=d.i<0&&d.list.length<=Math.min(2000,tot||2000)-100,PZ=pzInfo(kind);
-const keys=[['Rank',d.i>=0?'#'+d.rank.toLocaleString():unk?'Unavailable':'Not ranked',d.i>=0&&tot?topPct((tot-d.rank)/tot*100)+' of '+tot.toLocaleString()+' '+war+'s':unk?'The leaderboard could not fully load':'Only the top 2,000 are ranked'],
+const unk=d.i<0&&(LOK[kind]===false||LOK[kind]===undefined&&d.list.length<=Math.min(2000,tot||2000)-100),PZ=pzInfo(kind),tie=d.i<0&&!unk&&d.pts!=null&&d.list.length&&d.pts<=d.list[d.list.length-1][1];
+const keys=[['Rank',d.i>=0?'#'+d.rank.toLocaleString():unk?'Unavailable':'Not ranked',d.i>=0&&tot?topPct((tot-d.rank)/tot*100)+' of '+tot.toLocaleString()+' '+war+'s':unk?'The leaderboard could not fully load':tie?'Tied with many '+war+'s at '+fmt(d.pts)+' points':'Only the top 2,000 are ranked'],
 ['Rank change, 24h','<span class="'+cc+'">'+ct+'</span>',''],['Points',d.pts==null?'n/a':fmt(d.pts),kind==='Clan'?'This clan war':''],['Points per hour',PZ?PZ.short:pph==null?'Collecting':sg(pph),PZ?PZ.sub:''],
 ['Members',d.mem+' of '+d.cap,''],['Average per member',d.pts==null||!d.mem?'n/a':fmt(d.pts/d.mem),'']];
 const mx=Math.max(1,...G.map(x=>x?Math.abs(x[0]):0)),lab=['1 hour','6 hours','12 hours','24 hours'];
@@ -695,7 +698,7 @@ function hourly(a){if(a.length<2)return[];const now=a[a.length-1][0],n=Math.min(
 for(let h=n;h>=1;h--){const t1=now-(h-1)*3600,t0=now-h*3600,v1=pval(a,t1),v0=pval(a,t0);
 if(v1!=null&&v0!=null)out.push([t1,Math.max(0,v1-v0)]);else{const u1=pvalU(a,t1),u0=pvalU(a,t0);out.push(u1!=null&&u0!=null?[t1,Math.max(0,u1-u0),1]:[t1,null])}}return out}
 function pstat(kind,t,d,id,pm){const rows=d.rows.filter(r=>!r.z),i=rows.findIndex(r=>String(r.id)===String(id)),r=rows[i],p=r?r.p:0,tp=d.pts!=null?d.pts:d.sum;
-const member=(d.members||[]).some(m=>String(m)===String(id)),loc=r?psnap(kind,id,p,d.name):[],old=kind==='Clan'&&pm&&pm.battle&&BREC&&pm.battle!==BREC.id;let a=merge(loc,old?[]:t.hist||[]).map(s=>[s[0],s[1]]);if(kind==='Clan')a=sinceReset(a);
+const member=(d.members||[]).some(m=>String(m)===String(id)),loc=r?psnap(kind,id,p,d.name):[],old=kind==='Clan'&&pm&&pm.battle&&BREC&&pm.battle!==BREC.id;let a=sinceReset(merge(loc,old?[]:t.hist||[]).map(s=>[s[0],s[1]]),kind);
 const H=hourly(a),hv=H.filter(h=>h[1]!=null&&!h[2]).map(h=>h[1]),now=a.length?a[a.length-1][0]:0,from=a.length?Math.max(a[0][0],now-86400):0,v0=a.length?pval(a,from):null;
 return{kind,team:d.name,teamRank:d.i>=0?d.rank:null,size:d.rows.length,rank:r?i+1:null,has:!!r,member,p,share:r&&tp?p/tp*100:null,ri:r?rinfo(kind,p,id):null,last:r&&r.t,
 a,H,day:v0!=null&&a.length>1?Math.max(0,p-v0):null,span:now-from,best:hv.length?Math.max(...hv):null,latest:hv.length?hv[hv.length-1]:null}}
@@ -774,7 +777,7 @@ function fitName(){const e=document.querySelector('.pch h2');if(!e)return;e.styl
 let f=parseFloat(getComputedStyle(e).fontSize);while(f>16&&e.scrollWidth>e.clientWidth)e.style.fontSize=--f+'px';e.style.whiteSpace=''}
 // Refreshes rebuild the stats and the top 10; keyboard focus goes back to the same control.
 function keepFocus(box,write){const a=document.activeElement;let q=null;
-if(a&&a!==document.body&&box.contains(a)){const d=a.dataset;q=a.id?'#'+CSS.escape(a.id):d.id?'[data-id="'+CSS.escape(d.id)+'"]':d.r?'[data-r="'+d.r+'"]':d.m?'[data-m="'+d.m+'"]':d.pk?'[data-pk="'+d.pk+'"]':d.n!=null?'[data-n="'+CSS.escape(d.n)+'"]':d.all?'[data-all]':a.hasAttribute('data-share')?'[data-share]':null}
+if(a&&a!==document.body&&box.contains(a)){const d=a.dataset;q=a.id?'#'+CSS.escape(a.id):d.id?'[data-id="'+CSS.escape(d.id)+'"]':d.r?'[data-r="'+d.r+'"]':d.m?'[data-m="'+d.m+'"]':d.pk?'[data-pk="'+d.pk+'"]':d.n!=null?'[data-n="'+CSS.escape(d.n)+'"]':d.all?'[data-all]':a.hasAttribute('data-share')?'[data-share]':a.matches('.notes>summary')?'.notes>summary':a.matches('a[href]')?'a[href="'+CSS.escape(a.getAttribute('href'))+'"]':null}
 write();if(q){const e=box.querySelector(q);if(e)e.focus({preventScroll:true})}}
 function drawPlayer(V){keepFocus($('dash'),()=>{$('dash').innerHTML=renderPlayer(V)});fitName()}
 function fitNums(){const bs=[...document.querySelectorAll('#dash .cell b,#dash .pk b,#dash .prp b')].filter(b=>!b.closest('.lg')),word=b=>!/\d/.test(b.textContent);
@@ -828,7 +831,7 @@ if(show)$('dash').innerHTML='<section class="card"><p class="st" style="margin:0
 try{const hp=shist(k,name.toLowerCase()),d=await near(await(k==='League'?dataL(name):dataC(name)));phase('t:'+d.key,d.pts+':'+d.sum);const ids=d.rows.map(r=>r.id),ln=d.name.toLowerCase(),loc=snap(d);
 const extra=Promise.all([names(d.oid?ids.concat(d.oid):ids),pics(ids),gplay(k),ln===name.toLowerCase()?hp:shist(k,ln)]);
 // Draw as soon as the numbers are in; names, pictures and player ranks fill in on a second draw.
-const draw=fin=>{if(seq!==PSEQ||k!==mode||name.toLowerCase()!==String(S[mode]||'').toLowerCase())return;d.hs=HS[k+':'+ln];d.loc=k==='Clan'?sinceReset(loc):loc;let a=merge(loc,d.hs&&d.hs.ok?d.hs.h:[]);if(k==='Clan')a=sinceReset(a);
+const draw=fin=>{if(seq!==PSEQ||k!==mode||name.toLowerCase()!==String(S[mode]||'').toLowerCase())return;d.hs=HS[k+':'+ln];d.loc=sinceReset(loc,k);let a=sinceReset(merge(loc,d.hs&&d.hs.ok?d.hs.h:[]),k);
 keepFocus($('dash'),()=>{$('dash').innerHTML=render(d,a)+(fin&&ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'')});if(!fin)shown(k,d.name)};
 await Promise.race([hp,new Promise(z=>setTimeout(z,1200))]);draw(false);
 Promise.race([extra,new Promise(z=>setTimeout(z,5000))]).then(()=>draw(true))}
@@ -879,7 +882,7 @@ $('st').textContent=nw?(BREC.begin>Date.now()?'The next clan war ('+BREC.title+'
 if(nw){STNOTE=$('st').textContent;setTimeout(()=>{STNOTE=''},60000)}else STNOTE='';LIVEAT=Date.now();stTick();board();crawl();if(nw||ranksOld())loadRanks();pzLoad();if(S[mode]&&DEAD!==mode+':'+String(S[mode]).toLowerCase())await paint(false)}
 catch(e){board();if(!live)STNOTE=$('st').textContent='Live data could not load here. Try again, or open the site from your own link.';else if(!LISTT)STNOTE=$('st').textContent='Showing the leaderboards from your last visit. Live data could not load right now, trying again every minute.'}}
 async function go(){const v=$('q').value.trim();if(!v){$('q').focus();return}$('sg').innerHTML='';S[mode]=v;save(mode);DEAD='';setURL();if(!live)await ready;await paint(true);$('dash').scrollIntoView({behavior:'smooth',block:'start'})}
-$('tL').onclick=()=>setMode('League');$('tC').onclick=()=>setMode('Clan');$('tP').onclick=()=>setMode('Player');$('go').onclick=go;
+const tab=m=>{const up=PCQ.matches&&$('dash').getBoundingClientRect().top<0;setMode(m);if(up)scrollTo(0,0)};$('tL').onclick=()=>tab('League');$('tC').onclick=()=>tab('Clan');$('tP').onclick=()=>tab('Player');$('go').onclick=go;
 document.addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(!b)return;setMode(b.dataset.open,true);$('q').value=b.dataset.n;go()});
 $('q').onkeydown=e=>{if(e.key==='Enter')go()};
 $('top').onclick=e=>{if(e.target.id==='more'){const y=RS.getBoundingClientRect().top;BN+=25;board();if(PCQ.matches){stick();scrollBy(0,RS.getBoundingClientRect().top-y)}return}const b=e.target.closest('.rk');if(b){$('q').value=b.dataset.n;go()}};
@@ -931,7 +934,7 @@ $('ldp').textContent=FIRST?'First visit: loading the top 2,000 leagues and clans
 setTimeout(()=>{const e=$('ldslow');if(e&&$('ld')&&$('ldbtns').hidden)e.hidden=false},15000);
 function ldDone(){const el=$('ld');if(!el)return;
 if(live){try{localStorage.setItem('ps99v',JSON.stringify({x:1}))}catch(e){}el.classList.add('out');setTimeout(()=>el.remove(),450);return}
-LDFAIL=true;$('ldh').textContent="Couldn't load the data";$('ldp').textContent='The game servers did not answer. Check your connection and try again.';$('ldbtns').hidden=false;$('ldslow').hidden=true}
+LDFAIL=true;board();$('ldh').textContent="Couldn't load the data";$('ldp').textContent='The game servers did not answer. Check your connection and try again.';$('ldbtns').hidden=false;$('ldslow').hidden=true}
 ready.then(ldDone);
 if(live){$('st').textContent='Showing the leaderboards from your last visit while the live ones load...';ldDone()}
 $('ldretry').onclick=()=>{LDFAIL=false;$('ldh').textContent='Loading all API data';$('ldp').textContent='Trying again...';$('ldbtns').hidden=true;lp=0;cp=0;ldUpd();tick(true).then(ldDone)};
