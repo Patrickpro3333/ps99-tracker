@@ -77,7 +77,7 @@ small{color:var(--mut);font-size:14px}
 .dash h2,.card h2{font-size:30px;line-height:1.2;margin:0 0 6px;overflow-wrap:anywhere}
 .meta{color:var(--mut);margin:0 0 12px;font-size:15px}
 .up{color:var(--g)}.dn{color:var(--r)}
-.pti{display:inline-block;width:auto;height:.74em;margin-right:.16em;vertical-align:-.04em}.icp .pti{height:18px;margin:0}
+.pti{display:inline-block;width:auto;height:.95em;margin-right:.2em;vertical-align:-.13em}.icp .pti{height:24px;margin:0;vertical-align:0}
 .grid{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:12px 0}
 .cell{background:#000;border:2px solid var(--ed);border-radius:14px;padding:10px 12px;min-width:0}
 .cell b{display:block;font:400 36px/1.15 "Lilita One",Impact,sans-serif;overflow-wrap:anywhere;letter-spacing:.01em}
@@ -92,11 +92,11 @@ h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
 /* Members: the rank on the left and the open sign on the right mirror each other; picture, name, points and bar sit in the middle. */
 .mems{--rkw:46px}.mems,.mems+.more,.mainc .tops #top{max-width:960px;margin-inline:auto}
 .mem{container:mem/inline-size;display:grid;grid-template-columns:var(--rkw) minmax(0,1fr) var(--rkw);gap:0 8px;align-items:center;min-height:56px;padding:10px 0;border-top:1px solid var(--ed);cursor:pointer}
-.mem::after{content:"+";grid-area:1/3;justify-self:end;width:24px;margin-right:4px;text-align:right;color:var(--y);font:400 26px/1 "Lilita One",Impact,sans-serif}.mem.open::after{content:"\2212"}
+.mem::after{content:"+";grid-area:1/3;justify-self:end;width:28px;margin-right:4px;text-align:right;color:var(--y);font:400 31px/1 "Lilita One",Impact,sans-serif}.mem.open::after{content:"\2212"}
 .mem .rn{justify-self:start;padding-left:4px;font:400 19px "Lilita One",Impact,sans-serif;color:var(--mut)}
 .mi{grid-column:2;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px}
 .mw{display:flex;align-items:center;justify-content:center;gap:8px;max-width:100%}
-.mem .av{flex:none;width:36px;height:36px;font-size:16px}
+.mem .av{flex:none;width:46px;height:46px;font-size:20px}
 .mn{min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .ml{display:flex;flex-direction:column;align-items:center;gap:4px}.mpv{display:flex;align-items:baseline;justify-content:center;gap:8px}
 @container mem (min-width:440px){.ml{flex-direction:row;justify-content:center;gap:12px}}
@@ -118,7 +118,7 @@ h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
 .recent{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin-top:10px}.recent:empty{display:none}
 .recent button{min-height:40px;max-width:100%;padding:0 14px;border:2px solid var(--ed);border-radius:20px;background:#000;color:var(--tx);font:700 15px "Atkinson Hyperlegible",system-ui,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
 .fab{position:fixed;left:50%;bottom:calc(16px + env(safe-area-inset-bottom,0px));z-index:20;width:60px;height:60px;margin-left:-30px;border:0;border-radius:50%;background:var(--y);color:#111;display:grid;place-items:center;box-shadow:0 6px 24px rgba(0,0,0,.6);cursor:pointer}
-.fab svg{width:28px;height:28px}
+.fab svg{width:31px;height:31px}
 /* Player card. */
 .pc{position:relative;background:var(--pn);border:2px solid var(--ed);border-radius:18px;padding:20px 14px 14px;margin-bottom:16px;overflow:hidden}
 .pc::before{content:"";position:absolute;left:14px;right:14px;top:10px;height:4px;border-radius:4px;background:var(--y)}
@@ -126,11 +126,11 @@ h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
 .tag{display:inline-block;margin-right:6px;padding:1px 9px;border:2px solid var(--y);border-radius:8px;background:#000;color:var(--y);font-weight:700;font-size:14px}
 .pct{margin:0 0 12px}
 .pcg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 10px}
-.pk{position:relative;min-width:0;background:#000;border:2px solid var(--ed);border-radius:14px;padding:40px 10px 12px}
+.pk{position:relative;min-width:0;background:#000;border:2px solid var(--ed);border-radius:14px;padding:50px 10px 12px}
 .pk small{display:block;color:var(--mut);font-size:13px}.pk b{display:block;font:400 42px/1.15 "Lilita One",Impact,sans-serif;color:var(--y);overflow-wrap:anywhere}
 .pk.c3 b,.pk.c5 b{color:var(--g)}
 /* Each box's icon sits in the middle above its label. */
-.ic{position:absolute;left:50%;top:9px;width:26px;height:26px;margin-left:-13px;border-radius:8px;background:#262626;display:grid;place-items:center;color:var(--y)}.ic svg{width:16px;height:16px}
+.ic{position:absolute;left:50%;top:9px;width:34px;height:34px;margin-left:-17px;border-radius:8px;background:#262626;display:grid;place-items:center;color:var(--y)}.ic svg{width:22px;height:22px}
 .pk.c3 .ic,.pk.c5 .ic{color:var(--g)}
 /* Global rank: the rank on top and the two neighbours side by side below it; on wider screens the rank sits between them. */
 .pr{grid-column:1/-1;background:#000;border:2px solid var(--ed);border-radius:14px;padding:12px}
@@ -138,7 +138,7 @@ h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
 .prn{min-width:0;display:grid;grid-template-columns:minmax(0,1fr);grid-row:span 3;grid-template-rows:subgrid;justify-items:center;align-items:start;gap:4px}.prn small{color:var(--mut);font-size:12px}
 .prn>span:last-child{max-width:100%;font-weight:700;font-size:13px;line-height:1.25;overflow:hidden;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
 .prm{grid-column:1/-1;grid-row:1}
-.av.pav{width:40px;height:40px;font-size:16px;border:2px solid var(--ed)}
+.av.pav{width:50px;height:50px;font-size:20px;border:2px solid var(--ed)}
 .prm small{display:block;color:var(--mut);font-size:12px;letter-spacing:.04em}.prm b{display:block;font:400 52px/1.05 "Lilita One",Impact,sans-serif;color:var(--y)}
 .prb{position:relative;height:8px;margin:12px 4px 8px;border-radius:8px;background:#262626}.prb i{display:block;height:100%;border-radius:8px;background:var(--g)}
 .prb em{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;border:3px solid var(--g)}
@@ -154,11 +154,11 @@ h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
 .av{position:relative;width:52px;height:52px;border-radius:50%;background:#262626;display:grid;place-items:center;overflow:hidden;color:var(--y);font:400 22px "Lilita One",Impact,sans-serif}
 .ok b{visibility:hidden}
 .av img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
-.av.big{flex:none;width:76px;height:76px;font-size:32px}
-.av.sm{width:28px;height:28px;font-size:13px}
-.lg{position:relative;flex:none;width:38px;height:38px;border-radius:10px;background:#262626;display:grid;place-items:center;overflow:hidden;color:var(--y);font:400 18px "Lilita One",Impact,sans-serif}
-.lg.lgb{width:76px;height:76px;border-radius:16px;font-size:32px}
-.lg.lgs{width:30px;height:30px;border-radius:8px;font-size:15px}
+.av.big{flex:none;width:96px;height:96px;font-size:40px}
+.av.sm{width:34px;height:34px;font-size:15px}
+.lg{position:relative;flex:none;width:44px;height:44px;border-radius:11px;background:#262626;display:grid;place-items:center;overflow:hidden;color:var(--y);font:400 20px "Lilita One",Impact,sans-serif}
+.lg.lgb{width:96px;height:96px;border-radius:20px;font-size:40px}
+.lg.lgs{width:40px;height:40px;border-radius:10px;font-size:18px}
 .lg img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
 .cell .lg b,.rk .lg b{font:inherit;color:inherit;letter-spacing:0}
 /* Charts. */
@@ -178,20 +178,20 @@ h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
 /* Lists (top 10 and suggestions): the rank or logo on the left and an arrow on the right mirror each other. */
 .rk{display:grid;grid-template-columns:var(--rkw,44px) minmax(0,1fr) var(--rkw,44px);gap:8px;align-items:center;width:100%;min-height:56px;padding:6px 4px;background:none;border:0;border-top:1px solid var(--ed);color:var(--tx);text-align:center;font:inherit;font-size:18px;cursor:pointer}
 .rk:first-child{border-top:0}.rk>b{justify-self:start;font:400 21px "Lilita One",Impact,sans-serif;color:var(--mut)}
-.rk::after,.sg::after{content:"";justify-self:end;width:11px;height:11px;border:solid var(--y);border-width:3px 3px 0 0;transform:rotate(45deg);margin-right:4px}
-.rkm{min-width:0;display:flex;flex-direction:column;align-items:center}.rkn .lg{width:32px;height:32px;border-radius:9px;font-size:16px}
+.rk::after,.sg::after{content:"";justify-self:end;width:14px;height:14px;border:solid var(--y);border-width:3.5px 3.5px 0 0;transform:rotate(45deg);margin-right:4px}
+.rkm{min-width:0;display:flex;flex-direction:column;align-items:center}.rkn .lg{width:42px;height:42px;border-radius:11px;font-size:19px}
 .rkn{display:flex;align-items:center;justify-content:center;gap:8px;max-width:100%}.rkn>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
 .rkv{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:0 8px}
 .rk i{font:400 25px/1.1 "Lilita One",Impact,sans-serif;font-style:normal;color:var(--y)}.rk small{font-size:13px;color:var(--mut)}
 #sg{margin-top:8px}
-.sg{display:grid;grid-template-columns:38px minmax(0,1fr) 38px;gap:10px;align-items:center;width:100%;min-height:56px;padding:6px 8px;background:#000;border:1px solid var(--ed);border-radius:12px;color:var(--tx);text-align:center;font:inherit;font-size:17px;margin-top:6px;cursor:pointer}
+.sg{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:10px;align-items:center;width:100%;min-height:56px;padding:6px 8px;background:#000;border:1px solid var(--ed);border-radius:12px;color:var(--tx);text-align:center;font:inherit;font-size:17px;margin-top:6px;cursor:pointer}
 .sgm{min-width:0;display:grid}.sgm>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
 .sg i{font-style:normal;color:var(--y);font-size:15px}.sg::after{margin-right:2px}
 .more{width:100%;min-height:48px;margin-top:10px;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx);font-family:"Lilita One",Impact,system-ui,sans-serif;font-size:18px;cursor:pointer}
 /* Open/close signs on the expandable sections; a hidden twin on the left keeps each title in the middle. */
 summary{list-style:none;cursor:pointer}summary::-webkit-details-marker{display:none}
-.help summary,.faq summary,.notes summary{display:grid;grid-template-columns:24px minmax(0,1fr) 24px;align-items:center;column-gap:6px}
-.help summary::before,.faq summary::before,.notes summary::before,.help summary::after,.faq summary::after,.notes summary::after{content:"+";color:var(--y);font:400 24px/1 "Lilita One",Impact,sans-serif}
+.help summary,.faq summary,.notes summary{display:grid;grid-template-columns:28px minmax(0,1fr) 28px;align-items:center;column-gap:6px}
+.help summary::before,.faq summary::before,.notes summary::before,.help summary::after,.faq summary::after,.notes summary::after{content:"+";color:var(--y);font:400 29px/1 "Lilita One",Impact,sans-serif}
 .help summary::before,.faq summary::before,.notes summary::before{visibility:hidden}
 .help[open]>summary::after,.faq[open]>summary::after,.notes[open]>summary::after{content:"\2212"}.mem.open::after,.help[open]>summary::after,.faq[open]>summary::after,.notes[open]>summary::after{transform:translateY(-.1em)}
 .notes{margin-top:16px;border-top:1px solid var(--ed)}.notes summary{padding:12px 0;color:var(--mut);font-weight:700}
@@ -224,7 +224,7 @@ h1,h2,h3,summary,.st,.sub,.meta,.pz,.cap,.prx,label,#ld p{text-wrap:balance}.rk,
 @container half (max-width:419px){.sum{grid-template-columns:1fr;gap:6px}.sum .cell{display:flex;justify-content:center;align-items:baseline;gap:12px;padding:6px 12px}.sum .cell small{font-size:15px}}
 @container main (min-width:600px){.keys{grid-template-columns:repeat(3,1fr)}.pcg.four{grid-template-columns:repeat(4,1fr)}.pr:has(>.prt){display:grid;grid-template-columns:1fr auto 1fr;column-gap:8px}.pr>*{grid-column:1/-1}.prt,.prp{display:grid;grid-template-columns:subgrid}.prp>div+div{grid-column:3}.prt>.prm{grid-column:auto;grid-row:span 3;align-self:start}}
 /* Narrow phones: slimmer side columns in the lists, so names keep their room. */
-@container main (max-width:399px){.mems{--rkw:34px}.mem .rn{padding-left:0;font-size:17px}.mem::after{width:20px;margin-right:0}.cell{padding-left:6px;padding-right:6px}
+@container main (max-width:399px){.mems{--rkw:34px}.mem .rn{padding-left:0;font-size:17px}.mem::after{width:24px;margin-right:0}.cell{padding-left:6px;padding-right:6px}
 .rk{grid-template-columns:calc(var(--rkw,44px) - 10px) minmax(0,1fr) calc(var(--rkw,44px) - 10px);gap:6px}.rk>b{font-size:18px}}
 .rside .rk{grid-template-columns:calc(var(--rkw,44px) - 10px) minmax(0,1fr) calc(var(--rkw,44px) - 10px);gap:6px}.rside .rk>b{font-size:18px}
 @container main (min-width:860px){.dg{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:0 28px;align-items:start}}
