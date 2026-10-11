@@ -301,7 +301,7 @@ const UNITS=[[1e12,'t',2],[1e9,'b',2],[1e6,'m',2],[1e3,'k',1]];
 const fmt=v=>{if(typeof v!=='number')return v;const a=Math.abs(v),m=v<0&&Math.round(a)?'-':'';
 for(let i=0;i<UNITS.length;i++){const[d,s,f]=UNITS[i];if(a>=d){const t=(a/d).toFixed(f);return m+(i&&+t>=1000?(a/UNITS[i-1][0]).toFixed(UNITS[i-1][2])+UNITS[i-1][1]:t+s)}}
 return m+(Math.round(a)>=1000?'1.0k':''+Math.round(a))};
-const ago=s=>s<90?'now':s<5400?Math.round(s/60)+'m ago':s<172800?Math.round(s/3600)+'h ago':Math.round(s/86400)+'d ago';
+const ago=s=>s<90?'now':s<5400?Math.round(s/60)+'m\u00a0ago':s<172800?Math.round(s/3600)+'h\u00a0ago':Math.round(s/86400)+'d\u00a0ago';
 const dur=s=>s<5400?Math.round(s/60)+'m':Math.round(s/3600)+'h';
 const durf=s=>{const h=Math.floor(s/3600),m=Math.floor(s%3600/60);return h?h+'h'+(m?' '+m+'m':''):m+'m'};
 const BASE=['https://ps99.biggamesapi.io','/ps99api'];
@@ -485,19 +485,20 @@ function ctl(hrs,kind){return '<div class="seg">'+[1,6,24].map(h=>'<button data-
 function chartHtml(a,d){
 CW=cwNow();if(CM==='pl'&&d.loc)a=d.loc;
 const sp=a.length>1?a[a.length-1][0]-a[0][0]:0;
-if(a.length<3||sp<240){CHD=null;return (CM==='pl'?ctl(RG||1,d.kind):'')+'<svg class="ch" viewBox="0 0 '+CW+' '+CH+'"><g transform="scale('+(CW/340).toFixed(3)+' 1)"><line x1="10" x2="330" y1="170" y2="170" stroke="#3a3a3a"/><path d="M10 150C70 118 120 160 170 130S270 108 330 98" fill="none" stroke="#3a3a3a" stroke-width="3" stroke-dasharray="6 6" vector-effect="non-scaling-stroke"/></g><text x="'+Math.round(CW/2)+'" y="76" text-anchor="middle">Collecting data</text></svg><p class="cap">'+(CM==='pl'?'Points per player only come from this device, not the server. Keep this page open and the chart fills in.':'The chart starts after about 4 minutes. Keep this page open and it fills in.')+'</p>'}
+const chPh=t=>'<svg class="ch" viewBox="0 0 '+CW+' '+CH+'"><g transform="scale('+(CW/340).toFixed(3)+' 1)"><line x1="10" x2="330" y1="170" y2="170" stroke="#3a3a3a"/><path d="M10 150C70 118 120 160 170 130S270 108 330 98" fill="none" stroke="#3a3a3a" stroke-width="3" stroke-dasharray="6 6" vector-effect="non-scaling-stroke"/></g><text x="'+Math.round(CW/2)+'" y="76" text-anchor="middle">'+t+'</text></svg>';
+if(a.length<3||sp<240){CHD=null;return (CM==='pl'?ctl(RG||1,d.kind):'')+chPh('Collecting data')+'<p class="cap">'+(CM==='pl'?'Points per player only come from this device, not the server. Keep this page open and the chart fills in.':'The chart starts after about 4 minutes. Keep this page open and it fills in.')+'</p>'}
 const hrs=RG||(sp<=3900?1:sp<=22200?6:24);
 const mk=(c,n,r,get)=>{const raw=series(a,get,hrs);return{c,n,r,raw,pts:smooth(raw)}};
 const ser=CM==='pl'?d.rows.filter(r=>!r.z).slice(0,4).map((r,i)=>mk(COL[i],nm(r),r,s=>s[3]&&s[3][r.id]!=null?s[3][r.id]:null)):[mk(COL[0],d.kind,null,s=>s[1])];
 const all=[].concat(...ser.map(q=>q.pts.map(p=>p[1]).filter(v=>v!=null)));
-if(!all.length)return ctl(hrs,d.kind)+'<p class="st">Not enough data in this range yet. Try a longer one.</p>';
-if(!all.some(v=>v>=1)){CHD=null;return ctl(hrs,d.kind)+'<p class="st">No points gained in this range.</p>'}
+if(!all.length){CHD=null;return ctl(hrs,d.kind)+chPh('Not enough data in this range yet')+'<p class="cap">Try a longer range.</p>'}
+if(!all.some(v=>v>=1)){CHD=null;return ctl(hrs,d.kind)+chPh('No points gained in this range')}
 const mx=nice(Math.max(1,...all),4),l=48,t=18,r=10,b=26,pw=CW-l-r,ph=CH-t-b,x0=ser[0].pts[0][0],x1=ser[0].pts[ser[0].pts.length-1][0];
 const X=tm=>l+(tm-x0)/(x1-x0||1)*pw,Y=v=>t+ph-v/mx*ph,hm=tm=>new Date(tm*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'});
 CHD={ser,X,Y};
 let g='<defs><linearGradient id="ga" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+COL[0]+'" stop-opacity=".4"/><stop offset="1" stop-color="'+COL[0]+'" stop-opacity="0"/></linearGradient></defs><text x="'+CW/2+'" y="12" text-anchor="middle">points per hour</text>';
 [0,.25,.5,.75,1].forEach(f=>{const y=Y(mx*f);g+='<line x1="'+l+'" x2="'+(CW-r)+'" y1="'+y+'" y2="'+y+'" stroke="'+(f?'#242424':'#3a3a3a')+'"/><text x="'+(l-6)+'" y="'+(y+4)+'" text-anchor="end">'+fax(mx*f)+'</text>'});
-[0,.33,.66,1].forEach(f=>{const tm=x0+(x1-x0)*f;g+='<text x="'+X(tm)+'" y="'+(CH-8)+'" text-anchor="'+(f===0?'start':f===1?'end':'middle')+'">'+(f===1?'now':hm(tm))+'</text>'});
+(pw<240?[0,.5,1]:[0,.33,.66,1]).forEach(f=>{const tm=x0+(x1-x0)*f;g+='<text x="'+X(tm)+'" y="'+(CH-8)+'" text-anchor="'+(f===0?'start':f===1?'end':'middle')+'">'+(f===1?'now':hm(tm))+'</text>'});
 let EST=0;ser.forEach(q=>{let run=[],er=null;const runs=[],est=[];q.pts.forEach((p,i)=>{const pt=p[1]==null?null:[X(p[0]),Y(p[1])],e=pt&&p[2];
 if(pt&&!e)run.push(pt);else if(run.length){runs.push(run);run=[]}
 if(e){if(!er){er=[];const b=q.pts[i-1];if(b&&b[1]!=null&&!b[2])er.push([X(b[0]),Y(b[1])])}er.push(pt)}else if(er){if(pt)er.push(pt);est.push(er);er=null}});if(run.length)runs.push(run);if(er)est.push(er);
@@ -632,7 +633,7 @@ return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+
 +(PZ&&!G.some(x=>x&&x[0])?'<div class="dg one"><div><h3>Close rivals</h3><div class="grid rvs">'+gap+'</div></div></div>'
 :'<div class="dg"><div><h3>Points gained</h3><p class="st" style="margin:0 0 4px">'+hist+'</p>'+gains+'<h3>Close rivals</h3><div class="grid rvs">'+gap+'</div></div>'
 +'<div><h3>Points per hour</h3><div id="chw">'+chartHtml(a,d)+'</div></div></div>')
-+'<h3>'+(kind==='Clan'?'Members ('+d.rows.length+')':'Contributors'+(d.nAll?' ('+d.nAll+')':''))+'</h3><p class="st" style="margin:0 0 4px">'+(kind==='Clan'&&d.rows.length>d.nAll?d.nAll+'\u00a0have points in this war, '+(d.rows.length-d.nAll)+'\u00a0not yet. ':'')+(d.rows.length?'Tap a player for details.':'')+'</p>'
++'<h3>'+(kind==='Clan'?'Members ('+d.rows.length+')':'Contributors'+(d.nAll?' ('+d.nAll+')':''))+'</h3><p class="st" style="margin:0 0 4px">'+(kind==='Clan'&&d.rows.length>d.nAll?d.nAll+'\u00a0have points in this war, '+(d.rows.length-d.nAll)+'\u00a0not\u00a0yet.<br>':'')+(d.rows.length?'Tap a player for details.':'')+'</p>'
 +'<div class="mems">'+mem+'</div>'+(d.rows.length>LIMIT&&!all?'<button class="more" data-all="'+esc(d.key)+'">Show all '+d.rows.length+' '+(kind==='Clan'?'members':'contributors')+'</button>':'')
 +'<details class="notes"'+(NOTESOPEN?' open':'')+'><summary>About these numbers</summary><div class="st" id="scan" data-k="'+kind+'">'+scanText(kind)+'</div>'
 +(lost?'<p class="st">'+fmt(d.pts-d.sum)+' of the clan\'s '+fmt(d.pts)+' points are not credited to anyone in the list, usually because those players left the clan.</p>':'')
@@ -724,7 +725,7 @@ const list=[].concat(...ch).filter(e=>String(e[0])!==String(id));if(!list.length
 let ah=null,be=null;list.forEach(e=>{if(e[1]>q)ah={id:e[0],r:ri.rank-1};else if(!be)be={id:e[0],r:ri.rank+1}});
 const top=cs[0]===0,end=cs[cs.length-1]===last;
 return{a:ah&&(be||end)?ah:null,b:be&&(ah||top)?be:null,live:0}}
-function prank(s,nb){const ri=s.ri;if(!s.has)return '<div class="pr"><div class="prm"><small>GLOBAL RANK</small><b>-</b><small>No points yet</small></div></div>';
+function prank(s,nb){const ri=s.ri;if(!s.has||!s.p)return '<div class="pr"><div class="prm"><small>GLOBAL RANK</small><b>-</b><small>No points yet</small></div></div>';
 if(!ri||!ri.rank)return '<div class="pr"><div class="prm"><small>GLOBAL RANK</small><b>...</b><small>Working it out</small></div></div>';
 const tl=ri.est||ri.nEst||ri.rEst?'~':'',ap=ri.pct!=null?Math.max(0,Math.min(100,ri.pct)):null,ah=ap==null?null:ri.N?Math.max(0,Math.min(100,(ri.rank-1)/ri.N*100)):100-ap;
 const side=(x,lab)=>'<div class="prn">'+(x?'<small>'+lab+' <span class="nw">'+(nb.live&&!ri.rEst?'':'~')+'#'+x.r.toLocaleString()+'</span></small>'+pav(x.id)+'<span>'+esc(U[x.id]?(U[x.id][1]!==U[x.id][0]?U[x.id][1]+' ('+U[x.id][0]+')':U[x.id][0]):'User '+x.id)+'</span>':'<small>'+lab+'</small><span class="st">'+(nb===undefined?'Loading':'-')+'</span>')+'</div>';
@@ -783,7 +784,7 @@ let f=parseFloat(getComputedStyle(e).fontSize);while(f>16&&e.scrollWidth>e.clien
 // Refreshes rebuild the stats and the top 10; keyboard focus goes back to the same control.
 function keepFocus(box,write){const a=document.activeElement;let q=null;
 if(a&&a!==document.body&&box.contains(a)){const d=a.dataset;q=a.id?'#'+CSS.escape(a.id):d.id?'[data-id="'+CSS.escape(d.id)+'"]':d.r?'[data-r="'+d.r+'"]':d.m?'[data-m="'+d.m+'"]':d.pk?'[data-pk="'+d.pk+'"]':d.n!=null?'[data-n="'+CSS.escape(d.n)+'"]':d.all?'[data-all]':a.hasAttribute('data-share')?'[data-share]':a.matches('.notes>summary')?'.notes>summary':a.matches('a[href]')?'a[href="'+CSS.escape(a.getAttribute('href'))+'"]':null}
-write();if(q){const e=box.querySelector(q);if(e)e.focus({preventScroll:true})}}
+write();if(q){const e=box.querySelector(q);if(e){fitName();fitNums();e.focus({preventScroll:true})}}}
 function drawPlayer(V){keepFocus($('dash'),()=>{$('dash').innerHTML=renderPlayer(V)});fitName()}
 function fitNums(){const bs=[...document.querySelectorAll('#dash .cell b,#dash .pk b,#dash .prp b')].filter(b=>!b.closest('.lg')),word=b=>!/\d/.test(b.textContent);
 bs.forEach(b=>{b.style.fontSize='';b.style.overflowWrap='normal';b.style.whiteSpace=word(b)?'normal':''});
@@ -804,7 +805,7 @@ new MutationObserver(()=>{placeTops();fitNums();const s=document.querySelector('
 if(s&&g&&CHX!=null&&g.style.display==='none'&&LAST&&LAST.d.key===CHK){const R=s.getBoundingClientRect();chHit({target:s,clientX:R.left+CHX*R.width})}}).observe($('dash'),{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['class']});
 const refit=()=>{fitName();fitNums()};let RZ=0;
 // After a resize the charts are drawn again at the new width.
-addEventListener('resize',()=>{clearTimeout(RZ);RZ=setTimeout(()=>{if(LAST&&$('chw')&&$('chw').querySelector('.seg')&&cwNow()!==CW)$('chw').innerHTML=chartHtml(LAST.a,LAST.d);
+addEventListener('resize',()=>{clearTimeout(RZ);RZ=setTimeout(()=>{if(LAST&&$('chw')&&$('chw').querySelector('.seg')&&cwNow()!==CW)keepFocus($('chw'),()=>{$('chw').innerHTML=chartHtml(LAST.a,LAST.d)});
 if(mode==='Player'&&PV&&$('dash').querySelector('.pchs')&&pW()!==PW)drawPlayer(PV)},250)});document.fonts&&(document.fonts.ready.then(refit),document.fonts.addEventListener('loadingdone',refit));addEventListener('resize',refit);
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pk]');if(!b||!PV)return;PKIND[PV.id]=b.dataset.pk;drawPlayer(PV)});
 async function paintPlayer(show){const q=S.Player,seq=++PSEQ,box=$('dash'),ok=()=>seq===PSEQ&&mode==='Player';if(!q){box.innerHTML='';return}
@@ -891,10 +892,10 @@ async function go(){const v=$('q').value.trim();if(!v){$('q').focus();return}$('
 const tab=m=>{const up=PCQ.matches&&$('dash').getBoundingClientRect().top<0;setMode(m);if(up)scrollTo(0,0)};$('tL').onclick=()=>tab('League');$('tC').onclick=()=>tab('Clan');$('tP').onclick=()=>tab('Player');$('go').onclick=go;
 document.addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(!b)return;setMode(b.dataset.open,true);$('q').value=b.dataset.n;go()});
 $('q').onkeydown=e=>{if(e.key==='Enter')go()};
-$('top').onclick=e=>{if(e.target.id==='more'){const y=RS.getBoundingClientRect().top;BN+=25;board();if(PCQ.matches){stick();scrollBy(0,RS.getBoundingClientRect().top-y)}return}const b=e.target.closest('.rk');if(b){$('q').value=b.dataset.n;go()}};
+$('top').onclick=e=>{if(e.target.id==='more'){const y=RS.getBoundingClientRect().top,kb=e.target.matches(':focus-visible'),n=BN;BN+=25;board();if(PCQ.matches){stick();scrollBy(0,RS.getBoundingClientRect().top-y)}const f=kb&&document.querySelectorAll('#top .rk')[n];if(f)f.focus({preventScroll:true});return}const b=e.target.closest('.rk');if(b){$('q').value=b.dataset.n;go()}};
 document.addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;if(i.dataset.id&&!i.dataset.t){i.dataset.t=1;i.src='/ps99api/image/'+i.dataset.id}else i.style.display='none'},true);
 document.addEventListener('load',e=>{if(e.target.tagName==='IMG')e.target.parentNode.classList.add('ok')},true);
-document.addEventListener('click',e=>{const b=e.target.closest('.seg button[data-r],.seg button[data-m]');if(!b||!LAST||!$('chw'))return;if(b.dataset.r)RG=+b.dataset.r;if(b.dataset.m)CM=b.dataset.m;$('chw').innerHTML=chartHtml(LAST.a,LAST.d)});
+document.addEventListener('click',e=>{const b=e.target.closest('.seg button[data-r],.seg button[data-m]');if(!b||!LAST||!$('chw'))return;if(b.dataset.r)RG=+b.dataset.r;if(b.dataset.m)CM=b.dataset.m;keepFocus($('chw'),()=>{$('chw').innerHTML=chartHtml(LAST.a,LAST.d)})});
 const chHit=e=>{const s=e.target.closest&&e.target.closest('.ch');if(!s||!CHD)return;const R=s.getBoundingClientRect(),x=(e.clientX-R.left)/R.width*CW;CHX=x/CW;CHK=LAST&&LAST.d.key;const p=CHD.ser[0].pts;let bi=0,bd=1e9;p.forEach((q,i)=>{const dx=Math.abs(CHD.X(q[0])-x);if(dx<bd){bd=dx;bi=i}});
 const tm=p[bi][0],g=$('gl');g.setAttribute('x1',CHD.X(tm));g.setAttribute('x2',CHD.X(tm));g.style.display='';
 CHD.ser.forEach((q,i)=>{const c=$('gd'+i),v=q.pts[bi][1];if(v==null){c.style.display='none'}else{c.setAttribute('cx',CHD.X(tm));c.setAttribute('cy',CHD.Y(v));c.style.display=''}});
@@ -938,13 +939,15 @@ const ready=(loadRanks(),setMode(['Clan','Player'].includes(S.mode)?S.mode:'Leag
 const FIRST=!ldS('ps99v').x;
 $('ldp').textContent=FIRST?'First visit: loading the top 2,000 leagues and clans.':'Loading the latest leaderboards...';
 setTimeout(()=>{const e=$('ldslow');if(e&&$('ld')&&$('ldbtns').hidden)e.hidden=false},15000);
+const ldIn=v=>document.querySelectorAll('main.wrap,#fab').forEach(e=>e.inert=v);ldIn(true);
+const ldOut=el=>{el.classList.add('out');ldIn(false);setTimeout(()=>el.remove(),450)};
 function ldDone(){const el=$('ld');if(!el)return;
-if(live){try{localStorage.setItem('ps99v',JSON.stringify({x:1}))}catch(e){}el.classList.add('out');setTimeout(()=>el.remove(),450);return}
+if(live){try{localStorage.setItem('ps99v',JSON.stringify({x:1}))}catch(e){}ldOut(el);return}
 LDFAIL=true;board();$('ldh').textContent="Couldn't load the data";$('ldp').textContent='The game servers did not answer. Check your connection and try again.';$('ldbtns').hidden=false;$('ldslow').hidden=true}
 ready.then(ldDone);
 if(live){$('st').textContent='Showing the leaderboards from your last visit while the live ones load...';ldDone()}
 $('ldretry').onclick=()=>{LDFAIL=false;$('ldh').textContent='Loading all API data';$('ldp').textContent='Trying again...';$('ldbtns').hidden=true;lp=0;cp=0;ldUpd();tick(true).then(ldDone)};
-$('ldopen').onclick=()=>{const el=$('ld');if(el){el.classList.add('out');setTimeout(()=>el.remove(),450)}};
+$('ldopen').onclick=()=>{const el=$('ld');if(el)ldOut(el)};
 const dueFull=()=>!live||Date.now()-Math.max(LISTT,LISTA)>=290000;
 ready.then(schedule);
 // Back on the tab (or the phone unlocked) after a while: refresh straight away instead of waiting up to a minute.
