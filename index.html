@@ -464,7 +464,7 @@ let RG=0,CM='tot',LAST=null,CHD=null;
 const sg=v=>(v<0?'':'+')+fmt(v);
 const pc=(x,m)=>{x=Math.max(0,Math.min(m||99.9,Math.round(x*10)/10));return x%1?x.toFixed(1):''+x};
 // The game's points icon (two gold stars), in front of point totals.
-const PTI='<img class="pti" src="/points.png?v=2" width="45" height="36" alt="">',pt=v=>'<span class="nw">'+PTI+v+'</span>';
+const PTI='<img class="pti" src="/points.png?v=3" width="45" height="36" alt="">',pt=v=>'<span class="nw">'+PTI+v+'</span>';
 // A time never breaks between the minutes and AM/PM.
 const nbt=t=>t.replace(/\s([AP]M)\b/gi,'\u00a0$1');
 const iid=s=>{const m=/\d+/.exec(s||'');return m?m[0]:''};
