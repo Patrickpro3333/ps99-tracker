@@ -69,6 +69,9 @@ h1 span{color:var(--y)}
 label{display:block;margin:0 0 6px;font-weight:700}
 input[type=search]{-webkit-appearance:none;appearance:none}input::-webkit-search-cancel-button{display:none}
 input{width:100%;min-height:54px;font-size:20px;padding:10px 14px;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx);text-align:center}
+/* The clear button sits inside the box on the right; while there is text the box keeps the same room on the left, so the text stays in the middle. */
+.qw{position:relative}#q:not(:placeholder-shown){padding-inline:52px}#q:placeholder-shown+.qx{display:none}
+.qx{position:absolute;right:5px;top:50%;width:44px;height:44px;margin-top:-22px;padding:0;border:0;border-radius:12px;background:none;color:#8a8a8a;display:grid;place-items:center;cursor:pointer}.qx svg{width:20px;height:20px}
 :focus-visible{outline:3px solid var(--y);outline-offset:2px}
 .go{width:100%;min-height:54px;margin-top:10px;border:0;border-radius:14px;background:var(--y);color:#111;font-size:22px;cursor:pointer}
 .go:active{transform:scale(.98)}
@@ -92,22 +95,23 @@ h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
 /* Members: the rank on the left and the open sign on the right mirror each other; picture, name, points and bar sit in the middle. */
 .mems{--rkw:46px}.mems,.mems+.more,.mainc .tops #top,.dash>.notes,#sg{max-width:960px;margin-inline:auto}
 .mem{container:mem/inline-size;display:grid;grid-template-columns:var(--rkw) minmax(0,1fr) var(--rkw);gap:0 8px;align-items:center;min-height:56px;padding:10px 0;border-top:1px solid var(--ed);cursor:pointer}
-.mem::after{content:"+";grid-area:1/3;justify-self:end;width:28px;margin-right:4px;text-align:right;color:var(--y);font:400 31px/1 "Lilita One",Impact,sans-serif}.mem.open::after{content:"\2212"}
+.mem::after{content:"+";grid-area:1/3;justify-self:end;width:24px;margin-right:4px;text-align:right;color:#8a8a8a;font:400 24px/1 "Lilita One",Impact,sans-serif}.mem.open::after{content:"\2212"}.mem.open::after,.mem:focus-visible::after{color:var(--y)}
 .mem .rn{justify-self:start;padding-left:4px;font:400 19px "Lilita One",Impact,sans-serif;color:var(--mut)}
 .mi{grid-column:2;min-width:0;display:flex;flex-direction:column;align-items:center;gap:4px}
 .mw{display:flex;align-items:center;justify-content:center;gap:8px;max-width:100%}
 .mem .av{flex:none;width:46px;height:46px;font-size:20px}
 .mn{min-width:0;font-weight:700;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-.ml{display:flex;flex-direction:column;align-items:center;gap:4px}.mpv{display:flex;align-items:baseline;justify-content:center;gap:8px}
+.ml{display:flex;flex-direction:column;align-items:center;gap:4px}.mpv{display:flex;flex-wrap:wrap;align-items:baseline;justify-content:center;gap:2px 8px}
+.msp{font-size:15px;font-weight:700;color:var(--g);white-space:nowrap}
 @container mem (min-width:440px){.ml{flex-direction:row;justify-content:center;gap:12px}}
 .mp{font:400 26px/1.1 "Lilita One",Impact,sans-serif;color:var(--y)}
 .mi .bar{align-self:stretch;height:5px;margin-top:4px}
+.nyl{display:inline-block;padding:12px 2px;margin:-12px 0;border:0;background:none;color:var(--tx);font:inherit;font-weight:700;text-decoration-line:underline;text-decoration-color:var(--y);text-decoration-thickness:2px;text-underline-offset:3px;cursor:pointer}
 .chip{display:inline-block;padding:2px 9px;border-radius:10px;background:#262626;color:var(--y);font-size:14px;font-weight:700;white-space:nowrap}
 .mem.hid{display:none}
 .mem .det{grid-column:1/-1;display:none;padding:10px 4px 4px}.mem.open .det{display:block}.mem.open{background:#0b0b0b}
-.det .st{margin:0 0 8px}
-.dcs{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:8px;margin-bottom:8px}
-.det .cell{display:grid;align-content:center;gap:2px;padding:8px 12px}
+/* An opened member: the buttons first, then one line with their share and placement, then the details. */
+.det .st{margin:0 0 8px}.det .dl{margin:10px 0 6px;font-size:15px;text-wrap:balance}
 .acts{display:grid;grid-template-columns:1fr 1fr;gap:8px}.acts .more{margin-top:0;display:grid;place-items:center;text-decoration:none;font-size:16px}
 /* Headers: picture, name, details and Share stacked in the middle. */
 .top,.pch{display:flex;flex-direction:column;align-items:center;gap:8px;margin:0 0 14px}
@@ -115,36 +119,34 @@ h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
 .top h2,.pch h2{margin:0 0 2px}.top .meta,.pch .meta{margin:0}.pch .meta+.meta{margin-top:4px}
 .share{min-height:44px;padding:0 26px;border:2px solid var(--ed);border-radius:12px;background:#000;color:var(--tx);font-size:16px;cursor:pointer}
 .nw{white-space:nowrap}
-.recent{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:8px;margin-top:10px}.recent:empty{display:none}
-.recent button{min-height:40px;max-width:100%;padding:0 14px;border:2px solid var(--ed);border-radius:20px;background:#000;color:var(--tx);font:700 15px "Atkinson Hyperlegible",system-ui,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
+.recent{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;margin-top:10px}.recent:empty,.sgon .recent{display:none}
+.recent button{min-height:44px;max-width:100%;padding:0 16px;border:2px solid var(--ed);border-radius:22px;background:#000;color:var(--tx);font:700 15px "Atkinson Hyperlegible",system-ui,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}.recent button small{margin-right:5px;font-size:13px;font-weight:400}
+@media(max-width:599px){.recent button:nth-of-type(n+5){display:none}}
 /* Player card. */
 .pc{position:relative;background:var(--pn);border:2px solid var(--ed);border-radius:18px;padding:20px 14px 14px;margin-bottom:16px;overflow:hidden}
 .pc::before{content:"";position:absolute;left:14px;right:14px;top:10px;height:4px;border-radius:4px;background:var(--y)}
 .pch{margin-top:8px}.pch .av.big{border:3px solid var(--y)}
-.tag{display:inline-block;margin-right:6px;padding:1px 9px;border:2px solid var(--y);border-radius:8px;background:#000;color:var(--y);font-weight:700;font-size:14px}
+/* The team tag under the name opens the team. */
+.tag{display:inline-flex;align-items:center;min-height:44px;max-width:100%;padding:0 14px;border:2px solid var(--y);border-radius:22px;background:#000;color:var(--y);font:700 15px/1.2 "Atkinson Hyperlegible",system-ui,sans-serif;vertical-align:middle;cursor:pointer}
 .seg.pct{margin:0 0 14px}
 .pcg{display:grid;grid-template-columns:1fr 1fr;gap:10px;margin:0 0 10px}
 .pk{position:relative;min-width:0;background:#000;border:2px solid var(--ed);border-radius:14px;padding:50px 10px 12px}
-.pk small{display:block;color:var(--mut);font-size:15px}.pk b{display:block;font:400 42px/1.15 "Lilita One",Impact,sans-serif;color:var(--y);overflow-wrap:anywhere}
-.pk.c3 b,.pk.c5 b{color:var(--g)}
+.pk small{display:block;color:var(--mut);font-size:15px}.pk b{display:block;font:400 42px/1.15 "Lilita One",Impact,sans-serif;color:var(--y);overflow-wrap:anywhere}.pk small+b+small{margin-top:2px;font-size:14px}
+.pk.c5 b{color:var(--tx)}
 /* Each box's icon sits in the middle above its label. */
 .ic{position:absolute;left:50%;top:9px;width:34px;height:34px;margin-left:-17px;border-radius:8px;background:#262626;display:grid;place-items:center;color:var(--y)}.ic svg{width:22px;height:22px}
 .pk.c3 .ic,.pk.c5 .ic{color:var(--g)}
-/* Global rank: the rank on top and the two neighbours side by side below it; on wider screens the rank sits between them. */
-.pr{grid-column:1/-1;background:#000;border:2px solid var(--ed);border-radius:14px;padding:12px}
+/* Global placement: the big box, then the players just behind and ahead side by side under it, in the same order as the bar. */
+.pr{max-width:960px;margin:0 auto 12px;background:#000;border:2px solid var(--ed);border-radius:14px;padding:12px}
 .prt{display:grid;grid-template-columns:1fr 1fr;gap:8px;align-items:start}
 .prn{min-width:0;display:grid;grid-template-columns:minmax(0,1fr);grid-row:span 3;grid-template-rows:subgrid;justify-items:center;align-items:start;gap:4px}.prn small{color:var(--mut);font-size:14px}
 .prn>span:last-child{max-width:100%;font-weight:700;font-size:14px;line-height:1.25;overflow:hidden;overflow-wrap:anywhere;display:-webkit-box;-webkit-box-orient:vertical;-webkit-line-clamp:2}
-.prm{grid-column:1/-1;grid-row:1}
 .av.pav{width:50px;height:50px;font-size:20px;border:2px solid var(--ed)}
-.prm small{display:block;color:var(--mut);font-size:14px;letter-spacing:.04em}.prm b{display:block;font:400 52px/1.05 "Lilita One",Impact,sans-serif;color:var(--y)}
-.prb{position:relative;height:8px;margin:12px 4px 8px;border-radius:8px;background:#262626}.prb i{display:block;height:100%;border-radius:8px;background:var(--g)}
+.prb{position:relative;height:8px;margin:12px 4px 8px;border-radius:8px;background:#262626}.hero .prb{margin:14px 8px 4px}.prb i{display:block;height:100%;border-radius:8px;background:var(--g)}
 .prb em{position:absolute;top:50%;width:14px;height:14px;margin:-7px 0 0 -7px;border-radius:50%;background:#fff;border:3px solid var(--g)}
-.prx{display:block;margin-top:8px;color:var(--mut);font-size:14px}
-.pnote{margin:-2px 0 10px;font-size:14px}
-.prp{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:8px}.prp>div{min-width:0}.prp b{display:block;font:400 34px "Lilita One",Impact,sans-serif;color:var(--g)}.prp div+div b{color:var(--tx)}.prp small{color:var(--mut);font-size:14px}
+.pba{max-width:560px;margin:12px auto}.pc .hero+.st{margin:0 0 12px}.pc>.share{display:block;margin:12px auto 0}.pcc .sum{margin:0 0 8px}
 .pcc{background:#000;border:2px solid var(--ed);border-radius:14px;padding:12px;margin:0 0 10px}
-.pcch{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:8px}.pcch b{display:block;font:400 22px "Lilita One",Impact,sans-serif;color:var(--y)}.pcch small{color:var(--mut);font-size:14px}
+.pcch{display:flex;flex-direction:column;align-items:center;gap:6px;margin-bottom:8px}.pcch b{display:block;font:400 22px "Lilita One",Impact,sans-serif;color:var(--y);text-wrap:balance}.pcch small{color:var(--mut);font-size:14px}
 .pleg{display:flex;justify-content:center;gap:14px;align-items:center;font-size:14px;color:var(--mut)}.pleg span{display:inline-flex;align-items:center;gap:6px}.pleg .d{width:8px;height:8px;border-radius:50%;background:var(--y)}.pleg .ds{width:16px;border-top:2px dashed var(--mut)}
 .pchs{width:100%;height:auto;display:block}.pgap{margin:6px 0 0;font-size:14px}.pchs text{fill:#a8a8a8;font:13px "Atkinson Hyperlegible",system-ui,sans-serif}.pchs .pbv{fill:var(--y);font-weight:700}
 .pcc:not(:has(.pchs)) .pleg{display:none}
@@ -188,7 +190,7 @@ button.lr::after{content:"";grid-column:3;justify-self:end;width:14px;height:14p
 /* Lists (top 10 and suggestions): the rank or logo on the left and an arrow on the right mirror each other. */
 .rk{display:grid;grid-template-columns:var(--rkw,44px) minmax(0,1fr) var(--rkw,44px);gap:8px;align-items:center;width:100%;min-height:56px;padding:6px 4px;background:none;border:0;border-top:1px solid var(--ed);color:var(--tx);text-align:center;font:inherit;font-size:18px;cursor:pointer}
 .rk:first-child{border-top:0}.rk>b{justify-self:start;font:400 21px "Lilita One",Impact,sans-serif;color:var(--mut)}
-.rk::after,.sg::after{content:"";justify-self:end;width:14px;height:14px;border:solid var(--y);border-width:3.5px 3.5px 0 0;transform:rotate(45deg);margin-right:4px}
+.rk::after,.sg::after{content:"";justify-self:end;width:14px;height:14px;border:solid #8a8a8a;border-width:3.5px 3.5px 0 0;transform:rotate(45deg);margin-right:4px}.rk:focus-visible::after,.sg:focus-visible::after{border-color:var(--y)}
 .rkm{min-width:0;display:flex;flex-direction:column;align-items:center}.rkn .lg{width:42px;height:42px;border-radius:11px;font-size:19px}
 .rkn{display:flex;align-items:center;justify-content:center;gap:8px;max-width:100%}.rkn>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
 .rkv{display:flex;flex-wrap:wrap;justify-content:center;align-items:baseline;gap:0 8px}
@@ -196,7 +198,8 @@ button.lr::after{content:"";grid-column:3;justify-self:end;width:14px;height:14p
 #sg{margin-top:8px}
 .sg{display:grid;grid-template-columns:44px minmax(0,1fr) 44px;gap:10px;align-items:center;width:100%;min-height:56px;padding:6px 8px;background:#000;border:1px solid var(--ed);border-radius:12px;color:var(--tx);text-align:center;font:inherit;font-size:17px;margin-top:6px;cursor:pointer}
 .sgm{min-width:0;display:grid}.sgm>span{overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700}
-.sg i{font-style:normal;color:var(--y);font-size:15px}.sg::after{margin-right:2px}
+.sg i{font-style:normal;color:var(--y);font-size:15px}.sg::after{margin-right:2px}.sgk{font-size:13px;color:var(--mut)}.sgm>small{font-size:13px;color:var(--mut);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.sg .av{width:40px;height:40px;font-size:18px}
+.nf>p{margin:6px 0 4px;font-size:15px;color:var(--mut)}
 .more{width:100%;min-height:48px;margin-top:10px;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx);font-family:"Lilita One",Impact,system-ui,sans-serif;font-size:18px;cursor:pointer}
 /* Open/close signs on the expandable sections; a hidden twin on the left keeps each title in the middle. */
 summary{list-style:none;cursor:pointer}summary::-webkit-details-marker{display:none}
@@ -216,7 +219,7 @@ footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}footer p{max-wi
 /* The stats are drawn again every minute in the same places. Chrome's scroll anchoring would pick a row while the
    numbers are still being fitted and move the page by a few pixels each time, so the page keeps its own place, as in Safari. */
 body{overflow-anchor:none}
-h1,h2,h3,summary,.st,.sub,.meta,.cap,.prx,label,#ld p,.cell small,.pk small,.prn small,.prp small{text-wrap:balance}.rk,.mem,summary,.more{scroll-margin:12px}.abd>p,.faq p,.help li,.notes li,footer p{text-wrap:pretty}
+h1,h2,h3,summary,.st,.sub,.meta,.cap,label,#ld p,.cell small,.pk small,.prn small{text-wrap:balance}.rk,.mem,summary,.more{scroll-margin:12px}.abd>p,.faq p,.help li,.notes li,footer p{text-wrap:pretty}
 #ldslow[hidden]{display:block!important;visibility:hidden}#ld:has(#ldbtns:not([hidden])) :is(.ldb,#ldslow){display:none!important}#ld:has(#ldbtns:not([hidden])) svg{animation:none}
 #ld.out{opacity:0;pointer-events:none}
 #ld svg{width:84px;animation:ldw 1.2s ease-in-out infinite}
@@ -228,13 +231,12 @@ h1,h2,h3,summary,.st,.sub,.meta,.cap,.prx,label,#ld p,.cell small,.pk small,.prn
 .ldbtn{display:grid;gap:10px;width:min(320px,80vw);margin-top:8px}
 @media(min-width:900px) and (max-width:1199px){.wrap{--gut:max(24px,env(safe-area-inset-left,0px),env(safe-area-inset-right,0px));max-width:none}}
 @media(max-width:399px){.cap.c4{min-height:4.5em}}
-@media(hover:hover){.rk:hover,.mem:hover,.sg:hover,button.lr:hover{background:#1a1a1a}button.lr:hover::after{border-color:var(--y)}.tab:not([aria-pressed=true]):hover,.seg button:not([aria-pressed=true]):hover,.share:hover,.more:hover,.recent button:hover{border-color:#555}.go:hover{filter:brightness(1.08)}}
+@media(hover:hover){.rk:hover,.mem:hover,.sg:hover,button.lr:hover,.tag:hover,.qx:hover{background:#1a1a1a}button.lr:hover::after,.rk:hover::after,.sg:hover::after{border-color:var(--y)}.mem:hover::after,.qx:hover{color:var(--y)}.tab:not([aria-pressed=true]):hover,.seg button:not([aria-pressed=true]):hover,.share:hover,.more:hover,.recent button:hover{border-color:#555}.go:hover{filter:brightness(1.08)}}
 /* Inside the stats, sizes follow the width of the main column (and of each half of it), so the same
    rules work on phones and in the middle column on PC. */
 .mainc{min-width:0;container:main/inline-size}.dg>div{min-width:0;container:half/inline-size}.dg.one>div>h3:first-child{margin-top:12px}.dg>div>:last-child{margin-bottom:0}.cap:not(#cap){min-height:0}.dg.one{display:block}
 .grid.gns{grid-template-columns:1fr 1fr}
 @container half (min-width:560px){.leg.n4{grid-template-columns:repeat(4,minmax(0,max-content))}}
-@container main (min-width:600px){.pcg.four{grid-template-columns:repeat(4,1fr)}.pr:has(>.prt){display:grid;grid-template-columns:1fr auto 1fr;column-gap:8px}.pr>*{grid-column:1/-1}.prt,.prp{display:grid;grid-template-columns:subgrid}.prp>div+div{grid-column:3}.prt>.prm{grid-column:auto;grid-row:span 3;align-self:start}}
 /* Narrow phones: slimmer side columns in the lists, so names keep their room. */
 @container main (max-width:399px){.mems{--rkw:34px}.mem .rn{padding-left:0;font-size:17px}.mem::after{width:24px;margin-right:0}.cell{padding-left:6px;padding-right:6px}
 .rk{grid-template-columns:calc(var(--rkw,44px) - 10px) minmax(0,1fr) calc(var(--rkw,44px) - 10px);gap:6px}.rk>b{font-size:18px}}
@@ -249,7 +251,7 @@ h1,h2,h3,summary,.st,.sub,.meta,.cap,.prx,label,#ld p,.cell small,.pk small,.prn
 h1{font-size:60px;margin-top:28px}.sub{margin-bottom:26px}
 .side,.rside{position:sticky;top:16px}
 #dash{scroll-margin-top:16px}#dash>.st:first-child{margin-top:0}
-#sg{max-height:max(124px,calc(100vh - 460px));overflow-y:auto;scrollbar-width:none}#sg::-webkit-scrollbar{display:none}#sg .sg:focus-visible{outline-offset:-3px}#find:has(#sg:not(:empty)) .recent{display:none}
+#sg{max-height:max(124px,calc(100vh - 460px));overflow-y:auto;scrollbar-width:none}#sg::-webkit-scrollbar{display:none}#sg .sg:focus-visible{outline-offset:-3px}
 .side>.card:last-child,.mainc>.card:last-child,.rside>.card:last-child{margin-bottom:0}}
 @media(min-width:1500px){.wrap{gap:0 32px}}
 /* The placement leads: one big number, then points and points per hour, then a quiet row of three. */
@@ -276,7 +278,7 @@ h1{font-size:60px;margin-top:28px}.sub{margin-bottom:26px}
 #dash b.wd{font:700 20px/1.25 "Atkinson Hyperlegible",system-ui,sans-serif;color:var(--mut);letter-spacing:0}
 #dash .hero>b.wd{font-size:24px}
 /* A number that is not there yet is a grey dash; one line says why when a whole section has nothing to show. */
-#dash b.na{color:var(--mut)}.emp{max-width:34em;margin:16px auto 0;font-size:15px;color:var(--mut);text-wrap:balance}
+#dash b.na{color:var(--mut)}.hero>b.dots{font:700 40px/80px "Atkinson Hyperlegible",system-ui,sans-serif;letter-spacing:.15em}.emp{max-width:34em;margin:16px auto 0;font-size:15px;color:var(--mut);text-wrap:balance}
 /* Medals for places 1-3 in the lists, and gold with a crown for #1. */
 .vh{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0);white-space:nowrap}
 .rk>.md,.mem>.md{display:grid;place-items:center;width:32px;height:32px;padding:0;border-radius:50%;font:400 18px/1 "Lilita One",Impact,sans-serif;--md:0 0 0 transparent;box-shadow:inset 0 -3px 0 rgba(0,0,0,.22),inset 0 2px 0 rgba(255,255,255,.55),0 0 0 2px #000,var(--md)}
@@ -310,7 +312,9 @@ body.res #find.open .fold{margin-bottom:14px}
 body.res:not(.findopen) .stn{display:block;margin:0 0 10px}
 html.res{scroll-padding-top:calc(72px + env(safe-area-inset-top,0px))}html.res :is(#dash,.mem,.rk,.lr,summary,.more){scroll-margin-top:0}
 /* A smaller header, so the placement and points are on the first screen. */
-body.res .dash .top,body.res .pch{gap:6px;margin-bottom:10px}body.res .lg.lgb{width:56px;height:56px;border-radius:14px;font-size:26px}body.res .dash .top h2,body.res .pch h2{font-size:28px}body.res .pch .av.big{width:64px;height:64px;font-size:28px}}
+body.res .dash .top,body.res .pch{gap:6px;margin-bottom:10px}body.res .lg.lgb{width:56px;height:56px;border-radius:14px;font-size:26px}body.res .dash .top h2{font-size:28px}body.res .pch h2{font-size:26px}body.res .pch .av.big{width:64px;height:64px;font-size:28px}
+/* Tighter member rows. */
+.mem{padding:8px 0}.mem .av{width:40px;height:40px;font-size:18px}.mi{gap:3px}.mi .bar{height:6px;margin-top:0}}
 /* A phone turned sideways has little height: a slimmer bar. */
 @media(max-width:1199px) and (max-height:500px){body.res .side{padding-block:4px}body.res .fold{min-height:44px}html.res{scroll-padding-top:calc(60px + env(safe-area-inset-top,0px))}}
 /* With a result on screen, its own fold explains the numbers. */
@@ -333,10 +337,10 @@ body.res .help{display:none}
 <button class="fold" id="fold" aria-expanded="false"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><circle cx="10.5" cy="10.5" r="6.5"/><path d="M15.5 15.5 21 21"/></svg><span class="fdn"><span class="fdk"><span id="fdk">League</span> ·</span><b id="fdv"></b><b id="fdp"></b></span><span class="fdc" id="fdc">Change</span></button>
 <div class="tabs" role="group" aria-label="What to look up"><button class="tab" id="tL" aria-pressed="true">League</button><button class="tab" id="tC" aria-pressed="false">Clan</button><button class="tab" id="tP" aria-pressed="false">Player</button></div>
 <label for="q" id="ql">League name</label>
-<input id="q" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Example: UN00">
+<div class="qw"><input id="q" type="search" enterkeyhint="search" autocomplete="off" autocapitalize="off" autocorrect="off" spellcheck="false" placeholder="Example: UN00"><button class="qx" id="qx" type="button" aria-label="Clear"><svg viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><path d="M4 4l12 12M16 4 4 16"/></svg></button></div>
 <div id="sg"></div>
-<button class="go" id="go">Show stats</button>
 <div class="recent" id="recent"></div>
+<button class="go" id="go">Show stats</button>
 <p class="st" id="st">Loading live data...</p>
 </section>
 </div>
@@ -409,7 +413,7 @@ const PICP={};
 async function pics(ids){const need=ids.filter(i=>!IM[i]&&!PICP[i]);
 if(need.length){const pr=rj('t','/v1/users/avatar-headshot?userIds='+need.join(',')+'&size=150x150&format=Png&isCircular=false').then(j=>{(j.data||[]).forEach(x=>{if(x.imageUrl)IM[x.targetId]=x.imageUrl})},()=>{}).finally(()=>need.forEach(i=>{delete PICP[i]}));need.forEach(i=>{PICP[i]=pr})}
 await Promise.all(ids.map(i=>PICP[i]).filter(Boolean))}
-let L=[],C=[],live=false,LT=0,CT=0,n=0,mode='League',BN=10;const OPEN=new Set();
+let L=[],C=[],live=false,LT=0,CT=0,n=0,mode='League',SK='League',TOPK='League',BN=10;const OPEN=new Set();
 // The official top players list per kind (exact live ranks): rank by user ID, size, lowest score, the list itself.
 const GPX={League:{P:{},N:0,T:0,at:0,list:[]},Clan:{P:{},N:0,T:0,at:0,list:[]}};
 let BID='',BIDT=0,BREC=null,WARNEW=false;
@@ -538,6 +542,8 @@ let RG=0,CM='tot',LAST=null,CHD=null;
 // Only gains get a sign; speeds and gaps are plain numbers.
 const sg=v=>(Math.round(v)>0?'+':'')+fmt(v);
 const pc=(x,m)=>{x=Math.max(0,Math.min(m||99.9,Math.round(x*10)/10));return x%1?x.toFixed(1):''+x};
+// "Better than" percentages: one decimal, and two from 99.5% up so the top players still differ. Chips, bars and the player page all use it.
+const pcs=x=>{x=Math.max(0,x);return Math.round(x*10)>=995?Math.min(99.99,x).toFixed(2):x.toFixed(1)};
 // The game's points icon (two gold stars), in front of point totals.
 const PTI='<img class="pti" src="/points.png?v=3" width="45" height="36" alt="">',pt=v=>'<span class="nw">'+PTI+v+'</span>';
 // Places 1-3 in the lists get a medal; #1 also gets a crown on its own page.
@@ -708,23 +714,25 @@ lgap=(v,w,T,c)=>'<p class="lgp">'+((v=Math.max(0,Math.round(v)))?'<b'+(c?' class
 const lad=ok?(A?lrow(A,d.rank-1)+lgap(A[1]-me,'to pass',A):lend(CROWN+'Already #1','gold'))+lrow([d.name,me,0,d.icon],d.rank,1)
 +(B?lgap(me-B[1],'ahead of',B,1)+lrow(B,d.rank+1):lend((tot?d.rank<tot:d.list.length>=2000)?'Teams below #'+d.list.length.toLocaleString()+' are not tracked':'Last place'))
 :'<p class="st">'+(unk?'Rivals are unavailable right now.':'Rivals show once '+esc(d.name)+(d.pts?' is in the top 2,000.':' has points.'))+'</p>';
-const tp=d.pts!=null?d.pts:d.sum,all=SHOWALL.has(d.key),pcs=x=>Math.min(99.9,Math.max(0,x)).toFixed(1);
+const tp=d.pts!=null?d.pts:d.sum,all=SHOWALL.has(d.key);let tl=0;
+// Speed in green; "No points this hour" only when this device has watched the member for at least 45 minutes.
 const mem=d.rows.map((r,k)=>{const m0=r0&&r0[3]?r0[3][r.id]:null,m1=lastL&&lastL[3]?lastL[3][r.id]:null,pp=m0!=null&&m1!=null&&lastL[0]-r0[0]>=120?(m1-m0)/((lastL[0]-r0[0])/3600):null,u=U[r.id],sh=tp?pc(r.p/tp*100,100):null,ri=r.z?null:rinfo(kind,r.p,r.id),open=OPEN.has(String(r.id));
-const chip=!ri?'':ri.pct!=null?'Better than '+(ri.est||ri.nEst||ri.rEst?'~':'')+pcs(ri.pct)+'%':ri.rank?'Placement #'+ri.rank.toLocaleString():'';
-return '<div class="mem'+(!r.z&&k<3?' m'+(k+1):'')+(open?' open':'')+(k>=LIMIT&&!all?' hid':'')+'" data-id="'+r.id+'" tabindex="0" role="button" aria-expanded="'+open+'">'+(!r.z&&md(k,'rn ')||'<b class="rn">'+(r.z?'-':'#'+(k+1))+'</b>')
-+'<div class="mi"><span class="mw">'+av(r)+'<span class="mn">'+esc(nm(r))+'</span></span><div class="ml">'+(r.z?'<small>No points yet</small>':'<span class="mpv"><b class="mp">'+pt(fmt(r.p))+'</b>'+(pp==null?'':'<small>'+fmt(pp)+'/hr</small>')+'</span>')+(chip?'<span class="chip">'+chip+'</span>':'')+'</div><div class="bar"><i style="width:'+(ri&&ri.pct!=null?pcs(ri.pct):0)+'%"></i></div></div>'
-+'<div class="det">'+(u&&u[1]!==u[0]?'<p class="st">Display name: '+esc(u[1])+'</p>':'')
-+(r.z?'<p class="st">No points'+(kind==='Clan'?' in this clan war':'')+' yet.</p>'
-:'<div class="dcs"><div class="cell"><small>Share of '+war+' points</small><b>'+(sh==null?'n/a':sh+'%')+'</b></div><div class="cell"><small>Global placement</small><b>'+(ri.rank?(ri.est||ri.rEst?'~':'')+'#'+ri.rank.toLocaleString()+(ri.N?' <small>of '+(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString()+'</small>':''):'Working it out')+'</b></div></div>'
-+'<p class="st">'+(ri.pct!=null?'Better than '+(ri.est||ri.nEst||ri.rEst?'~':'')+pcs(ri.pct)+'% of '+war+' war players. ':'')+(ri.rank?'Based on: '+basis(ri)+'.':'')+(r.t?' Last earned points '+ago(now-r.t)+'.':'')+'</p>')
-+'<div class="acts"><button class="more" data-open="Player" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:r.id)+'">Player stats</button><a class="more" href="https://www.roblox.com/users/'+r.id+'/profile" target="_blank" rel="noopener">Roblox profile</a></div></div></div>'}).join('')||'<p class="st">No contributors yet.</p>';
+const w=ri&&(ri.est||ri.nEst||ri.rEst)?'~':'',chip=!ri?'':ri.pct!=null?'Better than '+w+pcs(ri.pct)+'%':ri.rank?(ri.est||ri.rEst?'~':'')+'#'+ri.rank.toLocaleString()+' of all players':'';if(chip.includes('~'))tl=1;
+const gp=ri&&ri.rank?'Global placement <b>'+(ri.est||ri.rEst?'~':'')+'#'+ri.rank.toLocaleString()+'</b>':'Global placement: working it out…';
+return '<div class="mem'+(!r.z&&k<3?' m'+(k+1):'')+(r.z?' z':'')+(open?' open':'')+(k>=LIMIT&&!all?' hid':'')+'" data-id="'+r.id+'" tabindex="0" role="button" aria-expanded="'+open+'">'+(!r.z&&md(k,'rn ')||'<b class="rn">'+(r.z?'-':'#'+(k+1))+'</b>')
++'<div class="mi"><span class="mw">'+av(r)+'<span class="mn">'+esc(nm(r))+'</span></span><div class="ml">'+(r.z?'<small>No points yet</small>':'<span class="mpv"><b class="mp">'+pt(fmt(r.p))+'</b>'+(pp==null?'':Math.round(pp)>0?'<span class="msp">'+fmt(pp)+'/hr</span>':lastL[0]-r0[0]>=2700?'<small>No points this hour</small>':'')+'</span>')+(chip?'<span class="chip">'+chip+'</span>':'')+'</div><div class="bar"><i style="width:'+(ri&&ri.pct!=null?pcs(ri.pct):0)+'%"></i></div></div>'
++'<div class="det"><div class="acts"><button class="more" data-open="Player" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:r.id)+'">Player stats</button><a class="more" href="https://www.roblox.com/users/'+r.id+'/profile" target="_blank" rel="noopener">Roblox profile</a></div>'
++(r.z?'<p class="dl">No points'+(kind==='Clan'?' in this clan war':'')+' yet.</p>'+(u&&u[1]!==u[0]?'<p class="st">Display name: '+esc(u[1])+'.</p>':'')
+:'<p class="dl">'+(sh==null?'':'<span class="nw"><b>'+sh+'%</b> of '+war+' points</span> · ')+'<span class="nw">'+gp+'</span></p>'
++'<p class="st">'+(u&&u[1]!==u[0]?'Display name: '+esc(u[1])+'. ':'')+(ri.pct!=null?'Better than '+w+pcs(ri.pct)+'% of '+war+' war players. ':'')+(ri.rank?'Based on: '+basis(ri)+'.':'')+(r.t?' Last earned points '+ago(now-r.t)+'.':'')+'</p>')+'</div></div>'}).join('')||'<p class="st">No contributors yet.</p>';
 const own=d.oid?nm({id:d.oid,n:d.owner||d.oid}):d.owner||'',lost=kind==='Clan'&&d.pts!=null&&d.pts-d.sum>d.pts*0.005;
 const lk=ok?d.rank+(B?1:0):0,rv='<div class="lad'+(lk>999?' k4':lk>99?' k3':'')+'"><h3>Close rivals</h3>'+lad+'</div>';
 // No points yet, or the history started over under an hour ago: one line says so instead of empty gains and chart.
 // While the war is over or paused there are no gains or chart to show (the pill says why).
 const dg=!(PZ&&PZ.state==='ended')&&(!(d.pts||d.sum)||fresh)?'<p class="emp">'+(d.pts||d.sum?'A new '+(kind==='League'?'season':'clan war')+' just started. Gains show up within the hour.':esc(d.name)+' has no points yet '+(kind==='League'?'this season':'in this war')+'. Numbers show up as soon as it earns some.')+'</p>'
 :PZ&&!G.some(x=>x&&x[0])?'':'<div class="dg"><div><h3>Points gained</h3>'+(late?'<p class="st sb" style="margin:0 0 4px">'+late+'</p>':'')+gains+'</div><div><h3>Points per hour</h3><div id="chw">'+chartHtml(a,d)+'</div></div></div>';
-const ms='<h3>'+(kind==='Clan'?'Members ('+d.rows.length+')':'Contributors'+(d.nAll?' ('+d.nAll+')':''))+'</h3><p class="st" style="margin:0 0 4px">'+(kind==='Clan'&&d.rows.length>d.nAll?d.nAll+'\u00a0have points in this war, '+(d.rows.length-d.nAll)+'\u00a0not\u00a0yet.<br>':'')+(d.rows.length?'Tap a player for details.':'')+'</p>'
+// The intro says who has no points yet (a tap shows them) and what the bars compare with.
+const ms='<h3>'+(kind==='Clan'?'Members ('+d.rows.length+')':'Contributors'+(d.nAll?' ('+d.nAll+')':''))+'</h3><p class="st" style="margin:0 0 4px">'+(kind==='Clan'&&d.rows.length>d.nAll?d.nAll+'\u00a0have points this war, <button class="nyl" data-ny="'+esc(d.key)+'">'+(d.rows.length-d.nAll)+'\u00a0not\u00a0yet</button>.<br>':'')+(d.rows.length?'Tap a player for details. Bars compare with all players in this war.'+(tl?' ~ means about.':''):'')+'</p>'
 +'<div class="mems">'+mem+'</div>'+(d.rows.length>LIMIT&&!all?'<button class="more" data-all="'+esc(d.key)+'">Show all '+d.rows.length+' '+(kind==='Clan'?'members':'contributors')+'</button>':'');
 return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2>'+(own?'<p class="meta">Owner '+esc(own)+'</p>':'')+'</div></div>'
 +pill(kind,d.cut)
@@ -739,7 +747,9 @@ return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+
 +(d.i<0?'<p class="st">'+(unk?'The leaderboard could not fully load, so placement and rivals are unavailable right now.':'Not in the top 2,000, so placement and rivals are unavailable.')+'</p>':'')+(d.extra?'<p class="st">'+esc(d.extra)+'</p>':'')
 +(PZ&&PZ.state==='ended'?'<p class="st">Points and placements are final until the next war starts.</p>':'')
 +'<p class="st">Updated '+new Date().toLocaleTimeString([],{hour:'numeric',minute:'2-digit'})+'.</p></details></section>'}
-let PSEQ=0,NOTESOPEN=false,DEAD='';
+let PSEQ=0,NOTESOPEN=false,DEAD='',PENDY=null,NAV=0;const CACHE=new Map(),DTITLE=document.title;
+// Back to a page that was not kept in memory: its scroll position comes back once it is drawn.
+const atY=()=>{if(PENDY!=null){scrollTo(0,PENDY);PENDY=null}};
 document.addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList.contains('notes'))NOTESOPEN=e.target.open},true);
 // Player lookup. The hourly scan saves which top-2,000 league and clan every player is in
 // (data-ranks/players/<kind>/<user ID % 256>.json); the player's points then come live from those teams.
@@ -838,14 +848,15 @@ const list=[].concat(...ch).filter(e=>String(e[0])!==String(id));if(!list.length
 let ah=null,be=null;list.forEach(e=>{if(e[1]>q)ah={id:e[0],r:ri.rank-1};else if(!be)be={id:e[0],r:ri.rank+1}});
 const top=cs[0]===0,end=cs[cs.length-1]===last;
 return{a:ah&&(be||end)?ah:null,b:be&&(ah||top)?be:null,live:0}}
-function prank(s,nb){const ri=s.ri;if(!s.has||!s.p)return '<div class="pr"><div class="prm"><small>GLOBAL PLACEMENT</small><b>-</b><small>No points yet</small></div></div>';
-if(!ri||!ri.rank)return '<div class="pr"><div class="prm"><small>GLOBAL PLACEMENT</small><b>...</b><small>Working it out</small></div></div>';
-const tl=ri.est||ri.nEst||ri.rEst?'~':'',ap=ri.pct!=null?Math.max(0,Math.min(100,ri.pct)):null,ah=ap==null?null:ri.N?Math.max(0,Math.min(100,(ri.rank-1)/ri.N*100)):100-ap;
+// Global placement as the big box: the same "Better than" number as the player's chip in their team's list, and a bar of that width.
+// The players just behind and ahead sit under it, in the same order as the bar.
+function prank(s,nb){const ri=s.ri,box=(b,t,g)=>'<div class="hero'+(g?' gold':'')+'"><small>'+(g?CROWN:'')+'Global placement</small>'+b+t+'</div>';
+if(!s.has||!s.p)return box('<b class="na">-</b>','<span class="pill">No points yet</span>');
+if(!ri||!ri.rank)return box('<b class="na dots">•••</b>','<span class="pill">Working it out…</span>');
+const tl=ri.est||ri.nEst||ri.rEst?'~':'',ap=ri.pct!=null?pcs(ri.pct):null,N=ri.N?(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString()+' players':'';
 const side=(x,lab)=>'<div class="prn">'+(x?'<small>'+lab+' <span class="nw">'+(nb.live&&!ri.rEst?'':'~')+'#'+x.r.toLocaleString()+'</span></small>'+pav(x.id)+'<span>'+esc(U[x.id]?(U[x.id][1]!==U[x.id][0]?U[x.id][1]+' ('+U[x.id][0]+')':U[x.id][0]):'User '+x.id)+'</span>':'<small>'+lab+'</small><span class="st">'+(nb===undefined?'Loading':'-')+'</span>')+'</div>';
-return '<div class="pr"><div class="prt">'+side(nb&&nb.b,'Behind')+'<div class="prm"><small>GLOBAL PLACEMENT</small><b>'+tl+'#'+ri.rank.toLocaleString()+'</b><small>of '+(ri.N?(ri.est||ri.nEst?'~':'')+ri.N.toLocaleString():'?')+' players</small></div>'+side(nb&&nb.a,'Ahead')+'</div>'
-+(ap!=null?'<div class="prb"><i style="width:'+ap.toFixed(2)+'%"></i><em style="left:'+ap.toFixed(2)+'%"></em></div><div class="prp"><div><b>'+tl+ap.toFixed(2)+'%</b><small>players behind</small></div><div><b>'+tl+ah.toFixed(2)+'%</b><small>players ahead</small></div></div>':'')
-+(nb===null?'<small class="prx">The players just ahead and behind show after the next full scan.</small>':'')
-+(tl||nb&&!nb.live&&(nb.a||nb.b)?'<small class="prx">~ means an estimate.</small>':'')+'</div>'}
+return box('<b>'+tl+'#'+ri.rank.toLocaleString()+'</b>',ap!=null?'<span class="pill">Better than '+tl+ap+'%'+(N?' of '+N:'')+'</span><div class="prb"><i style="width:'+ap+'%"></i><em style="left:'+ap+'%"></em></div>':N?'<span class="pill">out of '+N+'</span>':'',ri.rank===1&&!tl)
++(nb===null?'<p class="st">The players just ahead and behind show after the next full scan.</p>':'<div class="pr"><div class="prt">'+side(nb&&nb.b,'Behind')+side(nb&&nb.a,'Ahead')+'</div></div>')}
 function pchart(H,box){const va=H.filter(h=>h[1]!=null).map(h=>h[1]),v=H.filter(h=>h[1]!=null&&!h[2]).map(h=>h[1]),av=v.length?v:va;
 if(va.length<2)return '<p class="st">No hourly points yet. The chart fills in the same way as the boxes above.</p>';
 if(!va.some(x=>x>=1))return '<p class="st">No points earned in the last '+H.length+' hour'+(H.length>1?'s':'')+'.</p>';
@@ -863,48 +874,55 @@ g+='<line x1="'+l+'" x2="'+(W-r)+'" y1="'+Y(avg).toFixed(1)+'" y2="'+Y(avg).toFi
 let li=n-1;while(li>0&&(H[li][1]==null||(v.length&&H[li][2])))li--;const lx=X(li),ly=Y(H[li][1]),lt=fmt(H[li][1]),bw=lt.length*8+16,bx=Math.min(W-r-bw,Math.max(l,lx-bw/2)),
 near=H.map((h,i)=>h[1]==null?null:[X(i),Y(h[1])]).filter(q=>q&&q[0]>=bx-8&&q[0]<=bx+bw+8).concat([[0,Y(avg)]]),top=Math.min(ly,...near.map(q=>q[1])),bot=Math.max(ly,...near.map(q=>q[1])),by=top-26>=2?top-26:Math.min(bot+8,t+ph-20);
 g+='<circle cx="'+lx.toFixed(1)+'" cy="'+ly.toFixed(1)+'" r="5" fill="#ffd23f" stroke="#000" stroke-width="2"/><rect x="'+bx.toFixed(1)+'" y="'+by.toFixed(1)+'" width="'+bw+'" height="20" rx="6" fill="#000" stroke="#2e2e2e"/><text class="pbv" x="'+(bx+bw/2).toFixed(1)+'" y="'+(by+14).toFixed(1)+'" text-anchor="middle">'+lt+'</text>';
-g+='<text x="'+l+'" y="'+(Hh-6)+'">'+n+'\u00a0h ago</text><text x="'+(W-r)+'" y="'+(Hh-6)+'" text-anchor="end" class="pbv">now</text>';
+// The time axis counts back from now: 3 labels on a phone-sized chart, 5 on a wider one.
+const M=n<4?1:W<400?2:4;for(let j=0;j<M;j++){const hr=Math.round(n*(1-j/M));g+='<text x="'+(j?X((n-hr)*(n-1)/n).toFixed(1):l)+'" y="'+(Hh-6)+'"'+(j?' text-anchor="middle"':'')+'>'+hr+'\u00a0h'+(j&&M>2?'':' ago')+'</text>'}g+='<text x="'+(W-r)+'" y="'+(Hh-6)+'" text-anchor="end" class="pbv">now</text>';
 return '<svg class="pchs" viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="Points earned per hour, last '+n+' hours">'+g+'</svg>'+(est.length?'<p class="st pgap">Dashed: no full scan ran then, so those hours show the average for that stretch.</p>':'')}
-function renderPlayer(V){const id=V.id,u=U[id],img=IM[id],kinds=['Clan','League'].filter(k=>V[k].t);
-let k=PKIND[id];if(!kinds.includes(k))k=kinds.includes('Clan')&&(!V.Clan.s||V.Clan.s.has||!kinds.includes('League'))?'Clan':kinds.includes('League')?'League':kinds[0];
-const P=k?V[k]:null,s=P&&P.s,war=k==='League'?'league':'clan',title=k==='Clan'?(BREC?BREC.title:'Clan war'):'League';
-let h='<section class="pc"><div class="pch"><span class="av big">'+'<b>'+esc(((u?u[0]:'?')[0]||'?').toUpperCase())+'</b>'+(img?'<img src="'+esc(img)+'" alt="">':'')+'</span><div class="pcn"><h2>'+esc(u?u[0]:'User '+id)+'</h2>'
-+(u&&u[1]!==u[0]?'<p class="meta">'+esc(u[1])+'</p>':'')+'<p class="meta">'+(P&&P.d?'<span class="tag">['+esc(P.d.name)+']</span>':'')+esc(k?title:V.unk?'Teams could not load':'Not in a top 2,000 team')+'</p></div><button class="share" data-share>Share</button></div>';
+// The kind the player card shows: the one picked, else the clan war while they have points there, else the league.
+const pkOf=V=>{const kinds=['Clan','League'].filter(k=>V[k].t);let k=PKIND[V.id];if(!kinds.includes(k))k=kinds.includes('Clan')&&(!V.Clan.s||V.Clan.s.has||!kinds.includes('League'))?'Clan':kinds.includes('League')?'League':kinds[0];return k};
+const PHELP='<li><b>Global placement</b> is the spot among all players in this war. #1 is the best.</li><li><b>Better than 98%</b> means more points than 98 in 100 players in this war. ~ means about: an estimate until the next scan.</li><li><b>Latest hour</b> and <b>Last 24 hours</b> are the points this player earned in that time.</li>';
+function renderPlayer(V){const id=V.id,u=U[id],img=IM[id],kinds=['Clan','League'].filter(k=>V[k].t),k=pkOf(V);
+const P=k?V[k]:null,s=P&&P.s,war=k==='League'?'league':'clan',sh='<button class="more" data-share>Share</button>';
+// One line under the name: the in-game name and the team tag, which opens the team.
+const tag=P&&P.d?'<button class="tag" id="ptag" data-open="'+k+'" data-n="'+esc(P.d.name)+'" aria-label="Open '+esc(P.d.name)+'">['+esc(P.d.name)+']<span aria-hidden="true"> ›</span></button>':'',
+meta=[u&&u[1]!==u[0]?esc(u[1]):'',tag||(k?'':esc(V.unk?'Teams could not load':'Not in a top 2,000 team'))].filter(Boolean).join(' · '),
+open=P&&P.d?'<div class="acts pba"><button class="more" id="popen" data-open="'+k+'" data-n="'+esc(P.d.name)+'">Open '+esc(P.d.name)+'</button>'+sh+'</div>':'<button class="share" data-share>Share</button>';
+let h='<section class="pc"><div class="pch"><span class="av big">'+'<b>'+esc(((u?u[0]:'?')[0]||'?').toUpperCase())+'</b>'+(img?'<img src="'+esc(img)+'" alt="">':'')+'</span><div class="pcn"><h2>'+esc(u?u[0]:'User '+id)+'</h2>'+(meta?'<p class="meta">'+meta+'</p>':'')+'</div></div>';
 const miss=['League','Clan'].filter(x=>V[x].unk&&!V[x].t);if(k&&miss.length)h+='<p class="st">Could not check their '+miss.map(x=>x==='Clan'?'clan':'league').join(' or ')+' right now. Trying again every minute.</p>';
 if(kinds.length>1)h+='<div class="seg pct">'+kinds.map(x=>'<button data-pk="'+x+'" aria-pressed="'+(x===k)+'">'+(x==='Clan'?'Clan war':'League')+'</button>').join('')+'</div>';
 if(k)h+=pill(k);
-if(!k)h+='<p class="st">'+(V.unk?'Could not check this player\'s league and clan right now. Trying again every minute.':'Not in a top 2,000 league or clan'+(V.pm?'':' as far as the official top lists show (the full scan has not run yet)')+'.')+'</p>';
-else if(!P.d)h+='<p class="st">In '+esc(P.t.name)+', but its data could not load right now.</p>';
-else if(!s.has&&!s.member)h+='<p class="st">Was in '+esc(P.d.name)+' at the last scan, but is not a member any more and has no points left there.</p>';
-else{const avg=s.day==null||s.span<3000?null:s.day/(s.span/3600),so=s.span<86000&&s.day!=null?' <small>('+durf(s.span)+')</small>':'';
-h+='<div class="pgx"><div><div class="pcg pt"><div class="pk c1"><i class="ic icp" aria-hidden="true">'+PTI+'</i><small>'+(k==='Clan'?'War points':'League points')+'</small><b>'+(s.has?fmt(s.p):'0')+'</b></div>'
-+'<div class="pk c5">'+ico('cup')+'<small>'+(k==='Clan'?'Clan':'League')+' placement · '+esc(P.d.name)+'</small><b>'+(s.rank?s.rank+'/'+s.size:'-')+'</b>'+(s.share!=null?'<small>'+pc(s.share,100)+'% of its points</small>':'')+'</div>'
-+prank(s,P.nb)+'</div>'
-+'<div class="pcg four"><div class="pk c1">'+'<i class="ic icp" aria-hidden="true">'+PTI+'</i><small>Points · 24h</small><b>'+(s.day==null?'-':fmt(s.day)+so)+'</b></div>'
-+'<div class="pk c2">'+ico('bars')+'<small>Avg / hour</small><b>'+(avg==null?'-':fmt(avg))+'</b></div>'
-+'<div class="pk c3">'+ico('cup')+'<small>Best hour</small><b>'+(s.best==null?'-':fmt(s.best))+'</b></div>'
-+'<div class="pk c4">'+ico('bolt')+'<small>Latest hour</small><b>'+(s.latest==null?'-':fmt(s.latest))+'</b></div></div>'
-+(s.day==null||avg==null||s.best==null||s.latest==null?'<p class="st pnote">Boxes showing "-" fill in as points come in: at every full scan (every 15 minutes), and every minute while this page is open.</p>':'')+'</div>'
-+'<div><div class="pcc"><div class="pcch"><div><b>Hourly performance</b><small>Points earned per hour · last '+(s.H.length===1?'hour':(s.H.length||24)+' hours')+'</small></div><div class="pleg"><span><i class="d"></i>Hourly points</span><span><i class="ds"></i>Average</span></div></div>'+pchart(s.H,avg)+'</div></div></div>'
-+(s.has?'':'<p class="st">A member, but no points'+(k==='Clan'?' in this clan war':'')+' yet.</p>')+(s.member?'':'<p class="st">Not a member any more; these are the points left in this '+war+'.</p>')
-+'<p class="st">'+(s.ri&&s.ri.rank?'Global placement based on: '+basis(s.ri)+'. ':'')+'Points over time come from full scans (every 15 minutes) and this device while the page is open.'+(s.last?' Last earned '+war+' points '+ago(Date.now()/1000-s.last)+'.':'')+'</p>'}
-if(k&&P.d)h+='<button class="more" data-open="'+k+'" data-n="'+esc(P.d.name)+'">Open '+esc(P.d.name)+'</button>';
-h+='<p class="st">'+(V.pm&&V.pm.updated?'Teams come from the full scan of the top 2,000 leagues and clans, '+ago(Date.now()/1000-V.pm.updated)+'. Points are live.':'Teams come from the official top player lists until the full scan has run. Points are live.')+'</p></section>';
+if(!k)h+='<p class="st">'+(V.unk?'Could not check this player\'s league and clan right now. Trying again every minute.':'Not in a top 2,000 league or clan'+(V.pm?'':' as far as the official top lists show (the full scan has not run yet)')+'.')+'</p>'+open;
+else if(!P.d)h+='<p class="st">In '+esc(P.t.name)+', but its data could not load right now.</p>'+open;
+else if(!s.has&&!s.member)h+='<p class="st">Was in '+esc(P.d.name)+' at the last scan, but is not a member any more and has no points left there.</p>'+open;
+else{const avg=s.day==null||s.span<3000?null:s.day/(s.span/3600),emp=!(s.latest||s.day||s.best||s.H.some(h=>h[1]>0)),kn=s.day!=null||s.H.some(h=>h[1]!=null),cl=v=>v==null?' class="na">–':'>'+fmt(v);
+// With no points in the last 24 hours, one line says so instead of empty boxes and an empty chart. When no snapshot
+// covers those hours yet, it says they are not known instead of claiming no points.
+h+=(s.member?'':'<p class="st">Not a member any more; these are the points left in this '+war+'.</p>')
++'<div class="pgx"><div>'+prank(s,P.nb)
++'<div class="pcg pt"><div class="pk c1"><i class="ic icp" aria-hidden="true">'+PTI+'</i><small>'+(k==='Clan'?'War points':'League points')+'</small><b>'+(s.has?fmt(s.p):'0')+'</b>'+(s.share!=null?'<small>'+pc(s.share,100)+'% of '+esc(P.d.name)+'\'s points</small>':'')+'</div>'
++'<div class="pk c5">'+ico('cup')+'<small>Place in '+esc(P.d.name)+'</small><b'+(s.rank?'>#'+s.rank.toLocaleString():' class="na">-')+'</b><small>of '+s.size.toLocaleString()+' '+(k==='Clan'?'members':'players')+'</small></div></div>'
++(emp?'<p class="emp">'+(kn?'No points in the last '+(s.span<86000?durf(s.span):'24 hours')+'.':'Hourly points are not known yet.')+(pzInfo(k)?'':' These fill in at the next scan.')+'</p>':'<div class="quiet"><div><small>Latest hour</small><b'+cl(s.latest)+'</b></div><div><small>'+(s.day!=null&&s.span<86000?'Last '+durf(s.span):'Last 24 hours')+'</small><b'+cl(s.day)+'</b></div></div>')
++open+'</div>'
++(emp?'':'<div><div class="pcc"><div class="pcch"><b>Points per hour, last '+(s.H.length===1?'hour':(s.H.length||24)+' hours')+'</b><div class="pleg"><span><i class="d"></i>Hourly points</span><span><i class="ds"></i>Average</span></div></div>'
++(avg!=null||s.best!=null?'<div class="sum"><div class="cell"><small>Average</small><b'+cl(avg)+'</b></div><div class="cell"><small>Best</small><b'+cl(s.best)+'</b></div></div>':'')+pchart(s.H,avg)+'</div></div>')+'</div>'}
+// What the numbers mean and where they come from, folded at the end of the card.
+h+='<details class="notes"'+(NOTESOPEN?' open':'')+'><summary>What do these numbers mean?</summary><ul>'+PHELP+'</ul>'
++(s?'<p class="st">'+(s.ri&&s.ri.rank?'Global placement based on: '+basis(s.ri)+'. ':'')+'Points over time come from full scans (every 15 minutes) and this device while the page is open.'+(s.last?' Last earned '+war+' points '+ago(Date.now()/1000-s.last)+'.':'')+'</p>':'')
++'<p class="st">'+(V.pm&&V.pm.updated?'Teams come from the full scan of the top 2,000 leagues and clans, '+ago(Date.now()/1000-V.pm.updated)+'. Points are live.':'Teams come from the official top player lists until the full scan has run. Points are live.')+'</p></details></section>';
 return h}
 // Long names shrink until they fit on one line (down to 16px; past that they wrap).
 function fitName(){const e=document.querySelector('.pch h2');if(!e)return;e.style.fontSize='';e.style.whiteSpace='nowrap';
 let f=parseFloat(getComputedStyle(e).fontSize);while(f>16&&e.scrollWidth>e.clientWidth)e.style.fontSize=--f+'px';e.style.whiteSpace=''}
 // Refreshes rebuild the stats and the top 10; keyboard focus goes back to the same control.
 function keepFocus(box,write){const a=document.activeElement;let q=null;
-if(a&&a!==document.body&&box.contains(a)){const d=a.dataset;q=a.id?'#'+CSS.escape(a.id):d.id?'[data-id="'+CSS.escape(d.id)+'"]':d.r?'[data-r="'+d.r+'"]':d.m?'[data-m="'+d.m+'"]':d.pk?'[data-pk="'+d.pk+'"]':d.n!=null?'[data-n="'+CSS.escape(d.n)+'"]':d.all?'[data-all]':a.hasAttribute('data-share')?'[data-share]':a.matches('.notes>summary')?'.notes>summary':a.matches('a[href]')?'a[href="'+CSS.escape(a.getAttribute('href'))+'"]':null}
+if(a&&a!==document.body&&box.contains(a)){const d=a.dataset;q=a.id?'#'+CSS.escape(a.id):d.id?'[data-id="'+CSS.escape(d.id)+'"]':d.r?'[data-r="'+d.r+'"]':d.m?'[data-m="'+d.m+'"]':d.pk?'[data-pk="'+d.pk+'"]':d.n!=null?'[data-n="'+CSS.escape(d.n)+'"]':d.all?'[data-all]':d.ny?'[data-ny]':a.hasAttribute('data-share')?'[data-share]':a.matches('.notes>summary')?'.notes>summary':a.matches('a[href]')?'a[href="'+CSS.escape(a.getAttribute('href'))+'"]':null}
 write();if(q){const e=box.querySelector(q);if(e){fitName();fitNums();e.focus({preventScroll:true})}}}
-function drawPlayer(V){keepFocus($('dash'),()=>{$('dash').innerHTML=renderPlayer(V)});fitName()}
-function fitNums(){const bs=[...document.querySelectorAll('#dash .cell b,#dash .pk b,#dash .prp b,#dash .hero>b,#dash .quiet b')].filter(b=>!b.closest('.lg')),word=b=>!/\d/.test(b.textContent);
+function drawPlayer(V){keepFocus($('dash'),()=>{$('dash').innerHTML=renderPlayer(V)});fitName();atY()}
+function fitNums(){const bs=[...document.querySelectorAll('#dash .cell b,#dash .pk b,#dash .hero>b,#dash .quiet b')].filter(b=>!b.closest('.lg')),word=b=>!/\d/.test(b.textContent);
 bs.forEach(b=>{b.classList.toggle('wd',word(b)&&/[a-z]/i.test(b.textContent));b.style.fontSize='';b.style.overflowWrap='normal';b.style.whiteSpace=word(b)?'normal':''});
 bs.forEach(b=>{const w=b.clientWidth;if(!w||b.scrollWidth<=w+1)return;let s=Math.max(14,Math.floor(parseFloat(getComputedStyle(b).fontSize)*w/b.scrollWidth));b.style.fontSize=s+'px';
 while(s>14&&b.scrollWidth>w+1)b.style.fontSize=--s+'px';if(b.scrollWidth>w+1)b.style.overflowWrap=''});
 // When a number in a group of boxes had to shrink, the others in that group shrink to the same size.
-const groups=new Map();bs.forEach(b=>{let g=b.parentElement.parentElement;if(!b.clientWidth||word(b)||!g.matches('.sum,.keys,.gns,.pcg,.prp,.dcs,.quiet'))return;if(g.matches('.pcg'))g=g.closest('.pc')||g;(groups.get(g)||groups.set(g,[]).get(g)).push(b)});
+const groups=new Map();bs.forEach(b=>{let g=b.parentElement.parentElement;if(!b.clientWidth||word(b)||!g.matches('.sum,.keys,.gns,.pcg,.quiet'))return;if(g.matches('.pcg'))g=g.closest('.pc')||g;(groups.get(g)||groups.set(g,[]).get(g)).push(b)});
 groups.forEach(a=>{if(a.length<2||!a.some(b=>b.style.fontSize))return;const z=Math.min(...a.map(b=>parseFloat(getComputedStyle(b).fontSize)));a.forEach(b=>{if(parseFloat(getComputedStyle(b).fontSize)>z)b.style.fontSize=z+'px'})})}
 // On PC the top 10 has the right-hand column to itself (the search is on the left); on phones it follows the stats.
 const TOPS=document.querySelector('.tops'),RS=document.querySelector('.rside'),PCQ=matchMedia('(min-width:1200px)');
@@ -921,7 +939,7 @@ const SIDE=document.querySelector('.side'),RM=matchMedia('(prefers-reduced-motio
 const fdCut=()=>{const v=$('fdv'),n=v.parentNode;n.classList.remove('cut');n.classList.toggle('cut',v.scrollWidth>v.clientWidth+1)};
 // An open search scrolled out of view folds back into the bar, so the bar is there again; what is on screen stays put.
 const barCheck=()=>{if(!BQ)BQ=requestAnimationFrame(()=>{BQ=0;const f=$('find'),d=$('dash');
-if(f.classList.contains('open')&&document.body.classList.contains('res')&&!PCQ.matches&&f.getBoundingClientRect().bottom<0){const t=d.getBoundingClientRect().top;openFind(false);FY=null;scrollBy(0,d.getBoundingClientRect().top-t)}
+if(f.classList.contains('open')&&document.body.classList.contains('res')&&!PCQ.matches&&f.getBoundingClientRect().bottom<0){const t=d.getBoundingClientRect().top;openFind(false);reKind();FY=null;scrollBy(0,d.getBoundingClientRect().top-t)}
 const b=document.body,s=SIDE.getBoundingClientRect(),h=$('dash').querySelector('.hero'),on=b.classList.contains('res')&&!b.classList.contains('findopen')&&!PCQ.matches,was=b.classList.contains('past');
 b.classList.toggle('stuck',on&&scrollY>0&&s.top<=(parseFloat(getComputedStyle(SIDE).top)||0)+.5);if(b.classList.toggle('past',on&&!!h&&h.getBoundingClientRect().bottom<s.bottom)!==was)fdCut()})};
 addEventListener('scroll',barCheck,{passive:true});addEventListener('resize',barCheck);
@@ -932,7 +950,7 @@ let ABF=null;const aboutSync=()=>{const f=document.body.classList.contains('res'
 const foldSync=()=>{const res=!!S[mode]&&!$('dash').querySelector('section.card:not(.dash)>b'),h=$('dash').querySelector('.top h2,.pch h2'),d=LAST&&LAST.d;document.body.classList.toggle('res',res);document.documentElement.classList.toggle('res',res);
 $('fdk').textContent=mode;$('fdv').textContent=h?h.textContent:S[mode]||'';$('fdp').textContent=h&&d&&mode!=='Player'&&d.kind===mode&&d.i>=0?'#'+d.rank.toLocaleString():'';fdCut();barCheck();aboutSync()};
 // Tapping the bar opens the search with the old name selected, so typing replaces it; Close goes back to the same place.
-$('fold').onclick=()=>{const q=$('q');if(FIND.classList.contains('open')){openFind(false);if(FY!=null)scrollTo(0,FY);FY=null;return}
+$('fold').onclick=()=>{const q=$('q');if(FIND.classList.contains('open')){openFind(false);reKind();if(FY!=null)scrollTo(0,FY);FY=null;return}
 FY=scrollY;if(document.body.classList.contains('stuck'))scrollTo(0,0);openFind(true);q.focus({preventScroll:true});q.setSelectionRange(0,q.value.length)};
 // Phones put the gains and chart after the members, PC before them: the stats are drawn again when the layout switches.
 const relay=()=>{aboutSync();if(LAST&&$('dash').querySelector('.dash'))keepFocus($('dash'),()=>{$('dash').innerHTML=render(LAST.d,LAST.a)})};
@@ -947,7 +965,7 @@ document.addEventListener('click',e=>{const b=e.target.closest('[data-pk]');if(!
 async function paintPlayer(show){const q=S.Player,seq=++PSEQ,box=$('dash'),ok=()=>seq===PSEQ&&mode==='Player';if(!q){box.innerHTML='';return}
 if(show)box.innerHTML='<section class="card"><p class="st" style="margin:0">Looking up '+esc(q)+'...</p></section>';
 try{const id=await findUser(q);if(!ok())return;
-if(!id){DEAD='Player:'+q.toLowerCase();box.innerHTML='<section class="card"><b>No Roblox user called '+esc(q.replace(/^@/,''))+'.</b><p class="st">Check the spelling of their username (not their display name), or type their user ID.</p></section>';return}
+if(!id){DEAD='Player:'+q.toLowerCase();PENDY=null;document.title=DTITLE;box.innerHTML='<section class="card nf"><b>No Roblox user called “'+esc(q.replace(/^@/,''))+'”.</b><p>Check the spelling of their username (not their display name), or type their user ID.</p><button class="go" data-again>Search again</button></section>';return}
 // Each team's live data is requested the moment its name is known; a slow profile picture never holds up the numbers.
 const pp=Promise.all([pics([id]),names([id])]),tl=teamOfC('League',id),tc=teamOfC('Clan',id),real=t=>t&&!t.unk?t:null;
 const [lt,ct,pm,,ld,cd]=await Promise.all([tl,tc,pmeta(),hmeta(),tl.then(t=>real(t)?dataL(t.name).catch(()=>null):null),tc.then(t=>real(t)?dataC(t.name).catch(()=>null):null),gplay('League'),gplay('Clan'),Promise.race([pp,sleep(2500)])]);if(!ok())return;
@@ -967,7 +985,7 @@ const ks=['League','Clan'].filter(k=>V[k].s&&V[k].s.ri),nbs=await Promise.all(ks
 const ids=[].concat(...nbs.filter(Boolean).map(x=>[x.a&&x.a.id,x.b&&x.b.id])).filter(Boolean);
 await Promise.race([Promise.all([pp,ids.length?Promise.all([names(ids),pics(ids)]):null]),sleep(4000)]);
 if(ok()&&PV===V)drawPlayer(V)}
-catch(e){if(ok()&&(show||!box.querySelector('.pc')))box.innerHTML='<section class="card"><b>'+(e==='roblox'?'Could not reach Roblox to look up that username.':'Could not load this player.')+'</b><p class="st">Try again in a moment, or type their user ID.</p></section>'}}
+catch(e){PENDY=null;if(ok()&&(show||!box.querySelector('.pc'))){document.title=DTITLE;box.innerHTML='<section class="card"><b>'+(e==='roblox'?'Could not reach Roblox to look up that username.':'Could not load this player.')+'</b><p class="st">Try again in a moment, or type their user ID.</p></section>'}}}
 async function paint(show){if(mode==='Player')return paintPlayer(show);
 const name=S[mode],k=mode,seq=++PSEQ;if(!name){$('dash').innerHTML='';return}
 if(show)$('dash').innerHTML='<section class="card"><p class="st" style="margin:0">Loading '+esc(name)+'...</p></section>';
@@ -975,25 +993,30 @@ try{const hp=shist(k,name.toLowerCase()),d=await near(await(k==='League'?dataL(n
 const extra=Promise.all([names(d.oid?ids.concat(d.oid):ids),pics(ids),gplay(k),ln===name.toLowerCase()?hp:shist(k,ln)]);
 // Draw as soon as the numbers are in; names, pictures and player ranks fill in on a second draw.
 const draw=fin=>{if(seq!==PSEQ||k!==mode||name.toLowerCase()!==String(S[mode]||'').toLowerCase())return;d.hs=HS[k+':'+ln];d.loc=sinceReset(loc,k);const m=merge(loc,d.hs&&d.hs.ok?d.hs.h:[]),a=sinceReset(m,k);d.cut=a.length<m.length?a[0][0]:0;
-keepFocus($('dash'),()=>{$('dash').innerHTML=render(d,a)+(fin&&ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'')});if(!fin)shown(k,d.name)};
+keepFocus($('dash'),()=>{$('dash').innerHTML=render(d,a)+(fin&&ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'')});atY();if(!fin)shown(k,d.name)};
 await Promise.race([hp,new Promise(z=>setTimeout(z,1200))]);draw(false);
 Promise.race([extra,new Promise(z=>setTimeout(z,5000))]).then(()=>draw(true))}
-catch(e){if(GONE(e))DEAD=k+':'+name.toLowerCase();if(k===mode&&seq===PSEQ&&(show||GONE(e)||!$('dash').querySelector('.dash')))$('dash').innerHTML='<section class="card"><b>Could not find '+esc(name)+'.</b><p class="st">'+(GONE(e)?'Check the spelling. Only the exact name works.':'Live data may be unavailable right now. Try again in a moment.')+'</p></section>'}}
+catch(e){if(GONE(e))DEAD=k+':'+name.toLowerCase();if(k===mode&&seq===PSEQ&&(show||GONE(e)||!$('dash').querySelector('.dash'))){PENDY=null;document.title=DTITLE;$('dash').innerHTML=GONE(e)?nfCard(k,name):'<section class="card"><b>Could not find '+esc(name)+'.</b><p class="st">Live data may be unavailable right now. Try again in a moment.</p></section>'}}}
 // In Player mode the list shows the official top league players (the API's top 500 sample).
 const TRIED=new Set();
 function boardPlayers(){const g=GPX.League,k=Math.min(BN,g.list.length);rkw(k);$('th').textContent='Top '+(k||10)+' league players';$('war').hidden=true;
 keepFocus($('top'),()=>$('top').innerHTML=g.list.length?g.list.slice(0,k).map((x,i)=>{const u=U[x.id];return '<button class="rk'+(i<3?' m'+(i+1):'')+'" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:x.id)+'">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn"><span class="lg"><b>'+esc((u?u[0][0]:'?').toUpperCase())+'</b>'+(IM[x.id]?'<img src="'+esc(IM[x.id])+'" alt="" loading="lazy">':'')+'</span><span>'+esc(u?'@'+u[0]:'User '+x.id)+'</span></span><span class="rkv"><i>'+pt(fmt(x.p))+'</i>'+(x.team?'<small>in '+esc(x.team)+'</small>':'')+'</span></span></button>'}).join('')+(k<g.list.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>');
-if(!g.at){if(Date.now()-(g.tr||0)>30000){g.tr=Date.now();gplay('League').then(()=>{if(mode==='Player'&&GPX.League.at)board()})}return}
+if(!g.at){if(Date.now()-(g.tr||0)>30000){g.tr=Date.now();gplay('League').then(()=>{if(BK()==='Player'&&GPX.League.at)board()})}return}
 const ids=g.list.slice(0,k).map(x=>x.id).filter(i=>!TRIED.has(i)&&(!U[i]||!IM[i]));ids.forEach(i=>TRIED.add(i));
-if(ids.length)Promise.all([names(ids),pics(ids)]).then(()=>{if(mode==='Player')boardPlayers()})}
-function exPH(){const a=mode==='League'?L:mode==='Clan'?C:null;$('q').placeholder='Example: '+(a?a.length?a[0][0]:mode==='League'?'UN00':'UN0':'JOHNMAN1990')}
-const pzLoad=()=>{if(mode!=='Player')Promise.all([mode==='League'?gplay('League'):null,hmeta()]).then(()=>{if(mode!=='Player')board()})};
+if(ids.length)Promise.all([names(ids),pics(ids)]).then(()=>{if(BK()==='Player')boardPlayers()})}
+function exPH(){const a=SK==='League'?L:SK==='Clan'?C:null;$('q').placeholder='Example: '+(a?a.length?a[0][0]:SK==='League'?'UN00':'UN0':'JOHNMAN1990')}
+// The top 10 follows what is on screen; with nothing on screen (the home page) it follows the tab.
+const BK=()=>S[mode]?mode:SK;
+const pzLoad=()=>{if(BK()!=='Player')Promise.all([BK()==='League'?gplay('League'):null,hmeta()]).then(()=>{if(BK()!=='Player')board()})};
 const rkw=k=>$('top').style.setProperty('--rkw',k>999?'64px':k>99?'54px':'44px');
-function board(){exPH();if(mode==='Player')return boardPlayers();const a=mode==='League'?L:C,k=Math.min(BN,a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(mode==='League'?'leagues':'clans');
-w.dataset.k=mode;repill(w);w.hidden=false;
+function board(){exPH();const m=TOPK=BK();if(m==='Player')return boardPlayers();const a=m==='League'?L:C,k=Math.min(BN,a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(m==='League'?'leagues':'clans');
+w.dataset.k=m;repill(w);w.hidden=false;
 keepFocus($('top'),()=>$('top').innerHTML=a.length?a.slice(0,k).map((x,i)=>'<button class="rk'+(i<3?' m'+(i+1):'')+'" data-n="'+esc(x[0])+'">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn">'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span></span><span class="rkv"><i>'+pt(fmt(x[1]))+'</i></span></span></button>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>')}
-function setMode(m,np){mode=m;BN=10;$('sg').innerHTML='';S.mode=m;save();$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');$('tP').setAttribute('aria-pressed',m==='Player');
-$('q').value=S[m]||'';exPH();$('ql').textContent=m==='Player'?'Roblox username':m+' name';showRecent();board();$('dash').innerHTML='';setURL();pzLoad();if(S[m]&&live&&!np)paint(true)}
+// The kind on screen changes only with a lookup (go, Back, the first load). The tabs only change what the box searches.
+function setMode(m){if(m!==mode)BN=10;mode=m;kindUI(m);board();pzLoad()}
+const kindUI=m=>{SK=m;$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');$('tP').setAttribute('aria-pressed',m==='Player');$('ql').textContent=m==='Player'?'Roblox username':m+' name';exPH()};
+// A search closed without a lookup goes back to what is on screen.
+const reKind=()=>{kindUI(mode);$('q').value=S[mode]||'';sgSet('')};
 // One refresh at a time: a slow one is never doubled up by the next minute's.
 let TK=null,LASTTICK=0,LIVEAT=0,STNOTE='',VISAT=0,LFAIL=0;
 // "Updated 12 seconds ago", counting up every second; a note (a new war, an error) shows instead while it applies.
@@ -1025,11 +1048,27 @@ async function tick0(full){LASTTICK=Date.now();try{const b=battle().catch(()=>{}
 const nt=nw?(BREC.begin>Date.now()?'The next clan war ('+BREC.title+') was just announced. Clan points, placements and history start over.':'A new clan war just started ('+BREC.title+'). Clan points, placements and history start over.'):'';
 note(nt);if(nt)setTimeout(()=>{if(STNOTE===nt)note('')},60000);LIVEAT=Date.now();stTick();board();crawl();if(nw||ranksOld())loadRanks();pzLoad();if(S[mode]&&DEAD!==mode+':'+String(S[mode]).toLowerCase())await paint(false)}
 catch(e){LFAIL=1;board();if(!live){note('Live data could not load right now. Trying again every minute.');if(S[mode]&&!$('dash').querySelector('.dash,.pc'))$('dash').innerHTML='<section class="card"><b>Could not load '+esc(S[mode])+' right now.</b><p class="st">The game\'s servers did not answer. The page tries again every minute.</p></section>'}else if(!LISTT)note('Showing the leaderboards from your last visit. Live data could not load right now, trying again every minute.')}}
-async function go(){const v=$('q').value.trim();if(!v){$('q').focus();return}openFind(false);FY=null;$('sg').innerHTML='';S[mode]=v;save(mode);DEAD='';setURL();if(!live)await ready;await paint(true);$('dash').scrollIntoView({behavior:RM.matches?'auto':'smooth',block:'start'})}
-const tab=m=>{const up=PCQ.matches&&$('dash').getBoundingClientRect().top<0;setMode(m);if(up)scrollTo(0,0)};$('tL').onclick=()=>tab('League');$('tC').onclick=()=>tab('Clan');$('tP').onclick=()=>tab('Player');$('go').onclick=go;
-document.addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(!b)return;setMode(b.dataset.open,true);$('q').value=b.dataset.n;go()});
+// A lookup someone starts (Show stats, Enter, a suggestion, a top 10 row, Recent or any open button): the page on screen is kept
+// in memory for Back, and the new address gets its own history entry. Nothing is saved until the lookup works (shown()).
+// A Back or a newer lookup while it loads (NAV) cancels its scroll to the result, so the page Back restored stays put.
+async function go(k,v){k=k||SK;v=String(v==null?$('q').value:v).trim();if(!v){$('q').focus();return}
+const g=++NAV;stash();openFind(false);PENDY=null;sgSet('');if(k!==mode)setMode(k);else kindUI(k);$('q').value=v;S[k]=v;DEAD='';setURL(true);FY=null;if(!live)await ready;if(g!==NAV)return;await paint(true);if(g===NAV)$('dash').scrollIntoView({behavior:RM.matches?'auto':'smooth',block:'start'})}
+// The tabs keep the typed text (selected) and the keyboard: a tap on a tab while typing does not take the focus from the box.
+let TQF=false;const TABS=document.querySelector('.tabs');
+TABS.addEventListener('pointerdown',e=>{TQF=document.activeElement===$('q')&&!!e.target.closest('.tab');if(TQF)e.preventDefault()});TABS.addEventListener('mousedown',e=>{if(document.activeElement===$('q'))e.preventDefault()});
+const tab=m=>{const q=$('q'),f=TQF||document.activeElement===q||!!q.value;TQF=false;kindUI(m);sugg();if(f){q.focus();q.setSelectionRange(0,q.value.length)}if(!S[mode]){BN=10;board();pzLoad()}};
+$('tL').onclick=()=>tab('League');$('tC').onclick=()=>tab('Clan');$('tP').onclick=()=>tab('Player');$('go').onclick=()=>go();
+document.addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(b)go(b.dataset.open,b.dataset.n)});
+// The clear button empties the box and keeps the keyboard up.
+$('qx').addEventListener('pointerdown',e=>e.preventDefault());$('qx').onclick=()=>{const q=$('q');q.value='';sgSet('');q.focus()};
+// Phones: once the keyboard is up, the page scrolls once so the tabs sit just under the top of what is still visible,
+// which leaves room for the suggestions above the keyboard.
+const KBQ=matchMedia('(pointer:coarse)');
+$('q').addEventListener('focus',()=>{if(PCQ.matches||!KBQ.matches)return;const vv=window.visualViewport;let d=0;const f=()=>{if(d)return;d=1;if(vv)vv.removeEventListener('resize',f);if(document.activeElement!==$('q')||!TABS.offsetParent)return;const t=TABS.getBoundingClientRect().top-(vv?vv.offsetTop:0)-8;if(Math.abs(t)>1)scrollBy(0,t)};if(vv)vv.addEventListener('resize',f);setTimeout(f,300)});
+// "Search again" goes back to the search with the name selected, so typing replaces it.
+document.addEventListener('click',e=>{if(!e.target.closest('[data-again]'))return;const q=$('q');scrollTo(0,0);if(document.body.classList.contains('res'))openFind(true);q.focus({preventScroll:true});q.setSelectionRange(0,q.value.length)});
 $('q').onkeydown=e=>{if(e.key==='Enter')go()};
-$('top').onclick=e=>{if(e.target.id==='more'){const y=RS.getBoundingClientRect().top,kb=e.target.matches(':focus-visible'),n=BN;BN+=25;board();if(PCQ.matches){stick();scrollBy(0,RS.getBoundingClientRect().top-y)}const f=kb&&document.querySelectorAll('#top .rk')[n];if(f)f.focus({preventScroll:true});return}const b=e.target.closest('.rk');if(b){$('q').value=b.dataset.n;go()}};
+$('top').onclick=e=>{if(e.target.id==='more'){const y=RS.getBoundingClientRect().top,kb=e.target.matches(':focus-visible'),n=BN;BN+=25;board();if(PCQ.matches){stick();scrollBy(0,RS.getBoundingClientRect().top-y)}const f=kb&&document.querySelectorAll('#top .rk')[n];if(f)f.focus({preventScroll:true});return}const b=e.target.closest('.rk');if(b)go(TOPK,b.dataset.n)};
 document.addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;if(i.dataset.id&&!i.dataset.t){i.dataset.t=1;i.src='/ps99api/image/'+i.dataset.id}else i.style.display='none'},true);
 document.addEventListener('load',e=>{if(e.target.tagName==='IMG')e.target.parentNode.classList.add('ok')},true);
 document.addEventListener('click',e=>{const b=e.target.closest('.seg button[data-r],.seg button[data-m]');if(!b||!LAST||!$('chw'))return;if(b.dataset.r)RG=+b.dataset.r;if(b.dataset.m)CM=b.dataset.m;keepFocus($('chw'),()=>{$('chw').innerHTML=chartHtml(LAST.a,LAST.d)})});
@@ -1042,34 +1081,85 @@ cp.style.minHeight=Math.max(cp.offsetHeight,parseFloat(cp.style.minHeight)||0)+'
 document.addEventListener('pointerout',e=>{const s=e.target.closest&&e.target.closest('.ch');if(!s||e.pointerType!=='mouse'||s.contains(e.relatedTarget))return;
 CHX=null;s.querySelectorAll('#gl,[id^=gd]').forEach(x=>x.style.display='none');const c=$('cap');if(c&&c.dataset.d)c.textContent=c.dataset.d});
 document.addEventListener('pointermove',chHit);document.addEventListener('pointerdown',chHit);
-document.addEventListener('click',e=>{const m=e.target.closest('.mem');if(!m||e.target.closest('a,button,.det')||String(getSelection()))return;const id=m.dataset.id;OPEN.has(id)?OPEN.delete(id):OPEN.add(id);m.classList.toggle('open');m.setAttribute('aria-expanded',m.classList.contains('open'))});
+// Opening a member brings its buttons into view when they would open below the screen.
+document.addEventListener('click',e=>{const m=e.target.closest('.mem');if(!m||e.target.closest('a,button,.det')||String(getSelection()))return;const id=m.dataset.id;OPEN.has(id)?OPEN.delete(id):OPEN.add(id);m.classList.toggle('open');m.setAttribute('aria-expanded',m.classList.contains('open'));
+const a=m.classList.contains('open')&&m.querySelector('.acts');if(a&&a.getBoundingClientRect().bottom>innerHeight)a.scrollIntoView({block:'nearest',behavior:RM.matches?'auto':'smooth'})});
+// "4 not yet" shows the whole list and goes to the first member with no points.
+document.addEventListener('click',e=>{const b=e.target.closest('[data-ny]');if(!b)return;SHOWALL.add(b.dataset.ny);document.querySelectorAll('.mem.hid').forEach(x=>x.classList.remove('hid'));const a=document.querySelector('#dash [data-all]'),f=document.querySelector('#dash .mem.z'),kb=b.matches(':focus-visible');if(a)a.remove();
+if(f){f.scrollIntoView({block:'start',behavior:RM.matches?'auto':'smooth'});if(kb)f.focus({preventScroll:true})}});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-all]');if(!b)return;SHOWALL.add(b.dataset.all);const f=document.querySelector('.mem.hid'),kb=b.matches(':focus-visible');document.querySelectorAll('.mem.hid').forEach(x=>x.classList.remove('hid'));b.remove();if(f&&kb)f.focus({preventScroll:true})});
-// Recent searches, one tap to open again.
-const R=(()=>{try{return JSON.parse(localStorage.getItem('ps99r'))||{}}catch(e){return{}}})();
-function showRecent(){const a=R[mode]||[];$('recent').innerHTML=a.length?'<small>Recent:</small>'+a.map(n=>'<button data-recent="'+esc(n)+'">'+esc(n)+'</button>').join(''):''}
-document.addEventListener('click',e=>{const b=e.target.closest('[data-recent]');if(b){$('q').value=b.dataset.recent;go()}});
-// The address bar always holds a link to what is on screen, e.g. ?clan=LSQ, so it can be shared or bookmarked.
-function setURL(){try{history.replaceState(null,'',location.pathname+(S[mode]?'?'+mode.toLowerCase()+'='+encodeURIComponent(S[mode]):''))}catch(e){}}
-function shown(m,n){if(m!==mode||!n)return;const r=Object.assign({},R,ldS('ps99r')),a=(r[m]||[]).filter(x=>x.toLowerCase()!==n.toLowerCase());a.unshift(n);const b=a.slice(0,6);
-if(JSON.stringify(b)!==JSON.stringify(r[m]||[])){r[m]=b;store('ps99r',JSON.stringify(r))}Object.assign(R,r);if(S[m]!==n){S[m]=n;save(m)}setURL();showRecent()}
+// Recent lookups of every kind in one list, newest first; each opens in its own kind. Filled once from the old lists per kind.
+const rdR=()=>{try{const r=JSON.parse(localStorage.getItem('ps99r2'));return Array.isArray(r)?r.filter(x=>Array.isArray(x)&&['League','Clan','Player'].includes(x[0])&&x[1]):null}catch(e){return null}};
+const R=rdR()||(()=>{const o=ldS('ps99r'),ks=['League','Clan','Player'].sort((x,y)=>(y===S.mode)-(x===S.mode)),out=[];for(let i=0;i<6;i++)ks.forEach(k=>{const n=(o[k]||[])[i];if(n&&out.length<8)out.push([k,n])});if(out.length)store('ps99r2',JSON.stringify(out));return out})();
+// The page on screen is left out, as it is already open.
+let RCUR=null;function showRecent(){const c=RCUR=S[mode]?mode+':'+String(S[mode]).toLowerCase():'',r=R.filter(x=>x[0]+':'+String(x[1]).toLowerCase()!==c);
+keepFocus($('recent'),()=>{$('recent').innerHTML=r.length?'<small>Recent:</small>'+r.map(x=>'<button data-open="'+x[0]+'" data-n="'+esc(x[1])+'"><small>'+x[0]+'</small>'+esc(x[1])+'</button>').join(''):''})}
+// The address bar always holds a link to what is on screen, e.g. ?clan=LSQ, so it can be shared or bookmarked. A lookup someone
+// starts gets its own history entry, so Back returns to the page before; each entry keeps its scroll position for that
+// (while the bar's search is open, the place the reader was before opening it). The same name in other letters is the same page.
+const keepY=()=>FY!=null?FY:scrollY;
+function setURL(push){try{const u=S[mode]?'?'+mode.toLowerCase()+'='+encodeURIComponent(S[mode]):'',ls=location.search;if(u===ls)return;
+history.replaceState(Object.assign({},history.state,{y:keepY()}),'');history[push&&u.toLowerCase()!==ls.toLowerCase()?'pushState':'replaceState']({k:mode,n:S[mode]||'',y:push?0:scrollY},'',location.pathname+u)}catch(e){}}
+let SY=0;addEventListener('scroll',()=>{clearTimeout(SY);SY=setTimeout(()=>{try{history.replaceState(Object.assign({},history.state,{y:keepY()}),'')}catch(e){}},300)},{passive:true});
+// A lookup that worked: only now is it saved for the next visit and added to Recent, and the tab's title names it.
+function shown(m,n){if(m!==mode||!n)return;const r=rdR()||[],b=[[m,n]].concat(r.filter(x=>!(x[0]===m&&String(x[1]).toLowerCase()===n.toLowerCase()))).slice(0,8),ch=JSON.stringify(b)!==JSON.stringify(R);
+if(JSON.stringify(b)!==JSON.stringify(r))store('ps99r2',JSON.stringify(b));R.splice(0,R.length,...b);
+S[m]=n;S.mode=m;if(ch||RCUR!==m+':'+n.toLowerCase())showRecent();const c=ldS('ps99s');if(c.mode!==m||c[m]!==n)save(m);setURL(false);document.title=n+' · PS99 Tracker'}
+// The last few pages stay in memory, so Back shows them at once, at the same place, before they refresh.
+const stash=()=>{const b=$('dash');if(!S[mode]||!b.querySelector('.dash,.pc'))return;const k=mode+':'+String(S[mode]).toLowerCase();CACHE.delete(k);CACHE.set(k,{h:b.innerHTML,last:LAST,pv:PV});if(CACHE.size>5)CACHE.delete(CACHE.keys().next().value)};
+try{history.scrollRestoration='manual'}catch(e){}
+// Back and Forward: the entry's league, clan or player again (an entry without one is the home page). Nothing is saved or pushed.
+addEventListener('popstate',e=>{clearTimeout(SY);const y=(e.state&&e.state.y)||0,q=new URLSearchParams(location.search);let k='',v='';
+for(const m of ['League','Clan','Player']){const x=(q.get(m.toLowerCase())||'').trim().slice(0,64);if(x){k=m;v=x;break}}
+stash();PSEQ++;NAV++;openFind(false);FY=null;PENDY=null;sgSet('');DEAD='';
+if(!k){S[mode]='';$('q').value='';$('dash').innerHTML='';document.title=DTITLE;kindUI(mode);BN=10;board();pzLoad();showRecent();foldSync();scrollTo(0,y);return}
+if(k!==mode)setMode(k);else kindUI(k);S[k]=v;$('q').value=v;showRecent();const c=CACHE.get(k+':'+v.toLowerCase());
+if(!c){PENDY=y;paint(true);return}
+LAST=c.last;PV=c.pv;CHD=null;$('dash').innerHTML=c.h;const h=$('dash').querySelector('.top h2,.pch h2');document.title=(h?h.textContent:v)+' · PS99 Tracker';foldSync();fitNums();scrollTo(0,y);paint(false)});
 let TT=0;function toast(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(TT);TT=setTimeout(()=>{e.hidden=true},2200)}
-document.addEventListener('click',async e=>{if(!e.target.closest('[data-share]'))return;const url=location.href,title='PS99 Tracker: '+S[mode];
-if(navigator.share){try{await navigator.share({title,url})}catch(x){}return}
-try{await navigator.clipboard.writeText(url);toast('Link copied')}catch(x){prompt('Copy this link:',url)}});
+// Share sends one sentence with the placement, read the same way as the status pill: after the war it says "finished".
+function shareInfo(){const tt=n=>n+' · PS99 Tracker';
+if(mode==='Player'){const V=PV,u=V&&U[V.id],n=u&&!/^\d+$/.test(u[0])?u[0]:String(S.Player||'').replace(/^@/,''),w=/^\d+$/.test(n)?'User '+n:'@'+n,k=V&&pkOf(V),P=k&&V[k],s=P&&P.s;
+return{title:tt(n),text:s&&s.rank&&s.p?w+' is #'+s.rank.toLocaleString()+' of '+s.size.toLocaleString()+' in '+P.d.name+', with '+fmt(s.p)+' points.':'See '+w+'\'s live stats on PS99 Tracker.'}}
+const d=LAST&&LAST.d,ok=d&&d.kind===mode&&d.name.toLowerCase()===String(S[mode]).toLowerCase(),n=ok?d.name:S[mode],z=ok&&pzInfo(d.kind),tot=ok&&(d.kind==='League'?LT:CT);
+if(!ok||d.i<0||d.pts==null)return{title:tt(n),text:'See '+n+'\'s live stats on PS99 Tracker.'};
+return{title:tt(n),text:n+(z&&z.state==='ended'?' finished':' is')+' #'+d.rank.toLocaleString()+(tot?' of '+tot.toLocaleString()+' '+d.kind.toLowerCase()+'s':'')+(d.kind==='Clan'&&BREC&&!(z&&z.state==='upcoming')?' in '+BREC.title:'')+', with '+fmt(d.pts)+' points.'}}
+document.addEventListener('click',async e=>{if(!e.target.closest('[data-share]'))return;const url=location.href,s=shareInfo();
+if(navigator.share){try{await navigator.share({title:s.title,text:s.text,url})}catch(x){}return}
+try{await navigator.clipboard.writeText(s.text+'\n'+url);toast('Link copied. Paste it in your chat.')}catch(x){prompt('Copy this link:',url)}});
 document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.target.classList&&e.target.classList.contains('mem')){e.preventDefault();e.target.click()}});
-function sugg(){const q=$('q').value.trim().toLowerCase(),a=mode==='League'?L:C;if(!q||!a.length||mode==='Player'){$('sg').innerHTML='';return}
-const m=[];for(let i=0;i<a.length&&m.length<6;i++)if(String(a[i][0]).toLowerCase().startsWith(q))m.push(i);
-for(let i=0;i<a.length&&m.length<6;i++)if(!m.includes(i)&&String(a[i][0]).toLowerCase().includes(q))m.push(i);
-$('sg').innerHTML=m.map(i=>'<button class="sg" data-n="'+esc(a[i][0])+'">'+logo(a[i][3],a[i][0])+'<span class="sgm"><span>'+esc(a[i][0])+'</span><i>#'+(i+1)+' · '+pt(fmt(a[i][1]))+'</i></span></button>').join('')}
-$('q').oninput=sugg;$('sg').onclick=e=>{const b=e.target.closest('.sg');if(b){$('q').value=b.dataset.n;$('sg').innerHTML='';go()}};
+// Search matching ignores spaces and counts O/0 and i/l/1 as the same, since many teams spell O as zero. Lists show the real names.
+const NZ=new Map(),nz=x=>{x=String(x);let v=NZ.get(x);if(v==null){v=x.toLowerCase().replace(/\s+/g,'').replace(/o/g,'0').replace(/[il|]/g,'1');NZ.set(x,v)}return v};
+// Matches in this order: the exact name, the same name after nz, names that start with it, names that contain it; each in placement order.
+function hits(a,q,max,ex){const lq=q.toLowerCase(),z=nz(q),g=[[],[],[],[]];if(!z||max<1)return[];
+for(let i=0;i<a.length;i++){const x=String(a[i][0]),y=nz(x),t=x.toLowerCase()===lq?0:y===z?1:ex?-1:y.startsWith(z)?2:y.includes(z)?3:-1;if(t>=0&&g[t].length<max)g[t].push(i)}
+return[].concat(...g).slice(0,max)}
+const sgRow=(k,a,i)=>'<button class="sg" data-open="'+k+'" data-n="'+esc(a[i][0])+'">'+logo(a[i][3],a[i][0])+'<span class="sgm"><span>'+esc(a[i][0])+'</span><i><span class="sgk">'+k+' ·</span> #'+(i+1).toLocaleString()+' · '+pt(fmt(a[i][1]))+'</i></span></button>';
+const sgSet=h=>{$('sg').innerHTML=h;FIND.classList.toggle('sgon',!!h)};
+// Up to 4 suggestions of the kind being searched, then up to 2 of the other kind (from 2 letters; an exact name always shows).
+// Players come from the names this device has already seen in the teams it opened.
+function sugg(){const q=$('q').value.trim();if(!q)return sgSet('');
+if(SK==='Player'){const lq=q.replace(/^@/,'').toLowerCase(),z=nz(lq),g=[[],[],[],[]];if(!z)return sgSet('');
+for(const id in U){const u=U[id];if(!u||/^\d+$/.test(u[0]))continue;const a=nz(u[0]),b=nz(u[1]),t=u[0].toLowerCase()===lq||String(u[1]).toLowerCase()===lq?0:a===z||b===z?1:a.startsWith(z)||b.startsWith(z)?2:a.includes(z)||b.includes(z)?3:-1;if(t>=0)g[t].push(id)}
+return sgSet([].concat(...g.map(x=>x.sort((p,r)=>U[p][0].localeCompare(U[r][0])))).slice(0,6).map(id=>{const u=U[id];return '<button class="sg" data-open="Player" data-n="'+esc(u[0])+'">'+av({id,n:u[0]})+'<span class="sgm"><span>@'+esc(u[0])+'</span>'+(u[1]&&u[1]!==u[0]?'<small>In game: '+esc(u[1])+'</small>':'')+'</span></button>'}).join(''))}
+const o=SK==='League'?'Clan':'League',A=SK==='League'?L:C,B=SK==='League'?C:L,ob=hits(B,q,2,q.length<2);
+sgSet(hits(A,q,6-ob.length).map(i=>sgRow(SK,A,i)).concat(ob.map(i=>sgRow(o,B,i))).join(''))}
+$('q').oninput=sugg;
+const lev=(a,b)=>{let p=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){const c=[i];for(let j=1;j<=b.length;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[b.length]};
+// Not found: up to 3 close names of either kind (a typo, O for 0, or the other kind), then a button back to the search.
+function nfCard(k,name){const z=nz(name),out=[];
+[['League',L],['Clan',C]].forEach(([kk,a])=>{for(let i=0;i<Math.min(2000,a.length);i++){const x=String(a[i][0]);if(kk===k&&x.toLowerCase()===name.toLowerCase())continue;const y=nz(x),d=Math.abs(y.length-z.length)<=2?lev(y,z):9;if(d<=2||z.length>=3&&y.startsWith(z.slice(0,3)))out.push([d,i,kk,a])}});
+const top=out.sort((p,q)=>p[0]-q[0]||p[1]-q[1]).slice(0,3);
+return '<section class="card nf"><b>No '+k.toLowerCase()+' called “'+esc(name)+'”.</b><p>'+(top.length?'Check the spelling, or pick one:':'Check the spelling.')+'</p>'+top.map(o=>sgRow(o[2],o[3],o[1])).join('')+'<button class="go" data-again>Search again</button></section>'}
 // A shared link (?league=, ?clan= or ?player=) opens straight to that page.
-let LINK='';{const q=new URLSearchParams(location.search);for(const m of ['League','Clan','Player']){const v=(q.get(m.toLowerCase())||'').trim().slice(0,64);if(v){S.mode=m;S[m]=v;save(m);LINK=v;break}}}
+let LINK='';{const q=new URLSearchParams(location.search);for(const m of ['League','Clan','Player']){const v=(q.get(m.toLowerCase())||'').trim().slice(0,64);if(v){S.mode=m;S[m]=v;LINK=v;break}}}
 {hmeta();const k=S.mode;if((k==='League'||k==='Clan')&&S[k]){prefetch(k,S[k]);shist(k,S[k].toLowerCase())}
 // A saved player: their user ID (remembered), teams, team data and picture are all requested straight away.
 if(k==='Player'&&S.Player){gplay('League');gplay('Clan');findUser(S.Player).then(id=>{if(!id)return;pics([id]);pmeta();['League','Clan'].forEach(x=>teamOfC(x,id).then(t=>{if(t&&!t.unk)prefetch(x,t.name)}))}).catch(()=>{})}}
 // The leaderboards from the last visit (up to 6 hours old) show at once while the live ones load.
 {const c=ldS('ps99lists');if(c.t&&Date.now()-c.t<216e5&&c.L&&c.L.length&&c.C&&c.C.length){L=c.L;C=c.C;LT=c.LT||0;CT=c.CT||0;live=true}}
-const ready=(loadRanks(),setMode(['Clan','Player'].includes(S.mode)?S.mode:'League'),tick(true));
+loadRanks();setMode(['Clan','Player'].includes(S.mode)?S.mode:'League');$('q').value=S[mode]||'';showRecent();if(S[mode]&&live)paint(true);
+const ready=tick(true);
 const FIRST=!ldS('ps99v').x;
 const ldTitle=()=>{$('ldh').textContent=LINK?'Opening '+LINK+'…':'Loading live leaderboards'};ldTitle();
 $('ldp').textContent=FIRST?'The first visit can take a little longer.':'Please wait...';
