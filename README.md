@@ -35,9 +35,12 @@ one and replace the secret. The Worker's logs show "started" or the error for ev
 
 `/ps99api`, `/rbx` and `/rbxt` pass requests through to the BIG Games API and Roblox, for browsers
 that can't reach them directly. Cloudflare's `_redirects` can't proxy to other sites, so the Worker
-does it (`cloudflare/proxy.js`). Only these paths run code; they count toward the free 100,000
-Worker requests a day, and the page falls back to other routes if they fail. Every other file is
-served as a static asset, free and unlimited; `.assetsignore` keeps scripts and docs private.
+does it (`cloudflare/proxy.js`). Only these paths and `/__jobs` run code; they count toward the free
+100,000 Worker requests a day, and the page falls back to other routes if they fail. The proxies
+refuse requests from other websites' pages, so nobody can spend those requests from their own site.
+Every other file, the page included, is served as a static asset, free and unlimited, so the site
+stays up even if the daily requests run out; `.assetsignore` keeps scripts and docs off the site.
+The old workers.dev address forwards to ps99tracker.xyz from the page itself.
 
 ## Setup (one time)
 
