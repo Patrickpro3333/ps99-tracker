@@ -35,13 +35,21 @@ one and replace the secret. The Worker's logs show "started" or the error for ev
 
 `/ps99api`, `/rbx` and `/rbxt` pass requests through to the BIG Games API and Roblox, for browsers
 that can't reach them directly. Cloudflare's `_redirects` can't proxy to other sites, so the Worker
-does it (`cloudflare/proxy.js`). Only these paths and `/__jobs` run code; they count toward the free
+does it (`cloudflare/proxy.js`). Only these paths, `/__jobs` and `/sitemap.xml` run code; they count toward the free
 100,000 Worker requests a day, and the page falls back to other routes if they fail. The proxies
 refuse requests from other websites' pages, so nobody can spend those requests from their own site,
 and the Roblox ones only pass on the calls the page makes (names and profile pictures).
 Every other file, the page included, is served as a static asset, free and unlimited, so the site
 stays up even if the daily requests run out; `.assetsignore` keeps scripts and docs off the site.
 The old workers.dev address forwards to ps99tracker.xyz from the page itself.
+
+### Search engines
+
+Every league and clan link (`?clan=NAME`) is a page of its own for search engines, with its own title,
+description and canonical address. The top 10 and Close rivals are real links, so crawlers can follow them,
+and `/sitemap.xml` (made by the Worker) lists the top 1,000 clans and top 100 leagues. Player pages are kept
+out of search results on purpose. Each page a search engine renders asks the Roblox proxies for names and
+pictures, a couple of Worker requests per page.
 
 ## Setup (one time)
 
@@ -58,7 +66,7 @@ The old workers.dev address forwards to ps99tracker.xyz from the page itself.
    The 15-minute Cron Trigger comes from `wrangler.jsonc`. From then on the jobs run on their own.
 
 If the repository or its owner changes, update `RAW` in `index.html`. If the site address
-changes, update it in `index.html` (canonical and share tags), `robots.txt` and `sitemap.xml`.
+changes, update it in `index.html` (canonical and share tags), `robots.txt`, `sitemap.xml` and `cloudflare/worker.js` (the sitemap).
 
 ## Without GitHub
 
