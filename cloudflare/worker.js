@@ -48,20 +48,39 @@ async function jobsCheck(env) {
   return new Response(JSON.stringify(out), { headers: { 'content-type': 'application/json', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } })
 }
 
-// The sitemap lists the home page and the pages of the top 1,000 clans and top 100 leagues (?clan=NAME), so search
-// engines find them. It is made here so it stays current; crawlers read it a few times a day. If the API fails, the
-// plain sitemap.xml (the home page only) is served instead.
+const SITE = 'https://ps99tracker.xyz/'
+
+// The home page and the pages of the top 1,000 clans and top 100 leagues, in the address form the page itself
+// uses (?clan=NAME; encodeURIComponent leaves nothing XML needs escaped).
+async function topPages() {
+  const get = async p => { const r = await fetch('https://ps99.biggamesapi.io' + p, { headers: { 'User-Agent': 'ps99-tracker-sitemap' } }); if (!r.ok) throw new Error(r.status); return (await r.json()).data }
+  const [clans, leagues] = await Promise.all([get('/api/clans?page=1&pageSize=1000&sort=Points&sortOrder=desc'), get('/v1/leagues?page=1&pageSize=100&sort=Points&sortOrder=desc')])
+  const teams = (k, a) => (a || []).map(x => `${SITE}?${k}=${encodeURIComponent(x.Name)}`)
+  return [SITE, ...teams('clan', clans), ...teams('league', leagues && leagues.leagues)]
+}
+
+// The sitemap lists those pages, so search engines find them. It is made here so it stays current; crawlers read it
+// a few times a day. If the API fails, the plain sitemap.xml (the home page only) is served instead.
 async function sitemap(request, env) {
   try {
-    const get = async p => { const r = await fetch('https://ps99.biggamesapi.io' + p, { headers: { 'User-Agent': 'ps99-tracker-sitemap' } }); if (!r.ok) throw new Error(r.status); return (await r.json()).data }
-    const [clans, leagues] = await Promise.all([get('/api/clans?page=1&pageSize=1000&sort=Points&sortOrder=desc'), get('/v1/leagues?page=1&pageSize=100&sort=Points&sortOrder=desc')])
-    const day = new Date().toISOString().slice(0, 10), page = q => `<url><loc>https://ps99tracker.xyz/${q}</loc><lastmod>${day}</lastmod></url>`
-    // The same address the page itself uses for a team (encodeURIComponent leaves nothing XML needs escaped).
-    const teams = (k, a) => (a || []).map(x => page(`?${k}=${encodeURIComponent(x.Name)}`)).join('\n')
-    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${page('')}\n${teams('clan', clans)}\n${teams('league', leagues && leagues.leagues)}\n</urlset>\n`
+    const day = new Date().toISOString().slice(0, 10), urls = await topPages()
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${urls.map(u => `<url><loc>${u}</loc><lastmod>${day}</lastmod></url>`).join('\n')}\n</urlset>\n`
     return new Response(xml, { headers: { 'content-type': 'application/xml', 'cache-control': 'public, max-age=3600' } })
   } catch (e) {
     return env.ASSETS.fetch(request)
+  }
+}
+
+// Once a day the same pages go to IndexNow, which passes them on to Bing (and DuckDuckGo and Yahoo, which use Bing),
+// Yandex and the other search engines that take part; Google doesn't. The key is public on purpose: search engines
+// check that the site owns it by reading /<key>.txt. The Worker's logs show the answer (200 or 202 means accepted).
+const INDEXNOW_KEY = '10ff27c15e197fe4d3ab93f8902bb04a'
+async function indexNow() {
+  try {
+    const r = await fetch('https://api.indexnow.org/indexnow', { method: 'POST', headers: { 'content-type': 'application/json; charset=utf-8' }, body: JSON.stringify({ host: 'ps99tracker.xyz', key: INDEXNOW_KEY, keyLocation: `${SITE}${INDEXNOW_KEY}.txt`, urlList: await topPages() }) })
+    console.log(`IndexNow: ${r.status}`)
+  } catch (e) {
+    console.log(`IndexNow failed: ${e.message}`)
   }
 }
 
@@ -75,5 +94,7 @@ export default {
   },
   scheduled(event, env, ctx) {
     ctx.waitUntil(timerRun(event, env))
+    const t = new Date(event.scheduledTime)
+    if (t.getUTCHours() === 3 && t.getUTCMinutes() === 0) ctx.waitUntil(indexNow())
   },
 }
