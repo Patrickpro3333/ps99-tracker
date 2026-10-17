@@ -813,6 +813,12 @@ else{const j=await jget('/v1/clans/players/'+id),p=j.data&&j.data.player;if(p&&p
 // Player card. Points over time come from the full scans (every hour, saved per player for 24 hours),
 // this device while the card is open (every minute), and the live points now.
 const PKIND={};let PV=null;
+// In-game rank, from the player's public BIG Games profile; a private profile is a 404 and saved as 0 (nothing shown).
+// shortcut: titles copied from /api/collection/Ranks (newest entry per number, 357 KB to fetch), add new ones when ranks past 40 come out.
+const RANKS=["Noob","Beginner","Rookie","Adventurer","Experienced","Pro","Elite","Expert","Master","Legend","Champion","Superstar","Guardian","Titan","Sentinel","Vanguard","Crusader","Conqueror","Monarch","Ascendant","Awakened","Architect","Visionary","Prodigy","Seer","Celestial","Apex","Oracle","Voidborn","Cosmic","Demigod","Mythic","Realmlord","Ancient","Mythkeeper","Soulforge","Starbreaker","Timekeeper","Kingmaker","Herald"];
+const GR={};function grank(id){const c=GR[id];if(c&&Date.now()-c.at<c.ttl)return c.pr;
+const e=GR[id]={at:Date.now(),ttl:600000,v:c&&c.v,pr:jget('/v1/players/'+id+'?include=profile').then(j=>{const p=((j&&j.data||{}).views||{}).profile||{};e.v=p.available&&Math.floor(+(p.data||{}).Rank)||0},s=>{if(s===404)e.v=0;else e.ttl=0})};return e.pr}
+const grk=id=>{const r=GR[id]&&GR[id].v;return r>0?'Rank '+r+(RANKS[r-1]?' '+RANKS[r-1]:''):''};
 const ICO={cup:'<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M10 17h4"/>'};
 const ico=n=>'<i class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">'+ICO[n]+'</svg></i>';
 const pav=id=>{const u=U[id];return '<span class="av pav"><b>'+esc(((u?u[0]:'?')[0]||'?').toUpperCase())+'</b>'+(IM[id]?'<img src="'+esc(IM[id])+'" alt="" loading="lazy">':'')+'</span>'};
@@ -879,12 +885,12 @@ const M=n<4?1:W<400?2:4;for(let j=0;j<M;j++){const hr=Math.round(n*(1-j/M));g+='
 return '<svg class="pchs" viewBox="0 0 '+W+' '+Hh+'" role="img" aria-label="Points earned per hour, last '+n+' hours">'+g+'</svg>'+(est.length?'<p class="st pgap">Dashed: no full scan ran then, so those hours show the average for that stretch.</p>':'')}
 // The kind the player card shows: the one picked, else the clan war while they have points there, else the league.
 const pkOf=V=>{const kinds=['Clan','League'].filter(k=>V[k].t);let k=PKIND[V.id];if(!kinds.includes(k))k=kinds.includes('Clan')&&(!V.Clan.s||V.Clan.s.has||!kinds.includes('League'))?'Clan':kinds.includes('League')?'League':kinds[0];return k};
-const PHELP='<li><b>Global placement</b> is the spot among all players in this war. #1 is the best.</li><li><b>Better than 98%</b> means more points than 98 in 100 players in this war. ~ means about: an estimate until the next scan.</li><li><b>Latest hour</b> and <b>Last 24 hours</b> are the points this player earned in that time.</li>';
+const PHELP='<li><b>Global placement</b> is the spot among all players in this war. #1 is the best.</li><li><b>Better than 98%</b> means more points than 98 in 100 players in this war. ~ means about: an estimate until the next scan.</li><li><b>Latest hour</b> and <b>Last 24 hours</b> are the points this player earned in that time.</li><li><b>Rank</b> next to the name is the in-game rank. It shows only for players who made their BIG Games profile public.</li>';
 function renderPlayer(V){const id=V.id,u=U[id],img=IM[id],kinds=['Clan','League'].filter(k=>V[k].t),k=pkOf(V);
 const P=k?V[k]:null,s=P&&P.s,war=k==='League'?'league':'clan',sh='<button class="more" data-share>Share</button>';
 // One line under the name: the in-game name and the team tag, which opens the team.
 const tag=P&&P.d?'<button class="tag" id="ptag" data-open="'+k+'" data-n="'+esc(P.d.name)+'" aria-label="Open '+esc(P.d.name)+'">['+esc(P.d.name)+']<span aria-hidden="true"> ›</span></button>':'',
-meta=[u&&u[1]!==u[0]?esc(u[1]):'',tag||(k?'':esc(V.unk?'Teams could not load':'Not in a top 2,000 team'))].filter(Boolean).join(' · '),
+meta=[u&&u[1]!==u[0]?esc(u[1]):'',grk(id),tag||(k?'':esc(V.unk?'Teams could not load':'Not in a top 2,000 team'))].filter(Boolean).join(' · '),
 open=P&&P.d?'<div class="acts pba"><button class="more" id="popen" data-open="'+k+'" data-n="'+esc(P.d.name)+'">Open '+esc(P.d.name)+'</button>'+sh+'</div>':'<button class="share" data-share>Share</button>';
 let h='<section class="pc"><div class="pch"><span class="av big">'+'<b>'+esc(((u?u[0]:'?')[0]||'?').toUpperCase())+'</b>'+(img?'<img src="'+esc(img)+'" alt="">':'')+'</span><div class="pcn"><h2>'+esc(u?u[0]:'User '+id)+'</h2>'+(meta?'<p class="meta">'+meta+'</p>':'')+'</div></div>';
 const miss=['League','Clan'].filter(x=>V[x].unk&&!V[x].t);if(k&&miss.length)h+='<p class="st">Could not check their '+miss.map(x=>x==='Clan'?'clan':'league').join(' or ')+' right now. Trying again every minute.</p>';
@@ -967,7 +973,7 @@ if(show)box.innerHTML='<section class="card"><p class="st" style="margin:0">Look
 try{const id=await findUser(q);if(!ok())return;
 if(!id){DEAD='Player:'+q.toLowerCase();PENDY=null;document.title=DTITLE;box.innerHTML='<section class="card nf"><b>No Roblox user called “'+esc(q.replace(/^@/,''))+'”.</b><p>Check the spelling of their username (not their display name), or type their user ID.</p><button class="go" data-again>Search again</button></section>';return}
 // Each team's live data is requested the moment its name is known; a slow profile picture never holds up the numbers.
-const pp=Promise.all([pics([id]),names([id])]),tl=teamOfC('League',id),tc=teamOfC('Clan',id),real=t=>t&&!t.unk?t:null;
+const pp=Promise.all([pics([id]),names([id]),grank(id)]),tl=teamOfC('League',id),tc=teamOfC('Clan',id),real=t=>t&&!t.unk?t:null;
 const [lt,ct,pm,,ld,cd]=await Promise.all([tl,tc,pmeta(),hmeta(),tl.then(t=>real(t)?dataL(t.name).catch(()=>null):null),tc.then(t=>real(t)?dataC(t.name).catch(()=>null):null),gplay('League'),gplay('Clan'),Promise.race([pp,sleep(2500)])]);if(!ok())return;
 // On a refresh, anything that failed to load keeps what was on screen instead of saying "no team" or "could not load".
 const prev=PV&&PV.id===id?PV:null,got={League:lt,Clan:ct};
