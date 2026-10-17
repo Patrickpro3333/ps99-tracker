@@ -37,7 +37,8 @@ one and replace the secret. The Worker's logs show "started" or the error for ev
 that can't reach them directly. Cloudflare's `_redirects` can't proxy to other sites, so the Worker
 does it (`cloudflare/proxy.js`). Only these paths and `/__jobs` run code; they count toward the free
 100,000 Worker requests a day, and the page falls back to other routes if they fail. The proxies
-refuse requests from other websites' pages, so nobody can spend those requests from their own site.
+refuse requests from other websites' pages, so nobody can spend those requests from their own site,
+and the Roblox ones only pass on the calls the page makes (names and profile pictures).
 Every other file, the page included, is served as a static asset, free and unlimited, so the site
 stays up even if the daily requests run out; `.assetsignore` keeps scripts and docs off the site.
 The old workers.dev address forwards to ps99tracker.xyz from the page itself.
