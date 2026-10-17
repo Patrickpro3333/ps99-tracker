@@ -230,8 +230,9 @@ body{overflow-anchor:none}
 h1,h2,h3,summary,.st,.sub,.meta,.cap,label,#ld p,.cell small,.pk small,.prn small{text-wrap:balance}.rk,.mem,summary,.more{scroll-margin:12px}.abd>p,.faq p,.help li,.notes li,footer p{text-wrap:pretty}
 #ldslow[hidden]{display:block!important;visibility:hidden}#ld:has(#ldbtns:not([hidden])) :is(.ldb,#ldslow){display:none!important}#ld:has(#ldbtns:not([hidden])) svg{animation:none}
 #ld.out{opacity:0;pointer-events:none}
-/* A lookup that is loading fills the screen, so the result arriving doesn't push what is below it around in view. */
-.ldc{min-height:100vh}
+/* A lookup that is loading fills the screen, so the result arriving doesn't push what is below it around in view.
+   What is below stays hidden until then, so a short result (not found, a player) doesn't pull it up into view either. */
+.ldc{min-height:100vh}#dash:has(>.ldc)~*{visibility:hidden}
 #top{position:relative}.ph{visibility:hidden}.phs{position:absolute;inset:0 0 auto;margin:0}
 #ld svg{width:84px;animation:ldw 1.2s ease-in-out infinite}
 @keyframes ldw{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(10deg)}}
@@ -958,6 +959,7 @@ const stick=()=>{RS.style.top=PCQ.matches?Math.min(16,innerHeight-RS.offsetHeigh
 if(window.ResizeObserver)new ResizeObserver(stick).observe(RS);addEventListener('resize',stick);
 RS.addEventListener('focusin',e=>{if(!PCQ.matches||!e.target.matches(':focus-visible'))return;const r=e.target.getBoundingClientRect(),d=r.top<16?16-r.top:Math.min(0,innerHeight-16-r.bottom);if(d)RS.style.top=Math.max(innerHeight-RS.offsetHeight-16,Math.min(16,parseFloat(RS.style.top)+d))+'px'});RS.addEventListener('focusout',e=>{if(!RS.contains(e.relatedTarget))stick()});
 // Phones and tablets: once a result is on screen, the search card folds into one bar pinned to the top of the screen.
+// A message (not found, could not load) keeps the bar too: opening the search for it pushed the message down a screen.
 // The bar gets a line under it once it sticks, and the placement once the placement box has gone under it.
 const SIDE=document.querySelector('.side'),RM=matchMedia('(prefers-reduced-motion:reduce)');let BQ=0,FY=null;
 // A long name keeps its room: the kind in front of it goes first.
@@ -972,7 +974,7 @@ const FIND=$('find'),openFind=o=>{FIND.classList.toggle('open',o);document.body.
 // Phones with a result on screen: About and the questions fold into one closed section; the home page and PC keep it open.
 // Its own title shows only while folded; otherwise the heading stays a plain heading.
 let ABF=null;const aboutSync=()=>{const f=document.body.classList.contains('res')&&!PCQ.matches,d=$('abd');if(f===ABF)return;ABF=f;d.open=!f;d.classList.toggle('fd',f);$('ab').hidden=f};aboutSync();
-const foldSync=()=>{const res=!!S[mode]&&!$('dash').querySelector('section.card:not(.dash)>b'),h=$('dash').querySelector('.top h2,.pch h2'),d=LAST&&LAST.d;document.body.classList.toggle('res',res);document.documentElement.classList.toggle('res',res);
+const foldSync=()=>{const res=!!S[mode],h=$('dash').querySelector('.top h2,.pch h2'),d=LAST&&LAST.d;document.body.classList.toggle('res',res);document.documentElement.classList.toggle('res',res);
 $('fdk').textContent=mode;$('fdv').textContent=h?h.textContent:S[mode]||'';$('fdp').textContent=h&&d&&mode!=='Player'&&d.kind===mode&&d.i>=0?'#'+d.rank.toLocaleString():'';fdCut();barCheck();aboutSync()};
 // Tapping the bar opens the search with the old name selected, so typing replaces it; Close goes back to the same place.
 $('fold').onclick=()=>{const q=$('q');if(FIND.classList.contains('open')){openFind(false);reKind();if(FY!=null)scrollTo(0,FY);FY=null;return}
@@ -1082,7 +1084,10 @@ catch(e){LFAIL=1;board();if(!live){note('Live data could not load right now. Try
 // in memory for Back, and the new address gets its own history entry. Nothing is saved until the lookup works (shown()).
 // A Back or a newer lookup while it loads (NAV) cancels its scroll to the result, so the page Back restored stays put.
 async function go(k,v){k=k||SK;v=String(v==null?$('q').value:v).trim();if(!v){$('q').focus();return}
-const g=++NAV;stash();openFind(false);PENDY=null;sgSet('');if(k!==mode)setMode(k);else kindUI(k);$('q').value=v;S[k]=v;DEAD='';setURL(true);FY=null;if(!live)await ready;if(g!==NAV)return;await paint(true);if(g===NAV)$('dash').scrollIntoView({behavior:RM.matches?'auto':'smooth',block:'start'})}
+const g=++NAV;stash();openFind(false);PENDY=null;sgSet('');if(k!==mode)setMode(k);else kindUI(k);$('q').value=v;S[k]=v;DEAD='';setURL(true);FY=null;if(!live)await ready;if(g!==NAV)return;
+// A tap far down the page goes up to the loading card at once, since what is below it stays hidden while it loads.
+// foldSync first: the search folding into the bar moves the card up.
+const pt=paint(true);foldSync();if($('dash').getBoundingClientRect().top<0)$('dash').scrollIntoView({behavior:RM.matches?'auto':'smooth',block:'start'});await pt;if(g===NAV)$('dash').scrollIntoView({behavior:RM.matches?'auto':'smooth',block:'start'})}
 // The tabs keep the typed text (selected) and the keyboard: a tap on a tab while typing does not take the focus from the box.
 let TQF=false;const TABS=document.querySelector('.tabs');
 TABS.addEventListener('pointerdown',e=>{TQF=document.activeElement===$('q')&&!!e.target.closest('.tab');if(TQF)e.preventDefault()});TABS.addEventListener('mousedown',e=>{if(document.activeElement===$('q'))e.preventDefault()});
