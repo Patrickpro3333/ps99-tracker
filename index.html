@@ -230,6 +230,9 @@ body{overflow-anchor:none}
 h1,h2,h3,summary,.st,.sub,.meta,.cap,label,#ld p,.cell small,.pk small,.prn small{text-wrap:balance}.rk,.mem,summary,.more{scroll-margin:12px}.abd>p,.faq p,.help li,.notes li,footer p{text-wrap:pretty}
 #ldslow[hidden]{display:block!important;visibility:hidden}#ld:has(#ldbtns:not([hidden])) :is(.ldb,#ldslow){display:none!important}#ld:has(#ldbtns:not([hidden])) svg{animation:none}
 #ld.out{opacity:0;pointer-events:none}
+/* A lookup that is loading fills the screen, so the result arriving doesn't push what is below it around in view. */
+.ldc{min-height:100vh}
+#top{position:relative}.ph{visibility:hidden}.phs{position:absolute;inset:0 0 auto;margin:0}
 #ld svg{width:84px;animation:ldw 1.2s ease-in-out infinite}
 @keyframes ldw{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(10deg)}}
 @media(prefers-reduced-motion:reduce){#ld svg{animation:none}}
@@ -986,7 +989,7 @@ addEventListener('resize',()=>{clearTimeout(RZ);RZ=setTimeout(()=>{if(LAST&&$('c
 if(mode==='Player'&&PV&&$('dash').querySelector('.pchs')&&pW()!==PW)drawPlayer(PV)},250)});document.fonts&&(document.fonts.ready.then(refit),document.fonts.addEventListener('loadingdone',refit));addEventListener('resize',refit);
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pk]');if(!b||!PV)return;PKIND[PV.id]=b.dataset.pk;drawPlayer(PV)});
 async function paintPlayer(show){const q=S.Player,seq=++PSEQ,box=$('dash'),ok=()=>seq===PSEQ&&mode==='Player';if(!q){box.innerHTML='';return}
-if(show)box.innerHTML='<section class="card"><p class="st" style="margin:0">Looking up '+esc(q)+'...</p></section>';
+if(show)box.innerHTML='<section class="card ldc"><p class="st" style="margin:0">Looking up '+esc(q)+'...</p></section>';
 try{const id=await findUser(q);if(!ok())return;
 if(!id){DEAD='Player:'+q.toLowerCase();PENDY=null;document.title=DTITLE;box.innerHTML='<section class="card nf"><b>No Roblox user called “'+esc(q.replace(/^@/,''))+'”.</b><p>Check the spelling of their username (not their display name), or type their user ID.</p><button class="go" data-again>Search again</button></section>';return}
 // Each team's live data is requested the moment its name is known; a slow profile picture never holds up the numbers.
@@ -1011,7 +1014,7 @@ if(ok()&&PV===V)drawPlayer(V)}
 catch(e){PENDY=null;if(ok()&&(show||!box.querySelector('.pc'))){document.title=DTITLE;box.innerHTML='<section class="card"><b>'+(e==='roblox'?'Could not reach Roblox to look up that username.':'Could not load this player.')+'</b><p class="st">Try again in a moment, or type their user ID.</p></section>'}}}
 async function paint(show){if(mode==='Player')return paintPlayer(show);
 const name=S[mode],k=mode,seq=++PSEQ;if(!name){$('dash').innerHTML='';return}
-if(show)$('dash').innerHTML='<section class="card"><p class="st" style="margin:0">Loading '+esc(name)+'...</p></section>';
+if(show)$('dash').innerHTML='<section class="card ldc"><p class="st" style="margin:0">Loading '+esc(name)+'...</p></section>';
 try{const hp=shist(k,name.toLowerCase()),d=await near(await(k==='League'?dataL(name):dataC(name)));phase('t:'+d.key,d.pts+':'+d.sum);const ids=d.rows.map(r=>r.id),ln=d.name.toLowerCase(),loc=snap(d);
 const rv=d.i<0?[]:[d.list[d.i-1],d.list[d.i+1]].filter(Boolean).map(x=>shist(k,String(x[0]).toLowerCase()));
 const extra=Promise.all([names(d.oid?ids.concat(d.oid):ids),pics(ids),gplay(k),ln===name.toLowerCase()?hp:shist(k,ln)].concat(rv));
@@ -1035,7 +1038,10 @@ const pzLoad=()=>{if(BK()!=='Player')Promise.all([BK()==='League'?gplay('League'
 const rkw=k=>$('top').style.setProperty('--rkw',k>999?'64px':k>99?'54px':'44px');
 function board(){exPH();const m=TOPK=BK();if(m==='Player')return boardPlayers();const a=m==='League'?L:C,k=Math.min(BN,a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(m==='League'?'leagues':'clans');
 w.dataset.k=m;repill(w);w.hidden=false;
-keepFocus($('top'),()=>put($('top'),a.length?a.slice(0,k).map((x,i)=>'<a class="rk'+(i<3?' m'+(i+1):'')+'" href="'+esc(tlink(m,x[0]))+'" data-n="'+esc(x[0])+'">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn">'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span></span><span class="rkv"><i>'+pt(fmt(x[1]))+'</i></span></span></a>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>'))}
+keepFocus($('top'),()=>put($('top'),a.length?a.slice(0,k).map((x,i)=>'<a class="rk'+(i<3?' m'+(i+1):'')+'" href="'+esc(tlink(m,x[0]))+'" data-n="'+esc(x[0])+'">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn">'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span></span><span class="rkv"><i>'+pt(fmt(x[1]))+'</i></span></span></a>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):LDFAIL?'<p class="st">The leaderboard could not load. Trying again...</p>':phRows()))}
+// While the list loads, ten hidden rows hold its place, so the page below doesn't jump when it fills in.
+const phRows=()=>Array.from({length:10},(x,i)=>'<div class="rk ph" aria-hidden="true">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn"><span class="lg"></span><span>-</span></span><span class="rkv"><i>-</i></span></span></div>').join('')
++'<button class="more ph" tabindex="-1" aria-hidden="true">Show 25 more</button><p class="st phs">Loading...</p>';
 // The kind on screen changes only with a lookup (go, Back, the first load). The tabs only change what the box searches.
 function setMode(m){if(m!==mode)BN=10;mode=m;kindUI(m);board();pzLoad()}
 const kindUI=m=>{SK=m;$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');$('tP').setAttribute('aria-pressed',m==='Player');$('ql').textContent=m==='Player'?'Roblox username':m+' name';exPH()};
@@ -1184,7 +1190,7 @@ let LINK='';{const q=new URLSearchParams(location.search);for(const m of ['Leagu
 if(k==='Player'&&S.Player){gplay('League');gplay('Clan');findUser(S.Player).then(id=>{if(!id)return;pics([id]);pmeta();['League','Clan'].forEach(x=>teamOfC(x,id).then(t=>{if(t&&!t.unk)prefetch(x,t.name)}))}).catch(()=>{})}}
 // The leaderboards from the last visit (up to 6 hours old) show at once while the live ones load.
 {const c=ldS('ps99lists');if(c.t&&Date.now()-c.t<216e5&&c.L&&c.L.length&&c.C&&c.C.length){L=c.L;C=c.C;LT=c.LT||0;CT=c.CT||0;live=true}}
-loadRanks();setMode(['Clan','Player'].includes(S.mode)?S.mode:'League');$('q').value=S[mode]||'';showRecent();if(S[mode]&&live)paint(true);
+loadRanks();setMode(['Clan','Player'].includes(S.mode)?S.mode:'League');$('q').value=S[mode]||'';showRecent();if(S[mode]&&live)paint(true);else if(S[mode])$('dash').innerHTML='<section class="card ldc"><p class="st" style="margin:0">Loading '+esc(S[mode])+'...</p></section>';
 const ready=tick(true);
 const FIRST=!ldS('ps99v').x;
 const ldTitle=()=>{$('ldh').textContent=LINK?'Opening '+LINK+'…':'Loading live leaderboards'};ldTitle();
