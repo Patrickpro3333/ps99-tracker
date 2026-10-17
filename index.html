@@ -8,7 +8,11 @@
 <title>PS99 Tracker: Pet Simulator 99 League &amp; Clan Rank Tracker</title>
 <meta name="description" content="Free Pet Simulator 99 tracker. Check any league, clan or player: rank, points per hour, gains and top contributors. Live top 2,000 leaderboards from the official API.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
-<link rel="canonical" href="https://ps99tracker.xyz/">
+<!-- For search engines a league or clan link (?clan=NAME) is a page of its own; any other address is the home page.
+     Player pages stay out of search results, so searching someone's Roblox name doesn't bring up their stats. -->
+<script>const seoTags=(()=>{const r=document.querySelector('meta[name=robots]'),r0=r.content,ds=document.querySelector('meta[name=description]'),d0=ds.content;return nf=>{const q=new URLSearchParams(location.search),k=['league','clan'].find(x=>(q.get(x)||'').trim()),
+c=document.querySelector('link[rel=canonical]')||document.head.appendChild(Object.assign(document.createElement('link'),{rel:'canonical'}));
+c.href='https://ps99tracker.xyz/'+(k?'?'+k+'='+encodeURIComponent(q.get(k).trim().slice(0,64)):'');r.content=nf||!k&&(q.get('player')||'').trim()?'noindex,follow':r0;if(!k)ds.content=d0}})();seoTags()</script>
 <meta name="application-name" content="PS99 Tracker">
 <meta name="apple-mobile-web-app-title" content="PS99 Tracker">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -181,18 +185,18 @@ h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
 /* Close rivals: a ladder of the team above, this team and the team below, with the gaps in between. The placement on the
    left and the arrow on the right mirror each other; this team's row and the end rows leave the arrow's slot empty. */
 .lad{max-width:560px;margin:0 auto}
-.lr{display:grid;grid-template-columns:var(--lw,52px) minmax(0,1fr) var(--lw,52px);align-items:center;width:100%;min-height:60px;padding:6px 0;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx);font:inherit;text-align:center}
-button.lr{cursor:pointer}.lr>b{justify-self:start;padding-left:10px;font:400 20px "Lilita One",Impact,sans-serif;color:var(--mut)}.lr.me{border-color:var(--y)}.lr.me>b{color:var(--y)}
+.lr{text-decoration:none;display:grid;grid-template-columns:var(--lw,52px) minmax(0,1fr) var(--lw,52px);align-items:center;width:100%;min-height:60px;padding:6px 0;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx);font:inherit;text-align:center}
+a.lr{cursor:pointer}.lr>b{justify-self:start;padding-left:10px;font:400 20px "Lilita One",Impact,sans-serif;color:var(--mut)}.lr.me{border-color:var(--y)}.lr.me>b{color:var(--y)}
 .lm{grid-column:2;min-width:0;display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:2px 8px}
 .ln{display:flex;align-items:center;gap:8px;min-width:0;max-width:100%}.ln .lg{width:32px;height:32px;border-radius:8px;font-size:15px}.ln>span:last-child{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;font-weight:700;font-size:17px}
 .lm>i{font:400 22px/1.15 "Lilita One",Impact,sans-serif;font-style:normal;color:var(--y);white-space:nowrap}
-button.lr::after{content:"";grid-column:3;justify-self:end;width:14px;height:14px;margin-right:20px;border:solid #8a8a8a;border-width:3.5px 3.5px 0 0;transform:rotate(45deg)}button.lr:focus-visible::after{border-color:var(--y)}
+a.lr::after{content:"";grid-column:3;justify-self:end;width:14px;height:14px;margin-right:20px;border:solid #8a8a8a;border-width:3.5px 3.5px 0 0;transform:rotate(45deg)}a.lr:focus-visible::after{border-color:var(--y)}
 .lr.gold{border-color:var(--y);background:#000;font:400 22px "Lilita One",Impact,sans-serif;color:var(--y)}
 .lr.end{border-style:dashed;font-size:15px;color:var(--mut)}.lr:not(.me)>.lm:only-child{grid-column:1/-1;padding:0 12px;text-wrap:balance}.lr+.lr{margin-top:8px}
-.lgp{margin:6px 0;font-size:15px;color:var(--mut);text-wrap:balance}.lgp b{font:400 26px/1.2 "Lilita One",Impact,sans-serif;color:var(--tx)}.lgp b.up{color:var(--g)}
+.lgp{margin:6px 0;font-size:15px;color:var(--mut);text-wrap:balance}.lgp b{font:400 26px/1.2 "Lilita One",Impact,sans-serif;color:var(--tx)}.lgp b.up{color:var(--g)}.lgp .eta{display:block;font-size:14px}
 .lad>.st{margin:0;font-size:15px}.lad.k3{--lw:62px}.lad.k4{--lw:74px}.lad.k4 .lr>b{padding-left:8px;font-size:17px}
 /* Lists (top 10 and suggestions): the rank or logo on the left and an arrow on the right mirror each other. */
-.rk{display:grid;grid-template-columns:var(--rkw,44px) minmax(0,1fr) var(--rkw,44px);gap:8px;align-items:center;width:100%;min-height:56px;padding:6px 4px;background:none;border:0;border-top:1px solid var(--ed);color:var(--tx);text-align:center;font:inherit;font-size:18px;cursor:pointer}
+.rk{text-decoration:none;display:grid;grid-template-columns:var(--rkw,44px) minmax(0,1fr) var(--rkw,44px);gap:8px;align-items:center;width:100%;min-height:56px;padding:6px 4px;background:none;border:0;border-top:1px solid var(--ed);color:var(--tx);text-align:center;font:inherit;font-size:18px;cursor:pointer}
 .rk:first-child{border-top:0}.rk>b{justify-self:start;font:400 21px "Lilita One",Impact,sans-serif;color:var(--mut)}
 .rk::after,.sg::after{content:"";justify-self:end;width:14px;height:14px;border:solid #8a8a8a;border-width:3.5px 3.5px 0 0;transform:rotate(45deg);margin-right:4px}.rk:focus-visible::after,.sg:focus-visible::after{border-color:var(--y)}
 .rkm{min-width:0;display:flex;flex-direction:column;align-items:center}.rkn .lg{width:42px;height:42px;border-radius:11px;font-size:19px}
@@ -235,7 +239,7 @@ h1,h2,h3,summary,.st,.sub,.meta,.cap,label,#ld p,.cell small,.pk small,.prn smal
 .ldbtn{display:grid;gap:10px;width:min(320px,80vw);margin-top:8px}
 @media(min-width:900px) and (max-width:1199px){.wrap{--gut:max(24px,env(safe-area-inset-left,0px),env(safe-area-inset-right,0px));max-width:none}}
 @media(max-width:399px){.cap.c4{min-height:4.5em}}
-@media(hover:hover){.rk:hover,.mem:hover,.sg:hover,button.lr:hover,.tag:hover,.qx:hover{background:#1a1a1a}button.lr:hover::after,.rk:hover::after,.sg:hover::after{border-color:var(--y)}.mem:hover::after,.qx:hover{color:var(--y)}.tab:not([aria-pressed=true]):hover,.seg button:not([aria-pressed=true]):hover,.share:hover,.more:hover,.recent button:hover{border-color:#555}.go:hover{filter:brightness(1.08)}}
+@media(hover:hover){.rk:hover,.mem:hover,.sg:hover,a.lr:hover,.tag:hover,.qx:hover{background:#1a1a1a}a.lr:hover::after,.rk:hover::after,.sg:hover::after{border-color:var(--y)}.mem:hover::after,.qx:hover{color:var(--y)}.tab:not([aria-pressed=true]):hover,.seg button:not([aria-pressed=true]):hover,.share:hover,.more:hover,.recent button:hover{border-color:#555}.go:hover{filter:brightness(1.08)}}
 /* Inside the stats, sizes follow the width of the main column (and of each half of it), so the same
    rules work on phones and in the middle column on PC. */
 .mainc{min-width:0;container:main/inline-size}.dg>div{min-width:0;container:half/inline-size}.dg.one>div>h3:first-child{margin-top:12px}.dg>div>:last-child{margin-bottom:0}.cap:not(#cap){min-height:0}.dg.one{display:block}
@@ -356,7 +360,7 @@ body.res .help{display:none}
 <li><b>Points per hour</b> is how many points came in during the last hour.</li>
 <li><b>Points gained</b> are the points added in the last 1, 6, 12 and 24 hours.</li>
 <li><b>Better than 98%</b> means more points than 98 in 100 players in this war. ~ means about: an estimate until the next scan.</li>
-<li><b>Close rivals</b> are the teams just above and below. Tap one to open it.</li>
+<li><b>Close rivals</b> are the teams just above and below. Tap one to open it. The time to pass compares the points each team got in the last hour.</li>
 <li><b>Player</b> finds anyone by Roblox username, as long as their league or clan is in the top 2,000.</li>
 <li>Clan points start again at 0 when a new clan war begins.</li></ul></details>
 <section class="card about" aria-labelledby="ab"><h2 id="ab">About this Pet Simulator 99 tracker</h2><details class="abd" id="abd" open><summary>About PS99 Tracker and FAQ</summary>
@@ -377,6 +381,8 @@ body.res .help{display:none}
 const $=i=>document.getElementById(i);
 let LDFAIL=false,CHX=null,CHK=null;
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+// A team's own address (the same form the address bar uses) and the tab title of a lookup.
+const tlink=(m,n)=>'/?'+m.toLowerCase()+'='+encodeURIComponent(n),ttl=(m,n)=>n+(m==='Player'?' · PS99 Tracker':' · PS99 '+m+' Rank & Stats');
 const UNITS=[[1e12,'t',2],[1e9,'b',2],[1e6,'m',2],[1e3,'k',1]];
 const fmt=v=>{if(typeof v!=='number')return v;const a=Math.abs(v),m=v<0&&Math.round(a)?'-':'';
 for(let i=0;i<UNITS.length;i++){const[d,s,f]=UNITS[i];if(a>=d){const t=(a/d).toFixed(f);return m+(i&&+t>=1000?(a/UNITS[i-1][0]).toFixed(UNITS[i-1][2])+UNITS[i-1][1]:t+s)}}
@@ -689,7 +695,7 @@ const av=r=>{const t=nm(r).replace(/^(@|User )/,'');return '<span class="av"><b>
 const SHOWALL=new Set(),LIMIT=10;
 // What the numbers mean, in the fold at the end of each result.
 const HELP='<li><b>Placement</b> is the spot on the leaderboard. #1 is the best.</li><li><b><span class="up">▲</span> Up 3 in 24 hours</b> means the team climbed 3 places since this time yesterday.</li><li><b>Points per hour</b> is how many points came in during the last hour.</li>'
-+'<li><b>Better than 98%</b> means more points than 98 in 100 players in this war. ~ means about: an estimate until the next scan.</li><li><b>Close rivals</b> are the teams just above and below. Tap one to open it.</li><li>Clan points start again at 0 when a new clan war begins.</li>';
++'<li><b>Better than 98%</b> means more points than 98 in 100 players in this war. ~ means about: an estimate until the next scan.</li><li><b>Close rivals</b> are the teams just above and below. Tap one to open it. The time to pass compares the points each team got in the last hour.</li><li>Clan points start again at 0 when a new clan war begins.</li>';
 function render(d,a){LAST={a,d};const kind=d.kind,war=kind==='League'?'league':'clan',tot=kind==='League'?LT:CT;
 const now=Math.floor(Date.now()/1000),last=a[a.length-1]||[0,0,0,{}],G=[1,6,12,24].map(h=>a.length>1?gain(a,h):null),g1=G[0],g24=G[3];
 const loc=d.loc||a,lastL=loc[loc.length-1],lg1=loc.length>1?gain(loc,1):null,r0=lg1&&lg1[2],hs=d.hs;
@@ -710,12 +716,19 @@ ph=pph==null?'':g1[1]<3480?'in the last '+durf(g1[1]):g1[1]>3720?'over the last 
 const mx=Math.max(1,...G.map(x=>x?Math.abs(x[0]):0)),lab=['Last hour','Last 6 hours','Last 12 hours','Last 24 hours'];
 const gains='<div class="grid gns">'+[1,6,12,24].map((h,k)=>{const x=G[k],ng=x&&x[0]<0;return '<div class="cell"><small>'+lab[k]+'</small><b'+(ng?' class="dn"':x?'':' class="na"')+'>'+(x?sg(x[0]):'–')+'</b>'+(x?'<small>'+(x[1]<h*3600-120?durf(x[1])+' so far':x[1]>h*3600+120?'over '+durf(x[1]):'')+'</small>':wt)+'<div class="bar"><i'+(ng?' class="neg"':'')+' style="width:'+(x&&x[0]?Math.max(2,Math.abs(x[0])/mx*100):0)+'%"></i></div></div>'}).join('')+'</div>';
 const A=d.i>0?d.list[d.i-1]:null,B=d.i>=0?d.list[d.i+1]:null,ok=d.pts!=null&&d.i>=0,me=ok?d.pts:0;
+// The line search results show under the page's title.
+document.querySelector('meta[name=description]').content=d.name+(ok?' is #'+d.rank.toLocaleString()+(tot?' of '+tot.toLocaleString()+' '+war+'s':'')+' in Pet Simulator 99 with '+fmt(me)+' points':' in Pet Simulator 99')+'. Live points per hour, gains, close rivals and '+(kind==='Clan'?'every member':'each contributor')+"'s points.";
 // Close rivals: the team above, this team and the team below, with the gaps in between; a rival opens with a tap.
 // At #1 and at the end of the list an end row takes the rival's place, so the ladder keeps its three rows.
-const lrow=(T,r,c)=>(c?'<div class="lr me">':'<button class="lr" data-open="'+kind+'" data-n="'+esc(T[0])+'">')+'<b>#'+r.toLocaleString()+'</b><span class="lm"><span class="ln">'+logo(T[3],T[0]).replace('<span','<span aria-hidden="true"')+'<span>'+esc(T[0])+'</span></span><i>'+pt(fmt(T[1]))+'</i></span>'+(c?'</div>':'</button>'),
-lgap=(v,w,T,c)=>'<p class="lgp">'+((v=Math.max(0,Math.round(v)))?'<b'+(c?' class="up"':'')+'>'+fmt(v)+'</b> '+w+' ':'<b>Tied</b> with ')+esc(T[0])+'</p>',lend=(t,c)=>'<div class="lr '+(c||'end')+'"><span class="lm">'+t+'</span></div>';
-const lad=ok?(A?lrow(A,d.rank-1)+lgap(A[1]-me,'to pass',A):lend(CROWN+'Already #1','gold'))+lrow([d.name,me,0,d.icon],d.rank,1)
-+(B?lgap(me-B[1],'ahead of',B,1)+lrow(B,d.rank+1):lend((tot?d.rank<tot:d.list.length>=2000)?'Teams below #'+d.list.length.toLocaleString()+' are not tracked':'Last place'))
+const lrow=(T,r,c)=>(c?'<div class="lr me">':'<a class="lr" href="'+esc(tlink(kind,T[0]))+'" data-open="'+kind+'" data-n="'+esc(T[0])+'">')+'<b>#'+r.toLocaleString()+'</b><span class="lm"><span class="ln">'+logo(T[3],T[0]).replace('<span','<span aria-hidden="true"')+'<span>'+esc(T[0])+'</span></span><i>'+pt(fmt(T[1]))+'</i></span>'+(c?'</div>':'</a>'),
+lgap=(v,w,T,c,e)=>'<p class="lgp">'+((v=Math.max(0,Math.round(v)))?'<b'+(c?' class="up"':'')+'>'+fmt(v)+'</b> '+w+' ':'<b>Tied</b> with ')+esc(T[0])+(v&&e?'<span class="eta">'+e+'</span>':'')+'</p>',lend=(t,c)=>'<div class="lr '+(c||'end')+'"><span class="lm">'+t+'</span></div>';
+// Time to pass, only while the war runs: the gap over how much faster the chaser earns. Both speeds cover the last hour;
+// a rival's comes from its saved snapshots plus its points on the leaderboard now.
+const rph=T=>{const h=HS[kind+':'+String(T[0]).toLowerCase()],s=h&&h.ok?sinceReset(h.h.concat([[now,T[1]]]),kind):[],g=s.length>1?gain(s,1):null;return g&&g[1]>=120?g[0]/(g[1]/3600):null},
+wend=kind==='Clan'&&BREC&&BREC.end?BREC.end/1000:0,eta=(T,gap,up)=>{const v=!PZ&&pph!=null?rph(T):null;if(v==null)return'';const c=up?pph-v:v-pph,s=c>0?gap/c*3600:0;
+return(!s?up?'Not catching up':'Not getting caught':wend&&now+s>wend?up?"Won't pass before the war ends":"Won't get caught before the war ends":(up?'Passes':'Gets caught')+' in about '+durf(s>=3600?Math.round(s/600)*600:s))+' at this pace'};
+const lad=ok?(A?lrow(A,d.rank-1)+lgap(A[1]-me,'to pass',A,0,eta(A,A[1]-me,1)):lend(CROWN+'Already #1','gold'))+lrow([d.name,me,0,d.icon],d.rank,1)
++(B?lgap(me-B[1],'ahead of',B,1,eta(B,me-B[1],0))+lrow(B,d.rank+1):lend((tot?d.rank<tot:d.list.length>=2000)?'Teams below #'+d.list.length.toLocaleString()+' are not tracked':'Last place'))
 :'<p class="st">'+(unk?'Rivals are unavailable right now.':'Rivals show once '+esc(d.name)+(d.pts?' is in the top 2,000.':' has points.'))+'</p>';
 const tp=d.pts!=null?d.pts:d.sum,all=SHOWALL.has(d.key);let tl=0;
 // Speed in green; "No points this hour" only when this device has watched the member for at least 45 minutes.
@@ -1000,13 +1013,14 @@ async function paint(show){if(mode==='Player')return paintPlayer(show);
 const name=S[mode],k=mode,seq=++PSEQ;if(!name){$('dash').innerHTML='';return}
 if(show)$('dash').innerHTML='<section class="card"><p class="st" style="margin:0">Loading '+esc(name)+'...</p></section>';
 try{const hp=shist(k,name.toLowerCase()),d=await near(await(k==='League'?dataL(name):dataC(name)));phase('t:'+d.key,d.pts+':'+d.sum);const ids=d.rows.map(r=>r.id),ln=d.name.toLowerCase(),loc=snap(d);
-const extra=Promise.all([names(d.oid?ids.concat(d.oid):ids),pics(ids),gplay(k),ln===name.toLowerCase()?hp:shist(k,ln)]);
+const rv=d.i<0?[]:[d.list[d.i-1],d.list[d.i+1]].filter(Boolean).map(x=>shist(k,String(x[0]).toLowerCase()));
+const extra=Promise.all([names(d.oid?ids.concat(d.oid):ids),pics(ids),gplay(k),ln===name.toLowerCase()?hp:shist(k,ln)].concat(rv));
 // Draw as soon as the numbers are in; names, pictures and player ranks fill in on a second draw.
 const draw=fin=>{if(seq!==PSEQ||k!==mode||name.toLowerCase()!==String(S[mode]||'').toLowerCase())return;d.hs=HS[k+':'+ln];d.loc=sinceReset(loc,k);const m=merge(loc,d.hs&&d.hs.ok?d.hs.h:[]),a=sinceReset(m,k);d.cut=a.length<m.length?a[0][0]:0;
 keepFocus($('dash'),()=>put($('dash'),render(d,a)+(fin&&ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'')));atY();if(!fin)shown(k,d.name)};
-await Promise.race([hp,new Promise(z=>setTimeout(z,1200))]);draw(false);
+await Promise.race([Promise.all([hp].concat(rv)),new Promise(z=>setTimeout(z,1200))]);draw(false);
 Promise.race([extra,new Promise(z=>setTimeout(z,5000))]).then(()=>draw(true))}
-catch(e){if(GONE(e))DEAD=k+':'+name.toLowerCase();if(k===mode&&seq===PSEQ&&(show||GONE(e)||!$('dash').querySelector('.dash'))){PENDY=null;document.title=DTITLE;$('dash').innerHTML=GONE(e)?nfCard(k,name):'<section class="card"><b>Could not find '+esc(name)+'.</b><p class="st">Live data may be unavailable right now. Try again in a moment.</p></section>'}}}
+catch(e){if(GONE(e))DEAD=k+':'+name.toLowerCase();if(k===mode&&seq===PSEQ&&(show||GONE(e)||!$('dash').querySelector('.dash'))){PENDY=null;document.title=DTITLE;if(GONE(e))seoTags(1);$('dash').innerHTML=GONE(e)?nfCard(k,name):'<section class="card"><b>Could not find '+esc(name)+'.</b><p class="st">Live data may be unavailable right now. Try again in a moment.</p></section>'}}}
 // In Player mode the list shows the official top league players (the API's top 500 sample).
 const TRIED=new Set();
 function boardPlayers(){const g=GPX.League,k=Math.min(BN,g.list.length);rkw(k);$('th').textContent='Top '+(k||10)+' league players';$('war').hidden=true;
@@ -1021,7 +1035,7 @@ const pzLoad=()=>{if(BK()!=='Player')Promise.all([BK()==='League'?gplay('League'
 const rkw=k=>$('top').style.setProperty('--rkw',k>999?'64px':k>99?'54px':'44px');
 function board(){exPH();const m=TOPK=BK();if(m==='Player')return boardPlayers();const a=m==='League'?L:C,k=Math.min(BN,a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(m==='League'?'leagues':'clans');
 w.dataset.k=m;repill(w);w.hidden=false;
-keepFocus($('top'),()=>put($('top'),a.length?a.slice(0,k).map((x,i)=>'<button class="rk'+(i<3?' m'+(i+1):'')+'" data-n="'+esc(x[0])+'">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn">'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span></span><span class="rkv"><i>'+pt(fmt(x[1]))+'</i></span></span></button>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>'))}
+keepFocus($('top'),()=>put($('top'),a.length?a.slice(0,k).map((x,i)=>'<a class="rk'+(i<3?' m'+(i+1):'')+'" href="'+esc(tlink(m,x[0]))+'" data-n="'+esc(x[0])+'">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn">'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span></span><span class="rkv"><i>'+pt(fmt(x[1]))+'</i></span></span></a>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>'))}
 // The kind on screen changes only with a lookup (go, Back, the first load). The tabs only change what the box searches.
 function setMode(m){if(m!==mode)BN=10;mode=m;kindUI(m);board();pzLoad()}
 const kindUI=m=>{SK=m;$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');$('tP').setAttribute('aria-pressed',m==='Player');$('ql').textContent=m==='Player'?'Roblox username':m+' name';exPH()};
@@ -1068,7 +1082,9 @@ let TQF=false;const TABS=document.querySelector('.tabs');
 TABS.addEventListener('pointerdown',e=>{TQF=document.activeElement===$('q')&&!!e.target.closest('.tab');if(TQF)e.preventDefault()});TABS.addEventListener('mousedown',e=>{if(document.activeElement===$('q'))e.preventDefault()});
 const tab=m=>{const q=$('q'),f=TQF||document.activeElement===q||!!q.value;TQF=false;kindUI(m);sugg();if(f){q.focus();q.setSelectionRange(0,q.value.length)}if(!S[mode]){BN=10;board();pzLoad()}};
 $('tL').onclick=()=>tab('League');$('tC').onclick=()=>tab('Clan');$('tP').onclick=()=>tab('Player');$('go').onclick=()=>go();
-document.addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(b)go(b.dataset.open,b.dataset.n)});
+// Links open in the page; with ctrl, cmd, shift or alt held the browser opens them as usual (a new tab or window).
+const mod=e=>e.ctrlKey||e.metaKey||e.shiftKey||e.altKey;
+document.addEventListener('click',e=>{const b=e.target.closest('[data-open]');if(!b||b.tagName==='A'&&mod(e))return;e.preventDefault();go(b.dataset.open,b.dataset.n)});
 // The clear button empties the box and keeps the keyboard up.
 $('qx').addEventListener('pointerdown',e=>e.preventDefault());$('qx').onclick=()=>{const q=$('q');q.value='';sgSet('');q.focus()};
 // Phones: once the keyboard is up, the page scrolls once so the tabs sit just under the top of what is still visible,
@@ -1078,7 +1094,7 @@ $('q').addEventListener('focus',()=>{if(PCQ.matches||!KBQ.matches)return;const v
 // "Search again" goes back to the search with the name selected, so typing replaces it.
 document.addEventListener('click',e=>{if(!e.target.closest('[data-again]'))return;const q=$('q');scrollTo(0,0);if(document.body.classList.contains('res'))openFind(true);q.focus({preventScroll:true});q.setSelectionRange(0,q.value.length)});
 $('q').onkeydown=e=>{if(e.key==='Enter')go()};
-$('top').onclick=e=>{if(e.target.id==='more'){const y=RS.getBoundingClientRect().top,kb=e.target.matches(':focus-visible'),n=BN;BN+=25;board();if(PCQ.matches){stick();scrollBy(0,RS.getBoundingClientRect().top-y)}const f=kb&&document.querySelectorAll('#top .rk')[n];if(f)f.focus({preventScroll:true});return}const b=e.target.closest('.rk');if(b)go(TOPK,b.dataset.n)};
+$('top').onclick=e=>{if(e.target.id==='more'){const y=RS.getBoundingClientRect().top,kb=e.target.matches(':focus-visible'),n=BN;BN+=25;board();if(PCQ.matches){stick();scrollBy(0,RS.getBoundingClientRect().top-y)}const f=kb&&document.querySelectorAll('#top .rk')[n];if(f)f.focus({preventScroll:true});return}const b=e.target.closest('.rk');if(!b||b.tagName==='A'&&mod(e))return;e.preventDefault();go(TOPK,b.dataset.n)};
 document.addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;if(i.dataset.id&&!i.dataset.t){i.dataset.t=1;i.src='/ps99api/image/'+i.dataset.id}else i.style.display='none'},true);
 document.addEventListener('load',e=>{if(e.target.tagName==='IMG')e.target.parentNode.classList.add('ok')},true);
 document.addEventListener('click',e=>{const b=e.target.closest('.seg button[data-r],.seg button[data-m]');if(!b||!LAST||!$('chw'))return;if(b.dataset.r)RG=+b.dataset.r;if(b.dataset.m)CM=b.dataset.m;keepFocus($('chw'),()=>{$('chw').innerHTML=chartHtml(LAST.a,LAST.d)})});
@@ -1109,23 +1125,23 @@ keepFocus($('recent'),()=>{$('recent').innerHTML=r.length?'<small>Recent:</small
 // (while the bar's search is open, the place the reader was before opening it). The same name in other letters is the same page.
 const keepY=()=>FY!=null?FY:scrollY;
 function setURL(push){try{const u=S[mode]?'?'+mode.toLowerCase()+'='+encodeURIComponent(S[mode]):'',ls=location.search;if(u===ls)return;
-history.replaceState(Object.assign({},history.state,{y:keepY()}),'');history[push&&u.toLowerCase()!==ls.toLowerCase()?'pushState':'replaceState']({k:mode,n:S[mode]||'',y:push?0:scrollY},'',location.pathname+u)}catch(e){}}
+history.replaceState(Object.assign({},history.state,{y:keepY()}),'');history[push&&u.toLowerCase()!==ls.toLowerCase()?'pushState':'replaceState']({k:mode,n:S[mode]||'',y:push?0:scrollY},'',location.pathname+u);seoTags()}catch(e){}}
 let SY=0;addEventListener('scroll',()=>{clearTimeout(SY);SY=setTimeout(()=>{try{history.replaceState(Object.assign({},history.state,{y:keepY()}),'')}catch(e){}},300)},{passive:true});
 // A lookup that worked: only now is it saved for the next visit and added to Recent, and the tab's title names it.
 function shown(m,n){if(m!==mode||!n)return;const r=rdR()||[],b=[[m,n]].concat(r.filter(x=>!(x[0]===m&&String(x[1]).toLowerCase()===n.toLowerCase()))).slice(0,8),ch=JSON.stringify(b)!==JSON.stringify(R);
 if(JSON.stringify(b)!==JSON.stringify(r))store('ps99r2',JSON.stringify(b));R.splice(0,R.length,...b);
-S[m]=n;S.mode=m;if(ch||RCUR!==m+':'+n.toLowerCase())showRecent();const c=ldS('ps99s');if(c.mode!==m||c[m]!==n)save(m);setURL(false);document.title=n+' · PS99 Tracker'}
+S[m]=n;S.mode=m;if(ch||RCUR!==m+':'+n.toLowerCase())showRecent();const c=ldS('ps99s');if(c.mode!==m||c[m]!==n)save(m);setURL(false);document.title=ttl(m,n)}
 // The last few pages stay in memory, so Back shows them at once, at the same place, before they refresh.
 const stash=()=>{const b=$('dash');if(!S[mode]||!b.querySelector('.dash,.pc'))return;const k=mode+':'+String(S[mode]).toLowerCase();CACHE.delete(k);CACHE.set(k,{h:b.innerHTML,last:LAST,pv:PV});if(CACHE.size>5)CACHE.delete(CACHE.keys().next().value)};
 try{history.scrollRestoration='manual'}catch(e){}
 // Back and Forward: the entry's league, clan or player again (an entry without one is the home page). Nothing is saved or pushed.
-addEventListener('popstate',e=>{clearTimeout(SY);const y=(e.state&&e.state.y)||0,q=new URLSearchParams(location.search);let k='',v='';
+addEventListener('popstate',e=>{clearTimeout(SY);seoTags();const y=(e.state&&e.state.y)||0,q=new URLSearchParams(location.search);let k='',v='';
 for(const m of ['League','Clan','Player']){const x=(q.get(m.toLowerCase())||'').trim().slice(0,64);if(x){k=m;v=x;break}}
 stash();PSEQ++;NAV++;openFind(false);FY=null;PENDY=null;sgSet('');DEAD='';
 if(!k){S[mode]='';$('q').value='';$('dash').innerHTML='';document.title=DTITLE;kindUI(mode);BN=10;board();pzLoad();showRecent();foldSync();scrollTo(0,y);return}
 if(k!==mode)setMode(k);else kindUI(k);S[k]=v;$('q').value=v;showRecent();const c=CACHE.get(k+':'+v.toLowerCase());
 if(!c){PENDY=y;paint(true);return}
-LAST=c.last;PV=c.pv;CHD=null;$('dash').innerHTML=c.h;const h=$('dash').querySelector('.top h2,.pch h2');document.title=(h?h.textContent:v)+' · PS99 Tracker';foldSync();fitNums();scrollTo(0,y);paint(false)});
+LAST=c.last;PV=c.pv;CHD=null;$('dash').innerHTML=c.h;const h=$('dash').querySelector('.top h2,.pch h2');document.title=ttl(k,h?h.textContent:v);foldSync();fitNums();scrollTo(0,y);paint(false)});
 let TT=0;function toast(t){const e=$('toast');e.textContent=t;e.hidden=false;clearTimeout(TT);TT=setTimeout(()=>{e.hidden=true},2200)}
 // Share sends one sentence with the placement, read the same way as the status pill: after the war it says "finished".
 function shareInfo(){const tt=n=>n+' · PS99 Tracker';

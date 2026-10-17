@@ -1,5 +1,5 @@
 // The PS99 Tracker Worker. Cloudflare serves the site's files, the page included, itself (free and unlimited);
-// this code only runs for the three API proxies, /__jobs and the 15-minute timer (see wrangler.jsonc).
+// this code only runs for the three API proxies, /__jobs, /sitemap.xml and the 15-minute timer (see wrangler.jsonc).
 import { proxy } from './proxy.js'
 
 const REPO = 'Patrickpro3333/ps99-tracker'
@@ -48,10 +48,28 @@ async function jobsCheck(env) {
   return new Response(JSON.stringify(out), { headers: { 'content-type': 'application/json', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } })
 }
 
+// The sitemap lists the home page and the pages of the top 1,000 clans and top 100 leagues (?clan=NAME), so search
+// engines find them. It is made here so it stays current; crawlers read it a few times a day. If the API fails, the
+// plain sitemap.xml (the home page only) is served instead.
+async function sitemap(request, env) {
+  try {
+    const get = async p => { const r = await fetch('https://ps99.biggamesapi.io' + p, { headers: { 'User-Agent': 'ps99-tracker-sitemap' } }); if (!r.ok) throw new Error(r.status); return (await r.json()).data }
+    const [clans, leagues] = await Promise.all([get('/api/clans?page=1&pageSize=1000&sort=Points&sortOrder=desc'), get('/v1/leagues?page=1&pageSize=100&sort=Points&sortOrder=desc')])
+    const day = new Date().toISOString().slice(0, 10), page = q => `<url><loc>https://ps99tracker.xyz/${q}</loc><lastmod>${day}</lastmod></url>`
+    // The same address the page itself uses for a team (encodeURIComponent leaves nothing XML needs escaped).
+    const teams = (k, a) => (a || []).map(x => page(`?${k}=${encodeURIComponent(x.Name)}`)).join('\n')
+    const xml = `<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n${page('')}\n${teams('clan', clans)}\n${teams('league', leagues && leagues.leagues)}\n</urlset>\n`
+    return new Response(xml, { headers: { 'content-type': 'application/xml', 'cache-control': 'public, max-age=3600' } })
+  } catch (e) {
+    return env.ASSETS.fetch(request)
+  }
+}
+
 export default {
   fetch(request, env) {
     const name = new URL(request.url).pathname.split('/')[1]
     if (name === '__jobs') return jobsCheck(env)
+    if (name === 'sitemap.xml') return sitemap(request, env)
     if (name === 'ps99api' || name === 'rbx' || name === 'rbxt') return proxy({ request }, name)
     return env.ASSETS.fetch(request)
   },
