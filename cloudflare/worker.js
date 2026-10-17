@@ -40,22 +40,10 @@ async function timerRun(event, env) {
   if (env.STATUS) await env.STATUS.put('last', JSON.stringify({ planned: new Date(event.scheduledTime).toISOString(), ran: new Date().toISOString(), cron: event.cron, result }))
 }
 
-// Temporary check for the hourly trigger: is the secret set, and does GitHub accept it? Never shows the token.
+// Check for the timer: is the secret set, and what did the last run get back from GitHub? Never shows the token.
+// It no longer calls GitHub itself: the page is public, so every visit used to spend some of the token's GitHub allowance.
 async function jobsCheck(env) {
   const t = env.GH_DISPATCH_TOKEN, out = { secretSet: !!t, kind: !t ? null : t.startsWith('github_pat_') ? 'fine-grained' : t.startsWith('ghp_') ? 'classic' : 'other', spaces: !!t && t !== t.trim() }
-  if (t) {
-    const r = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/scan.yml`, {
-      headers: { Authorization: `Bearer ${t.trim()}`, Accept: 'application/vnd.github+json', 'User-Agent': 'ps99-tracker-trigger' },
-    })
-    out.github = r.status
-    // Write test: "enable" the scan workflow, which is already enabled, so nothing changes (204 = allowed).
-    const w = await fetch(`https://api.github.com/repos/${REPO}/actions/workflows/scan.yml/enable`, {
-      method: 'PUT',
-      headers: { Authorization: `Bearer ${t.trim()}`, Accept: 'application/vnd.github+json', 'X-GitHub-Api-Version': '2022-11-28', 'User-Agent': 'ps99-tracker-trigger' },
-    })
-    out.write = w.status
-    if (!w.ok) out.writeError = (await w.text()).slice(0, 160)
-  }
   out.lastTimerRun = env.STATUS ? JSON.parse((await env.STATUS.get('last')) || 'null') : 'no store'
   return new Response(JSON.stringify(out), { headers: { 'content-type': 'application/json', 'cache-control': 'no-store', 'x-robots-tag': 'noindex' } })
 }
