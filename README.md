@@ -49,7 +49,9 @@ Every league and clan link (`?clan=NAME`) is a page of its own for search engine
 description and canonical address. The top 10 and Close rivals are real links, so crawlers can follow them,
 and `/sitemap.xml` (made by the Worker) lists the top 1,000 clans and top 100 leagues. Player pages are kept
 out of search results on purpose. Each page a search engine renders asks the Roblox proxies for names and
-pictures, a couple of Worker requests per page.
+pictures, a couple of Worker requests per page. Once a day (03:00 UTC) the timer also sends the same pages to
+IndexNow, which passes them to Bing, Yandex and other search engines; Google doesn't take part, so the sitemap
+goes to Google through Search Console. The IndexNow key is the `.txt` file named after it at the top of the repo.
 
 ## Setup (one time)
 
