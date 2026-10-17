@@ -443,7 +443,8 @@ const save=k=>{const c=ldS('ps99s');c.mode=S.mode;if(k)c[k]=S[k];store('ps99s',J
 // Page 1 first: if the API is down, that one answer is enough to know, instead of waiting for 40 failures.
 // Then the other pages at once (well under the rate limit). A page that fails twice ends the list there,
 // so every rank shown is still the team's real position, and the list says it is incomplete.
-async function pages(path,rows,max,cb){const n=Math.ceil(max/100),get=p=>jget(path+'&page='+p);let got=0;
+// Clans come up to 1,000 a page (leagues only 100), so both full lists take 22 requests instead of 40.
+async function pages(path,rows,max,cb,size=100){const n=Math.ceil(max/size),get=p=>jget(path+'&page='+p);let got=0;
 const one=p=>get(p).catch(()=>get(p)).catch(()=>null).then(j=>{if(j&&cb)cb(++got);return j});
 const p1=await one(1),res=[p1].concat(p1&&n>1?await Promise.all(Array.from({length:n-1},(_,i)=>one(i+2))):[]);
 // Pages are cached by the API at slightly different moments, so a team near a page edge can show on two
@@ -452,13 +453,13 @@ const out=[],seen=new Set();let total=0,complete=true;
 for(let i=0;i<n;i++){const j=res[i],a=j&&rows(j.data);if(!a||!a.length){complete=!!(j&&a);break}if(!i)total=(j.data&&j.data.total)||0;a.forEach(x=>{const k=String(x.Name).toLowerCase();if(!seen.has(k)){seen.add(k);out.push([x.Name,x.Points,x.Members,x.Icon,x.ContributorCount])}})}
 return{rows:out.slice(0,max),total,complete}}
 let lp=0,cp=0;
-const ldUpd=()=>{const b=$('ldbar');if(b)b.style.width=Math.max(3,Math.min(100,Math.round((lp+cp)/40*100)))+'%'};
+const ldUpd=()=>{const b=$('ldbar');if(b)b.style.width=Math.max(3,Math.min(100,Math.round((lp+cp)/22*100)))+'%'};
 let LISTT=0,LISTA=0;
 // The leaderboards are kept for the next visit, so they show at once while fresh ones load.
 const saveLists=()=>{const sl=a=>a.map(x=>[x[0],x[1],x[2],iid(x[3]),x[4]]);store('ps99lists',JSON.stringify({t:Date.now(),LT,CT,L:sl(L),C:sl(C)}))};
 const LOK={};
 async function pull(full){
-const m=full?2000:100,[a,b,ct]=await Promise.all([pages('/v1/leagues?pageSize=100&sort=Points&sortOrder=desc',d=>d.leagues,m,full?(q=>{lp=q;ldUpd()}):null),pages('/api/clans?pageSize=100&sort=Points&sortOrder=desc',d=>d,m,full?(q=>{cp=q;ldUpd()}):null),full?jget('/api/clansTotal').catch(()=>null):null]);
+const m=full?2000:100,cs=Math.min(m,1000),[a,b,ct]=await Promise.all([pages('/v1/leagues?pageSize=100&sort=Points&sortOrder=desc',d=>d.leagues,m,full?(q=>{lp=q;ldUpd()}):null),pages('/api/clans?pageSize='+cs+'&sort=Points&sortOrder=desc',d=>d,m,full?(q=>{cp=q;ldUpd()}):null,cs),full?jget('/api/clansTotal').catch(()=>null):null]);
 // New rows first, then every team they don't cover in its last known order: a team that just slipped
 // from #100 to #101 stays in the list instead of showing as "Not ranked".
 const fresh=(r,old)=>{const s=new Set(r.map(x=>String(x[0]).toLowerCase()));return r.concat(old.filter(x=>!s.has(String(x[0]).toLowerCase())))};
@@ -917,10 +918,12 @@ return h}
 function fitName(){const e=document.querySelector('.pch h2');if(!e)return;e.style.fontSize='';e.style.whiteSpace='nowrap';
 let f=parseFloat(getComputedStyle(e).fontSize);while(f>16&&e.scrollWidth>e.clientWidth)e.style.fontSize=--f+'px';e.style.whiteSpace=''}
 // Refreshes rebuild the stats and the top 10; keyboard focus goes back to the same control.
+// A refresh that changes nothing leaves the page alone: nothing is measured again and no picture reloads.
+const put=(el,h)=>{if(el._h===h&&el.firstElementChild&&el.firstElementChild===el._e)return;el.innerHTML=h;el._h=h;el._e=el.firstElementChild};
 function keepFocus(box,write){const a=document.activeElement;let q=null;
 if(a&&a!==document.body&&box.contains(a)){const d=a.dataset;q=a.id?'#'+CSS.escape(a.id):d.id?'[data-id="'+CSS.escape(d.id)+'"]':d.r?'[data-r="'+d.r+'"]':d.m?'[data-m="'+d.m+'"]':d.pk?'[data-pk="'+d.pk+'"]':d.n!=null?'[data-n="'+CSS.escape(d.n)+'"]':d.all?'[data-all]':d.ny?'[data-ny]':a.hasAttribute('data-share')?'[data-share]':a.matches('.notes>summary')?'.notes>summary':a.matches('a[href]')?'a[href="'+CSS.escape(a.getAttribute('href'))+'"]':null}
 write();if(q){const e=box.querySelector(q);if(e){fitName();fitNums();e.focus({preventScroll:true})}}}
-function drawPlayer(V){keepFocus($('dash'),()=>{$('dash').innerHTML=renderPlayer(V)});fitName();atY()}
+function drawPlayer(V){keepFocus($('dash'),()=>put($('dash'),renderPlayer(V)));fitName();atY()}
 function fitNums(){const bs=[...document.querySelectorAll('#dash .cell b,#dash .pk b,#dash .hero>b,#dash .quiet b')].filter(b=>!b.closest('.lg')),word=b=>!/\d/.test(b.textContent);
 bs.forEach(b=>{b.classList.toggle('wd',word(b)&&/[a-z]/i.test(b.textContent));b.style.fontSize='';b.style.overflowWrap='normal';b.style.whiteSpace=word(b)?'normal':''});
 bs.forEach(b=>{const w=b.clientWidth;if(!w||b.scrollWidth<=w+1)return;let s=Math.max(14,Math.floor(parseFloat(getComputedStyle(b).fontSize)*w/b.scrollWidth));b.style.fontSize=s+'px';
@@ -959,7 +962,8 @@ FY=scrollY;if(document.body.classList.contains('stuck'))scrollTo(0,0);openFind(t
 // Phones put the gains and chart after the members, PC before them: the stats are drawn again when the layout switches.
 const relay=()=>{aboutSync();if(LAST&&$('dash').querySelector('.dash'))keepFocus($('dash'),()=>{$('dash').innerHTML=render(LAST.d,LAST.a)})};
 PCQ.addEventListener?PCQ.addEventListener('change',relay):PCQ.addListener(relay);
-new MutationObserver(()=>{placeTops();fitNums();foldSync();const s=document.querySelector('#chw .ch'),g=$('gl');
+// A picture finishing loading only marks its box (class "ok"); that moves nothing, so it doesn't re-measure the whole page.
+new MutationObserver(rs=>{if(rs.every(r=>r.type==='attributes'&&r.target.classList.contains('ok')))return;placeTops();fitNums();foldSync();const s=document.querySelector('#chw .ch'),g=$('gl');
 if(s&&g&&CHX!=null&&g.style.display==='none'&&LAST&&LAST.d.key===CHK){const R=s.getBoundingClientRect();chHit({target:s,clientX:R.left+CHX*R.width})}}).observe($('dash'),{childList:true,subtree:true,characterData:true,attributes:true,attributeFilter:['class']});
 const refit=()=>{fitName();fitNums();foldSync()};let RZ=0;
 // After a resize the charts are drawn again at the new width.
@@ -997,14 +1001,14 @@ try{const hp=shist(k,name.toLowerCase()),d=await near(await(k==='League'?dataL(n
 const extra=Promise.all([names(d.oid?ids.concat(d.oid):ids),pics(ids),gplay(k),ln===name.toLowerCase()?hp:shist(k,ln)]);
 // Draw as soon as the numbers are in; names, pictures and player ranks fill in on a second draw.
 const draw=fin=>{if(seq!==PSEQ||k!==mode||name.toLowerCase()!==String(S[mode]||'').toLowerCase())return;d.hs=HS[k+':'+ln];d.loc=sinceReset(loc,k);const m=merge(loc,d.hs&&d.hs.ok?d.hs.h:[]),a=sinceReset(m,k);d.cut=a.length<m.length?a[0][0]:0;
-keepFocus($('dash'),()=>{$('dash').innerHTML=render(d,a)+(fin&&ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'')});atY();if(!fin)shown(k,d.name)};
+keepFocus($('dash'),()=>put($('dash'),render(d,a)+(fin&&ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'')));atY();if(!fin)shown(k,d.name)};
 await Promise.race([hp,new Promise(z=>setTimeout(z,1200))]);draw(false);
 Promise.race([extra,new Promise(z=>setTimeout(z,5000))]).then(()=>draw(true))}
 catch(e){if(GONE(e))DEAD=k+':'+name.toLowerCase();if(k===mode&&seq===PSEQ&&(show||GONE(e)||!$('dash').querySelector('.dash'))){PENDY=null;document.title=DTITLE;$('dash').innerHTML=GONE(e)?nfCard(k,name):'<section class="card"><b>Could not find '+esc(name)+'.</b><p class="st">Live data may be unavailable right now. Try again in a moment.</p></section>'}}}
 // In Player mode the list shows the official top league players (the API's top 500 sample).
 const TRIED=new Set();
 function boardPlayers(){const g=GPX.League,k=Math.min(BN,g.list.length);rkw(k);$('th').textContent='Top '+(k||10)+' league players';$('war').hidden=true;
-keepFocus($('top'),()=>$('top').innerHTML=g.list.length?g.list.slice(0,k).map((x,i)=>{const u=U[x.id];return '<button class="rk'+(i<3?' m'+(i+1):'')+'" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:x.id)+'">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn"><span class="lg"><b>'+esc((u?u[0][0]:'?').toUpperCase())+'</b>'+(IM[x.id]?'<img src="'+esc(IM[x.id])+'" alt="" loading="lazy">':'')+'</span><span>'+esc(u?'@'+u[0]:'User '+x.id)+'</span></span><span class="rkv"><i>'+pt(fmt(x.p))+'</i>'+(x.team?'<small>in '+esc(x.team)+'</small>':'')+'</span></span></button>'}).join('')+(k<g.list.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>');
+keepFocus($('top'),()=>put($('top'),g.list.length?g.list.slice(0,k).map((x,i)=>{const u=U[x.id];return '<button class="rk'+(i<3?' m'+(i+1):'')+'" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:x.id)+'">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn"><span class="lg"><b>'+esc((u?u[0][0]:'?').toUpperCase())+'</b>'+(IM[x.id]?'<img src="'+esc(IM[x.id])+'" alt="" loading="lazy">':'')+'</span><span>'+esc(u?'@'+u[0]:'User '+x.id)+'</span></span><span class="rkv"><i>'+pt(fmt(x.p))+'</i>'+(x.team?'<small>in '+esc(x.team)+'</small>':'')+'</span></span></button>'}).join('')+(k<g.list.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>'));
 if(!g.at){if(Date.now()-(g.tr||0)>30000){g.tr=Date.now();gplay('League').then(()=>{if(BK()==='Player'&&GPX.League.at)board()})}return}
 const ids=g.list.slice(0,k).map(x=>x.id).filter(i=>!TRIED.has(i)&&(!U[i]||!IM[i]));ids.forEach(i=>TRIED.add(i));
 if(ids.length)Promise.all([names(ids),pics(ids)]).then(()=>{if(BK()==='Player')boardPlayers()})}
@@ -1015,7 +1019,7 @@ const pzLoad=()=>{if(BK()!=='Player')Promise.all([BK()==='League'?gplay('League'
 const rkw=k=>$('top').style.setProperty('--rkw',k>999?'64px':k>99?'54px':'44px');
 function board(){exPH();const m=TOPK=BK();if(m==='Player')return boardPlayers();const a=m==='League'?L:C,k=Math.min(BN,a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(m==='League'?'leagues':'clans');
 w.dataset.k=m;repill(w);w.hidden=false;
-keepFocus($('top'),()=>$('top').innerHTML=a.length?a.slice(0,k).map((x,i)=>'<button class="rk'+(i<3?' m'+(i+1):'')+'" data-n="'+esc(x[0])+'">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn">'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span></span><span class="rkv"><i>'+pt(fmt(x[1]))+'</i></span></span></button>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>')}
+keepFocus($('top'),()=>put($('top'),a.length?a.slice(0,k).map((x,i)=>'<button class="rk'+(i<3?' m'+(i+1):'')+'" data-n="'+esc(x[0])+'">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn">'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span></span><span class="rkv"><i>'+pt(fmt(x[1]))+'</i></span></span></button>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):'<p class="st">'+(LDFAIL?'The leaderboard could not load. Trying again...':'Loading...')+'</p>'))}
 // The kind on screen changes only with a lookup (go, Back, the first load). The tabs only change what the box searches.
 function setMode(m){if(m!==mode)BN=10;mode=m;kindUI(m);board();pzLoad()}
 const kindUI=m=>{SK=m;$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');$('tP').setAttribute('aria-pressed',m==='Player');$('ql').textContent=m==='Player'?'Roblox username':m+' name';exPH()};
