@@ -728,7 +728,7 @@ lgap=(v,w,T,c,e)=>'<p class="lgp">'+((v=Math.max(0,Math.round(v)))?'<b'+(c?' cla
 // Time to pass, only while the war runs: the gap over how much faster the chaser earns. Both speeds cover the last hour;
 // a rival's comes from its saved snapshots plus its points on the leaderboard now.
 const rph=T=>{const h=HS[kind+':'+String(T[0]).toLowerCase()],s=h&&h.ok?sinceReset(h.h.concat([[now,T[1]]]),kind):[],g=s.length>1?gain(s,1):null;return g&&g[1]>=120?g[0]/(g[1]/3600):null},
-wend=kind==='Clan'&&BREC&&BREC.end?BREC.end/1000:0,eta=(T,gap,up)=>{const v=!PZ&&pph!=null?rph(T):null;if(v==null)return'';const c=up?pph-v:v-pph,s=c>0?gap/c*3600:0;
+wend=kind==='Clan'&&BREC&&BREC.end?BREC.end/1000:0,eta=(T,gap,up)=>{const v=!PZ&&pph!=null?rph(T):null;if(v==null)return PZ?'':'\u00a0';const c=up?pph-v:v-pph,s=c>0?gap/c*3600:0;
 return(!s?up?'Not catching up':'Not getting caught':wend&&now+s>wend?up?"Won't pass before the war ends":"Won't get caught before the war ends":(up?'Passes':'Gets caught')+' in about '+durf(s>=3600?Math.round(s/600)*600:s))+' at this pace'};
 const lad=ok?(A?lrow(A,d.rank-1)+lgap(A[1]-me,'to pass',A,0,eta(A,A[1]-me,1)):lend(CROWN+'Already #1','gold'))+lrow([d.name,me,0,d.icon],d.rank,1)
 +(B?lgap(me-B[1],'ahead of',B,1,eta(B,me-B[1],0))+lrow(B,d.rank+1):lend((tot?d.rank<tot:d.list.length>=2000)?'Teams below #'+d.list.length.toLocaleString()+' are not tracked':'Last place'))
@@ -1021,7 +1021,7 @@ const extra=Promise.all([names(d.oid?ids.concat(d.oid):ids),pics(ids),gplay(k),l
 // Draw as soon as the numbers are in; names, pictures and player ranks fill in on a second draw.
 const draw=fin=>{if(seq!==PSEQ||k!==mode||name.toLowerCase()!==String(S[mode]||'').toLowerCase())return;d.hs=HS[k+':'+ln];d.loc=sinceReset(loc,k);const m=merge(loc,d.hs&&d.hs.ok?d.hs.h:[]),a=sinceReset(m,k);d.cut=a.length<m.length?a[0][0]:0;
 keepFocus($('dash'),()=>put($('dash'),render(d,a)+(fin&&ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'')));atY();if(!fin)shown(k,d.name)};
-await Promise.race([Promise.all([hp].concat(rv)),new Promise(z=>setTimeout(z,1200))]);draw(false);
+await Promise.race([hp,new Promise(z=>setTimeout(z,1200))]);draw(false);
 Promise.race([extra,new Promise(z=>setTimeout(z,5000))]).then(()=>draw(true))}
 catch(e){if(GONE(e))DEAD=k+':'+name.toLowerCase();if(k===mode&&seq===PSEQ&&(show||GONE(e)||!$('dash').querySelector('.dash'))){PENDY=null;document.title=DTITLE;if(GONE(e))seoTags(1);$('dash').innerHTML=GONE(e)?nfCard(k,name):'<section class="card"><b>Could not find '+esc(name)+'.</b><p class="st">Live data may be unavailable right now. Try again in a moment.</p></section>'}}}
 // In Player mode the list shows the official top league players (the API's top 500 sample).
