@@ -47,8 +47,8 @@ The old workers.dev address forwards to ps99tracker.xyz from the page itself.
 
 1. Create a PUBLIC GitHub repository (public repos get free Actions minutes) and upload every
    file, including the hidden `.github` folder.
-2. In the repo go to Settings > Actions > General > Workflow permissions, choose
-   "Read and write permissions", and save.
+2. Leave Settings > Actions > General > Workflow permissions on "Read repository contents": each
+   workflow asks for write access itself, and only for the step that saves data.
 3. In the Actions tab, run "Save PS99 history" and "Scan PS99 leaderboards" once by hand.
 4. In Cloudflare go to Workers & Pages > Create > Import a repository, pick the repo, name the
    Worker `ps99-tracker` (it must match `wrangler.jsonc`), production branch `main`, build command

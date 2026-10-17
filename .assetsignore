@@ -5,7 +5,6 @@
 .wrangler
 node_modules
 cloudflare
-netlify
 wrangler.jsonc
 README.md
 *.py
