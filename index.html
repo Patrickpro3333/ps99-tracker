@@ -814,11 +814,9 @@ else{const j=await jget('/v1/clans/players/'+id),p=j.data&&j.data.player;if(p&&p
 // this device while the card is open (every minute), and the live points now.
 const PKIND={};let PV=null;
 // In-game rank, from the player's public BIG Games profile; a private profile is a 404 and saved as 0 (nothing shown).
-// shortcut: titles copied from /api/collection/Ranks (newest entry per number, 357 KB to fetch), add new ones when ranks past 40 come out.
-const RANKS=["Noob","Beginner","Rookie","Adventurer","Experienced","Pro","Elite","Expert","Master","Legend","Champion","Superstar","Guardian","Titan","Sentinel","Vanguard","Crusader","Conqueror","Monarch","Ascendant","Awakened","Architect","Visionary","Prodigy","Seer","Celestial","Apex","Oracle","Voidborn","Cosmic","Demigod","Mythic","Realmlord","Ancient","Mythkeeper","Soulforge","Starbreaker","Timekeeper","Kingmaker","Herald"];
 const GR={};function grank(id){const c=GR[id];if(c&&Date.now()-c.at<c.ttl)return c.pr;
 const e=GR[id]={at:Date.now(),ttl:600000,v:c&&c.v,pr:jget('/v1/players/'+id+'?include=profile').then(j=>{const p=((j&&j.data||{}).views||{}).profile||{};e.v=p.available&&Math.floor(+(p.data||{}).Rank)||0},s=>{if(s===404)e.v=0;else e.ttl=0})};return e.pr}
-const grk=id=>{const r=GR[id]&&GR[id].v;return r>0?'Rank '+r+(RANKS[r-1]?' '+RANKS[r-1]:''):''};
+const grk=id=>{const r=GR[id]&&GR[id].v;return r>0?'Rank\u00a0'+r:''};
 const ICO={cup:'<path d="M8 4h8v5a4 4 0 0 1-8 0zM8 6H5a3 3 0 0 0 3 4M16 6h3a3 3 0 0 1-3 4M12 13v4M8 21h8M10 17h4"/>'};
 const ico=n=>'<i class="ic" aria-hidden="true"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" stroke-linecap="round">'+ICO[n]+'</svg></i>';
 const pav=id=>{const u=U[id];return '<span class="av pav"><b>'+esc(((u?u[0]:'?')[0]||'?').toUpperCase())+'</b>'+(IM[id]?'<img src="'+esc(IM[id])+'" alt="" loading="lazy">':'')+'</span>'};
