@@ -7,6 +7,9 @@ const PASS = ['accept', 'accept-language', 'content-type', 'user-agent']
 
 export async function proxy({ request }, name) {
   if (!['GET', 'HEAD', 'POST'].includes(request.method)) return new Response('Method not allowed', { status: 405 })
+  // Only this site's own pages may use the proxies: other sites calling them or showing their pictures would spend
+  // this Worker's free requests. Browsers mark such requests "cross-site".
+  if (request.headers.get('sec-fetch-site') === 'cross-site') return new Response('Forbidden', { status: 403, headers: { 'X-Robots-Tag': 'noindex' } })
   const url = new URL(request.url), to = new URL('https://' + HOSTS[name])
   to.pathname = url.pathname.slice(name.length + 1) || '/'
   to.search = url.search
