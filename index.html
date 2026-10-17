@@ -189,7 +189,7 @@ button.lr{cursor:pointer}.lr>b{justify-self:start;padding-left:10px;font:400 20p
 button.lr::after{content:"";grid-column:3;justify-self:end;width:14px;height:14px;margin-right:20px;border:solid #8a8a8a;border-width:3.5px 3.5px 0 0;transform:rotate(45deg)}button.lr:focus-visible::after{border-color:var(--y)}
 .lr.gold{border-color:var(--y);background:#000;font:400 22px "Lilita One",Impact,sans-serif;color:var(--y)}
 .lr.end{border-style:dashed;font-size:15px;color:var(--mut)}.lr:not(.me)>.lm:only-child{grid-column:1/-1;padding:0 12px;text-wrap:balance}.lr+.lr{margin-top:8px}
-.lgp{margin:6px 0;font-size:15px;color:var(--mut);text-wrap:balance}.lgp b{font:400 26px/1.2 "Lilita One",Impact,sans-serif;color:var(--tx)}.lgp b.up{color:var(--g)}
+.lgp{margin:6px 0;font-size:15px;color:var(--mut);text-wrap:balance}.lgp b{font:400 26px/1.2 "Lilita One",Impact,sans-serif;color:var(--tx)}.lgp b.up{color:var(--g)}.lgp .eta{display:block;font-size:14px}
 .lad>.st{margin:0;font-size:15px}.lad.k3{--lw:62px}.lad.k4{--lw:74px}.lad.k4 .lr>b{padding-left:8px;font-size:17px}
 /* Lists (top 10 and suggestions): the rank or logo on the left and an arrow on the right mirror each other. */
 .rk{display:grid;grid-template-columns:var(--rkw,44px) minmax(0,1fr) var(--rkw,44px);gap:8px;align-items:center;width:100%;min-height:56px;padding:6px 4px;background:none;border:0;border-top:1px solid var(--ed);color:var(--tx);text-align:center;font:inherit;font-size:18px;cursor:pointer}
@@ -356,7 +356,7 @@ body.res .help{display:none}
 <li><b>Points per hour</b> is how many points came in during the last hour.</li>
 <li><b>Points gained</b> are the points added in the last 1, 6, 12 and 24 hours.</li>
 <li><b>Better than 98%</b> means more points than 98 in 100 players in this war. ~ means about: an estimate until the next scan.</li>
-<li><b>Close rivals</b> are the teams just above and below. Tap one to open it.</li>
+<li><b>Close rivals</b> are the teams just above and below. Tap one to open it. The time to pass compares the points each team got in the last hour.</li>
 <li><b>Player</b> finds anyone by Roblox username, as long as their league or clan is in the top 2,000.</li>
 <li>Clan points start again at 0 when a new clan war begins.</li></ul></details>
 <section class="card about" aria-labelledby="ab"><h2 id="ab">About this Pet Simulator 99 tracker</h2><details class="abd" id="abd" open><summary>About PS99 Tracker and FAQ</summary>
@@ -689,7 +689,7 @@ const av=r=>{const t=nm(r).replace(/^(@|User )/,'');return '<span class="av"><b>
 const SHOWALL=new Set(),LIMIT=10;
 // What the numbers mean, in the fold at the end of each result.
 const HELP='<li><b>Placement</b> is the spot on the leaderboard. #1 is the best.</li><li><b><span class="up">▲</span> Up 3 in 24 hours</b> means the team climbed 3 places since this time yesterday.</li><li><b>Points per hour</b> is how many points came in during the last hour.</li>'
-+'<li><b>Better than 98%</b> means more points than 98 in 100 players in this war. ~ means about: an estimate until the next scan.</li><li><b>Close rivals</b> are the teams just above and below. Tap one to open it.</li><li>Clan points start again at 0 when a new clan war begins.</li>';
++'<li><b>Better than 98%</b> means more points than 98 in 100 players in this war. ~ means about: an estimate until the next scan.</li><li><b>Close rivals</b> are the teams just above and below. Tap one to open it. The time to pass compares the points each team got in the last hour.</li><li>Clan points start again at 0 when a new clan war begins.</li>';
 function render(d,a){LAST={a,d};const kind=d.kind,war=kind==='League'?'league':'clan',tot=kind==='League'?LT:CT;
 const now=Math.floor(Date.now()/1000),last=a[a.length-1]||[0,0,0,{}],G=[1,6,12,24].map(h=>a.length>1?gain(a,h):null),g1=G[0],g24=G[3];
 const loc=d.loc||a,lastL=loc[loc.length-1],lg1=loc.length>1?gain(loc,1):null,r0=lg1&&lg1[2],hs=d.hs;
@@ -713,9 +713,14 @@ const A=d.i>0?d.list[d.i-1]:null,B=d.i>=0?d.list[d.i+1]:null,ok=d.pts!=null&&d.i
 // Close rivals: the team above, this team and the team below, with the gaps in between; a rival opens with a tap.
 // At #1 and at the end of the list an end row takes the rival's place, so the ladder keeps its three rows.
 const lrow=(T,r,c)=>(c?'<div class="lr me">':'<button class="lr" data-open="'+kind+'" data-n="'+esc(T[0])+'">')+'<b>#'+r.toLocaleString()+'</b><span class="lm"><span class="ln">'+logo(T[3],T[0]).replace('<span','<span aria-hidden="true"')+'<span>'+esc(T[0])+'</span></span><i>'+pt(fmt(T[1]))+'</i></span>'+(c?'</div>':'</button>'),
-lgap=(v,w,T,c)=>'<p class="lgp">'+((v=Math.max(0,Math.round(v)))?'<b'+(c?' class="up"':'')+'>'+fmt(v)+'</b> '+w+' ':'<b>Tied</b> with ')+esc(T[0])+'</p>',lend=(t,c)=>'<div class="lr '+(c||'end')+'"><span class="lm">'+t+'</span></div>';
-const lad=ok?(A?lrow(A,d.rank-1)+lgap(A[1]-me,'to pass',A):lend(CROWN+'Already #1','gold'))+lrow([d.name,me,0,d.icon],d.rank,1)
-+(B?lgap(me-B[1],'ahead of',B,1)+lrow(B,d.rank+1):lend((tot?d.rank<tot:d.list.length>=2000)?'Teams below #'+d.list.length.toLocaleString()+' are not tracked':'Last place'))
+lgap=(v,w,T,c,e)=>'<p class="lgp">'+((v=Math.max(0,Math.round(v)))?'<b'+(c?' class="up"':'')+'>'+fmt(v)+'</b> '+w+' ':'<b>Tied</b> with ')+esc(T[0])+(v&&e?'<span class="eta">'+e+'</span>':'')+'</p>',lend=(t,c)=>'<div class="lr '+(c||'end')+'"><span class="lm">'+t+'</span></div>';
+// Time to pass, only while the war runs: the gap over how much faster the chaser earns. Both speeds cover the last hour;
+// a rival's comes from its saved snapshots plus its points on the leaderboard now.
+const rph=T=>{const h=HS[kind+':'+String(T[0]).toLowerCase()],s=h&&h.ok?sinceReset(h.h.concat([[now,T[1]]]),kind):[],g=s.length>1?gain(s,1):null;return g&&g[1]>=120?g[0]/(g[1]/3600):null},
+wend=kind==='Clan'&&BREC&&BREC.end?BREC.end/1000:0,eta=(T,gap,up)=>{const v=!PZ&&pph!=null?rph(T):null;if(v==null)return'';const c=up?pph-v:v-pph,s=c>0?gap/c*3600:0;
+return(!s?up?'Not catching up':'Not getting caught':wend&&now+s>wend?up?"Won't pass before the war ends":"Won't get caught before the war ends":(up?'Passes':'Gets caught')+' in about '+durf(s>=3600?Math.round(s/600)*600:s))+' at this pace'};
+const lad=ok?(A?lrow(A,d.rank-1)+lgap(A[1]-me,'to pass',A,0,eta(A,A[1]-me,1)):lend(CROWN+'Already #1','gold'))+lrow([d.name,me,0,d.icon],d.rank,1)
++(B?lgap(me-B[1],'ahead of',B,1,eta(B,me-B[1],0))+lrow(B,d.rank+1):lend((tot?d.rank<tot:d.list.length>=2000)?'Teams below #'+d.list.length.toLocaleString()+' are not tracked':'Last place'))
 :'<p class="st">'+(unk?'Rivals are unavailable right now.':'Rivals show once '+esc(d.name)+(d.pts?' is in the top 2,000.':' has points.'))+'</p>';
 const tp=d.pts!=null?d.pts:d.sum,all=SHOWALL.has(d.key);let tl=0;
 // Speed in green; "No points this hour" only when this device has watched the member for at least 45 minutes.
@@ -1000,11 +1005,12 @@ async function paint(show){if(mode==='Player')return paintPlayer(show);
 const name=S[mode],k=mode,seq=++PSEQ;if(!name){$('dash').innerHTML='';return}
 if(show)$('dash').innerHTML='<section class="card"><p class="st" style="margin:0">Loading '+esc(name)+'...</p></section>';
 try{const hp=shist(k,name.toLowerCase()),d=await near(await(k==='League'?dataL(name):dataC(name)));phase('t:'+d.key,d.pts+':'+d.sum);const ids=d.rows.map(r=>r.id),ln=d.name.toLowerCase(),loc=snap(d);
-const extra=Promise.all([names(d.oid?ids.concat(d.oid):ids),pics(ids),gplay(k),ln===name.toLowerCase()?hp:shist(k,ln)]);
+const rv=d.i<0?[]:[d.list[d.i-1],d.list[d.i+1]].filter(Boolean).map(x=>shist(k,String(x[0]).toLowerCase()));
+const extra=Promise.all([names(d.oid?ids.concat(d.oid):ids),pics(ids),gplay(k),ln===name.toLowerCase()?hp:shist(k,ln)].concat(rv));
 // Draw as soon as the numbers are in; names, pictures and player ranks fill in on a second draw.
 const draw=fin=>{if(seq!==PSEQ||k!==mode||name.toLowerCase()!==String(S[mode]||'').toLowerCase())return;d.hs=HS[k+':'+ln];d.loc=sinceReset(loc,k);const m=merge(loc,d.hs&&d.hs.ok?d.hs.h:[]),a=sinceReset(m,k);d.cut=a.length<m.length?a[0][0]:0;
 keepFocus($('dash'),()=>put($('dash'),render(d,a)+(fin&&ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'')));atY();if(!fin)shown(k,d.name)};
-await Promise.race([hp,new Promise(z=>setTimeout(z,1200))]);draw(false);
+await Promise.race([Promise.all([hp].concat(rv)),new Promise(z=>setTimeout(z,1200))]);draw(false);
 Promise.race([extra,new Promise(z=>setTimeout(z,5000))]).then(()=>draw(true))}
 catch(e){if(GONE(e))DEAD=k+':'+name.toLowerCase();if(k===mode&&seq===PSEQ&&(show||GONE(e)||!$('dash').querySelector('.dash'))){PENDY=null;document.title=DTITLE;$('dash').innerHTML=GONE(e)?nfCard(k,name):'<section class="card"><b>Could not find '+esc(name)+'.</b><p class="st">Live data may be unavailable right now. Try again in a moment.</p></section>'}}}
 // In Player mode the list shows the official top league players (the API's top 500 sample).
