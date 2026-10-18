@@ -1086,8 +1086,7 @@ const g=++NAV;stash();openFind(false);PENDY=null;sgSet('');if(k!==mode)setMode(k
 // The tabs keep the typed text (selected) and the keyboard: a tap on a tab while typing does not take the focus from the box.
 let TQF=false;const TABS=document.querySelector('.tabs');
 TABS.addEventListener('pointerdown',e=>{TQF=document.activeElement===$('q')&&!!e.target.closest('.tab');if(TQF)e.preventDefault()});TABS.addEventListener('mousedown',e=>{if(document.activeElement===$('q'))e.preventDefault()});
-// The name of the page on screen is not a search, so a tab tap shows no suggestions for it; typed text gets them.
-const tab=m=>{const q=$('q'),f=TQF||document.activeElement===q||!!q.value;TQF=false;kindUI(m);if(q.value.trim().toLowerCase()===String(S[mode]||'').toLowerCase())sgSet('');else sugg();if(f){q.focus();q.setSelectionRange(0,q.value.length)}};
+const tab=m=>{const q=$('q'),f=TQF||document.activeElement===q||!!q.value;TQF=false;kindUI(m);sugg();if(f){q.focus();q.setSelectionRange(0,q.value.length)}};
 $('tL').onclick=()=>tab('League');$('tC').onclick=()=>tab('Clan');$('tP').onclick=()=>tab('Player');$('go').onclick=()=>go();
 // Links open in the page; with ctrl, cmd, shift or alt held the browser opens them as usual (a new tab or window).
 const mod=e=>e.ctrlKey||e.metaKey||e.shiftKey||e.altKey;
@@ -1164,19 +1163,18 @@ document.addEventListener('keydown',e=>{if((e.key==='Enter'||e.key===' ')&&e.tar
 // Search matching ignores spaces and counts O/0 and i/l/1 as the same, since many teams spell O as zero. Lists show the real names.
 const NZ=new Map(),nz=x=>{x=String(x);let v=NZ.get(x);if(v==null){v=x.toLowerCase().replace(/\s+/g,'').replace(/o/g,'0').replace(/[il|]/g,'1');NZ.set(x,v)}return v};
 // Matches in this order: the exact name, the same name after nz, names that start with it, names that contain it; each in placement order.
-function hits(a,q,max,ex){const lq=q.toLowerCase(),z=nz(q),g=[[],[],[],[]];if(!z||max<1)return[];
-for(let i=0;i<a.length;i++){const x=String(a[i][0]),y=nz(x),t=x.toLowerCase()===lq?0:y===z?1:ex?-1:y.startsWith(z)?2:y.includes(z)?3:-1;if(t>=0&&g[t].length<max)g[t].push(i)}
+function hits(a,q,max){const lq=q.toLowerCase(),z=nz(q),g=[[],[],[],[]];if(!z)return[];
+for(let i=0;i<a.length;i++){const x=String(a[i][0]),y=nz(x),t=x.toLowerCase()===lq?0:y===z?1:y.startsWith(z)?2:y.includes(z)?3:-1;if(t>=0&&g[t].length<max)g[t].push(i)}
 return[].concat(...g).slice(0,max)}
 const sgRow=(k,a,i)=>'<button class="sg" data-open="'+k+'" data-n="'+esc(a[i][0])+'">'+logo(a[i][3],a[i][0])+'<span class="sgm"><span>'+esc(a[i][0])+'</span><i><span class="sgk">'+k+' ·</span> #'+(i+1).toLocaleString()+' · '+pt(fmt(a[i][1]))+'</i></span></button>';
 const sgSet=h=>{$('sg').innerHTML=h;FIND.classList.toggle('sgon',!!h)};
-// Up to 4 suggestions of the kind being searched, then up to 2 of the other kind (from 2 letters; an exact name always shows).
+// Up to 6 suggestions, all of the kind being searched: the Clan tab never offers leagues, nor League clans.
 // Players come from the names this device has already seen in the teams it opened.
 function sugg(){const q=$('q').value.trim();if(!q)return sgSet('');
 if(SK==='Player'){const lq=q.replace(/^@/,'').toLowerCase(),z=nz(lq),g=[[],[],[],[]];if(!z)return sgSet('');
 for(const id in U){const u=U[id];if(!u||/^\d+$/.test(u[0]))continue;const a=nz(u[0]),b=nz(u[1]),t=u[0].toLowerCase()===lq||String(u[1]).toLowerCase()===lq?0:a===z||b===z?1:a.startsWith(z)||b.startsWith(z)?2:a.includes(z)||b.includes(z)?3:-1;if(t>=0)g[t].push(id)}
 return sgSet([].concat(...g.map(x=>x.sort((p,r)=>U[p][0].localeCompare(U[r][0])))).slice(0,6).map(id=>{const u=U[id];return '<button class="sg" data-open="Player" data-n="'+esc(u[0])+'">'+av({id,n:u[0]})+'<span class="sgm"><span>@'+esc(u[0])+'</span>'+(u[1]&&u[1]!==u[0]?'<small>In game: '+esc(u[1])+'</small>':'')+'</span></button>'}).join(''))}
-const o=SK==='League'?'Clan':'League',A=SK==='League'?L:C,B=SK==='League'?C:L,ob=hits(B,q,2,q.length<2);
-sgSet(hits(A,q,6-ob.length).map(i=>sgRow(SK,A,i)).concat(ob.map(i=>sgRow(o,B,i))).join(''))}
+const A=SK==='League'?L:C;sgSet(hits(A,q,6).map(i=>sgRow(SK,A,i)).join(''))}
 $('q').oninput=sugg;
 const lev=(a,b)=>{let p=[...Array(b.length+1).keys()];for(let i=1;i<=a.length;i++){const c=[i];for(let j=1;j<=b.length;j++)c[j]=Math.min(p[j]+1,c[j-1]+1,p[j-1]+(a[i-1]===b[j-1]?0:1));p=c}return p[b.length]};
 // Not found: up to 3 close names of either kind (a typo, O for 0, or the other kind), then a button back to the search.
