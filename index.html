@@ -5,14 +5,15 @@
 <script>if(location.hostname.endsWith('.workers.dev'))location.replace('https://ps99tracker.xyz/'+location.search+location.hash)</script>
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
 <meta name="theme-color" content="#000000">
-<title>PS99 Tracker: Pet Simulator 99 League &amp; Clan Rank Tracker</title>
-<meta name="description" content="Free Pet Simulator 99 tracker. Check any league, clan or player: rank, points per hour, gains and top contributors. Live top 2,000 leaderboards from the official API.">
+<title>PS99 Tracker: Pet Simulator 99 Clan Battle &amp; League Leaderboard</title>
+<meta name="description" content="Free Pet Simulator 99 clan battle and league tracker. Check any clan, league or player: rank, points per hour, gains and top contributors, live from the official API.">
 <meta name="robots" content="index,follow,max-image-preview:large,max-snippet:-1,max-video-preview:-1">
 <!-- For search engines a league or clan link (?clan=NAME) is a page of its own; any other address is the home page.
-     Player pages stay out of search results, so searching someone's Roblox name doesn't bring up their stats. -->
+     Player pages stay out of search results (noindex, and no canonical pointing elsewhere), so searching someone's Roblox name
+     doesn't bring up their stats; clan member lists are kept out of result snippets for the same reason. -->
 <script>const seoTags=(()=>{const r=document.querySelector('meta[name=robots]'),r0=r.content,ds=document.querySelector('meta[name=description]'),d0=ds.content;return nf=>{const q=new URLSearchParams(location.search),k=['league','clan'].find(x=>(q.get(x)||'').trim()),
 c=document.querySelector('link[rel=canonical]')||document.head.appendChild(Object.assign(document.createElement('link'),{rel:'canonical'}));
-c.href='https://ps99tracker.xyz/'+(k?'?'+k+'='+encodeURIComponent(q.get(k).trim().slice(0,64)):'');r.content=nf||!k&&(q.get('player')||'').trim()?'noindex,follow':r0;if(!k)ds.content=d0}})();seoTags()</script>
+c.href='https://ps99tracker.xyz/'+(k?'?'+k+'='+encodeURIComponent(q.get(k).trim().slice(0,64)):'');const p=!k&&(q.get('player')||'').trim();r.content=nf||p?'noindex,follow':r0;if(p)c.remove();if(!k)ds.content=d0}})();seoTags()</script>
 <meta name="application-name" content="PS99 Tracker">
 <meta name="apple-mobile-web-app-title" content="PS99 Tracker">
 <meta name="apple-mobile-web-app-capable" content="yes">
@@ -23,7 +24,6 @@ c.href='https://ps99tracker.xyz/'+(k?'?'+k+'='+encodeURIComponent(q.get(k).trim(
 <meta property="og:locale" content="en_US">
 <meta property="og:title" content="PS99 Tracker: Live Pet Simulator 99 League &amp; Clan Ranks">
 <meta property="og:description" content="Look up any PS99 league, clan or player: rank, points per hour, gains, gap to the next team and top contributors. Free, live top 2,000 leaderboards.">
-<meta property="og:url" content="https://ps99tracker.xyz/">
 <meta property="og:image" content="https://ps99tracker.xyz/og.jpg?v=3">
 <meta property="og:image:secure_url" content="https://ps99tracker.xyz/og.jpg?v=3">
 <meta property="og:image:type" content="image/jpeg">
@@ -221,7 +221,7 @@ summary{list-style:none;cursor:pointer}summary::-webkit-details-marker{display:n
 .notes ul{list-style:none;max-width:60ch;margin:0 auto 12px;padding:0;font-size:15px}.notes li{margin-bottom:8px}
 .faq{border-top:1px solid var(--ed)}.faq summary{padding:12px 0;font-weight:700}.faq p{max-width:70ch;margin:0 auto 12px;color:var(--mut)}
 .abd>p{max-width:70ch;margin-inline:auto}
-footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}footer p{max-width:80ch;margin:16px auto}
+footer{color:var(--mut);font-size:14px}footer a{color:var(--mut)}.faq a{color:inherit}footer p{max-width:80ch;margin:16px auto}
 #ld{position:fixed;inset:0;z-index:50;background:#000;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:12px;padding:24px max(24px,env(safe-area-inset-left,0px),env(safe-area-inset-right,0px));text-align:center;touch-action:none;transition:opacity .35s}
 [hidden]{display:none!important}#dash{scroll-margin-top:12px}
 /* The stats are drawn again every minute in the same places. Chrome's scroll anchoring would pick a row while the
@@ -368,9 +368,9 @@ body.res .help{display:none}
 <li><b>Player</b> finds anyone by Roblox username, as long as their league or clan is in the top 2,000.</li>
 <li>Clan points start again at 0 when a new clan war begins.</li></ul></details>
 <section class="card about" aria-labelledby="ab"><h2 id="ab">About this Pet Simulator 99 tracker</h2><details class="abd" id="abd" open><summary>About PS99 Tracker and FAQ</summary>
-<p>PS99 Tracker is a free fan-made tool for Pet Simulator 99 (Pet Sim 99, PS99) on Roblox. Look up any league or clan in the top 2,000 to see its placement, points, points per hour, gains over 1, 6, 12 and 24 hours, and the gap to the teams above and below it. Every contributor shows with their Roblox avatar and how they compare to other players in the league war or clan war.</p>
-<details class="faq"><summary>How do I check my league placement in Pet Simulator 99?</summary><p>Pick League, type your league name, and tap Show stats. If your league is in the top 2,000 you get its placement, points and gap to the next league.</p></details>
-<details class="faq"><summary>How do I check my clan placement?</summary><p>Pick Clan, type your clan name, and tap Show stats. You also see who contributed the most points and how fast your clan is gaining.</p></details>
+<p>PS99 Tracker is a free fan-made tool for Pet Simulator 99 (Pet Sim 99, PS99) on Roblox. Look up any league or clan in the top 2,000 to see its placement, points, points per hour, gains over 1, 6, 12 and 24 hours, and the gap to the teams above and below it. Every contributor shows with their Roblox avatar and how they compare to other players in the league war or clan battle (clan war).</p>
+<details class="faq"><summary>How do I check my league placement in Pet Simulator 99?</summary><p>Pick League, type your league name, and tap Show stats. If your league is in the top 2,000 you get its placement, points and gap to the next league.<span id="tlg"></span></p></details>
+<details class="faq"><summary>How do I check my clan placement?</summary><p>Pick Clan, type your clan name, and tap Show stats. You also see who contributed the most points and how fast your clan is gaining.<span id="tcl"></span></p></details>
 <details class="faq"><summary>How often does the leaderboard update?</summary><p>The top 100 and the team you look up refresh within seconds of the official BIG Games public API having new numbers, which it does about once a minute, and the full top 2,000 every 5 minutes. Points per hour, gains and the chart use snapshots the site saves every 15 minutes and keeps for 24 hours.</p></details>
 <details class="faq"><summary>What does "better than 98%" mean?</summary><p>The player has more points than 98 in 100 players. It compares a player with every player in the top 2,000 leagues, or the top 2,000 clans for the clan war. A ~ means it is an estimate while the scan of those teams is still running.</p></details>
 <details class="faq"><summary>How do I look up a player?</summary><p>Pick Player, type their Roblox username or user ID, and tap Show stats. You see their points, placement and share of points in their league and in the clan war, as long as their league or clan is in the top 2,000.</p></details>
@@ -386,7 +386,7 @@ const $=i=>document.getElementById(i);
 let LDFAIL=false,CHX=null,CHK=null;
 const esc=t=>String(t).replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 // A team's own address (the same form the address bar uses) and the tab title of a lookup.
-const tlink=(m,n)=>'/?'+m.toLowerCase()+'='+encodeURIComponent(n),ttl=(m,n)=>n+(m==='Player'?' · PS99 Tracker':' · PS99 '+m+' Rank & Stats');
+const tlink=(m,n)=>'/?'+m.toLowerCase()+'='+encodeURIComponent(n),ttl=(m,n)=>n+(m==='Player'?' · PS99 Tracker':' · PS99 '+(m==='Clan'?'Clan Battle':m)+' Rank & Stats');
 const UNITS=[[1e12,'t',2],[1e9,'b',2],[1e6,'m',2],[1e3,'k',1]];
 const fmt=v=>{if(typeof v!=='number')return v;const a=Math.abs(v),m=v<0&&Math.round(a)?'-':'';
 for(let i=0;i<UNITS.length;i++){const[d,s,f]=UNITS[i];if(a>=d){const t=(a/d).toFixed(f);return m+(i&&+t>=1000?(a/UNITS[i-1][0]).toFixed(UNITS[i-1][2])+UNITS[i-1][1]:t+s)}}
@@ -721,7 +721,7 @@ const mx=Math.max(1,...G.map(x=>x?Math.abs(x[0]):0)),lab=['Last hour','Last 6 ho
 const gains='<div class="grid gns">'+[1,6,12,24].map((h,k)=>{const x=G[k],ng=x&&x[0]<0;return '<div class="cell"><small>'+lab[k]+'</small><b'+(ng?' class="dn"':x?'':' class="na"')+'>'+(x?sg(x[0]):'–')+'</b>'+(x?'<small>'+(x[1]<h*3600-120?durf(x[1])+' so far':x[1]>h*3600+120?'over '+durf(x[1]):'')+'</small>':wt)+'<div class="bar"><i'+(ng?' class="neg"':'')+' style="width:'+(x&&x[0]?Math.max(2,Math.abs(x[0])/mx*100):0)+'%"></i></div></div>'}).join('')+'</div>';
 const A=d.i>0?d.list[d.i-1]:null,B=d.i>=0?d.list[d.i+1]:null,ok=d.pts!=null&&d.i>=0,me=ok?d.pts:0;
 // The line search results show under the page's title.
-document.querySelector('meta[name=description]').content=d.name+(ok?' is #'+d.rank.toLocaleString()+(tot?' of '+tot.toLocaleString()+' '+war+'s':'')+' in Pet Simulator 99 with '+fmt(me)+' points':' in Pet Simulator 99')+'. Live points per hour, gains, close rivals and '+(kind==='Clan'?'every member':'each contributor')+"'s points.";
+document.querySelector('meta[name=description]').content=d.name+(ok?' is #'+d.rank.toLocaleString()+(tot?' of '+tot.toLocaleString()+' '+war+'s':'')+(kind==='Clan'?' in the Pet Simulator 99 clan battle':' in Pet Simulator 99')+' with '+fmt(me)+' points':' in Pet Simulator 99')+'. Live points per hour, gains, close rivals and '+(kind==='Clan'?'every member':'each contributor')+"'s points.";
 // Close rivals: the team above, this team and the team below, with the gaps in between; a rival opens with a tap.
 // At #1 and at the end of the list an end row takes the rival's place, so the ladder keeps its three rows.
 const lrow=(T,r,c)=>(c?'<div class="lr me">':'<a class="lr" href="'+esc(tlink(kind,T[0]))+'" data-open="'+kind+'" data-n="'+esc(T[0])+'">')+'<b>#'+r.toLocaleString()+'</b><span class="lm"><span class="ln">'+logo(T[3],T[0]).replace('<span','<span aria-hidden="true"')+'<span>'+esc(T[0])+'</span></span><i>'+pt(fmt(T[1]))+'</i></span>'+(c?'</div>':'</a>'),
@@ -753,8 +753,8 @@ const dg=!(PZ&&PZ.state==='ended')&&(!(d.pts||d.sum)||fresh)?'<p class="emp">'+(
 :PZ&&!G.some(x=>x&&x[0])?'':'<div class="dg"><div><h3>Points gained</h3>'+(late?'<p class="st sb" style="margin:0 0 4px">'+late+'</p>':'')+gains+'</div><div><h3>Points per hour</h3><div id="chw">'+chartHtml(a,d)+'</div></div></div>';
 // The intro says who has no points yet (a tap shows them) and what the bars compare with.
 const ms='<h3>'+(kind==='Clan'?'Members ('+d.rows.length+')':'Contributors'+(d.nAll?' ('+d.nAll+')':''))+'</h3><p class="st" style="margin:0 0 4px">'+(kind==='Clan'&&d.rows.length>d.nAll?d.nAll+'\u00a0have points this war, <button class="nyl" data-ny="'+esc(d.key)+'">'+(d.rows.length-d.nAll)+'\u00a0not\u00a0yet</button>.<br>':'')+(d.rows.length?'Tap a player for details. Bars compare with all players in this war.'+(tl?' ~ means about.':''):'')+'</p>'
-+'<div class="mems">'+mem+'</div>'+(d.rows.length>LIMIT&&!all?'<button class="more" data-all="'+esc(d.key)+'">Show all '+d.rows.length+' '+(kind==='Clan'?'members':'contributors')+'</button>':'');
-return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2>'+(own?'<p class="meta">Owner '+esc(own)+'</p>':'')+'</div></div>'
++'<div class="mems" data-nosnippet>'+mem+'</div>'+(d.rows.length>LIMIT&&!all?'<button class="more" data-all="'+esc(d.key)+'">Show all '+d.rows.length+' '+(kind==='Clan'?'members':'contributors')+'</button>':'');
+return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2>'+(own?'<p class="meta" data-nosnippet>Owner '+esc(own)+'</p>':'')+'</div></div>'
 +pill(kind,d.cut)
 +'<div class="hero'+(d.i===0?' gold':'')+'"><small>'+(d.i===0?CROWN:'')+kind+' placement</small><b>'+place+'</b>'+(ppl?'<span class="pill">'+ppl+'</span>':'')+(run?'<span class="trend '+tc+'">'+tr+'</span>':'')+'</div>'
 +'<div class="grid keys'+(one?' one':'')+'"><div class="cell"><small>'+PTI+(PZ&&PZ.state==='ended'?'Final points':'Points')+'</small><b class="kp">'+(d.pts==null?'n/a':fmt(d.pts))+'</b><small>'+(kind==='Clan'?'This clan war':'This season')+'</small></div>'
@@ -1038,7 +1038,10 @@ function exPH(){const a=SK==='League'?L:SK==='Clan'?C:null;$('q').placeholder='E
 const BK=()=>S[mode]?mode:SK;
 const pzLoad=()=>{if(BK()!=='Player')Promise.all([BK()==='League'?gplay('League'):null,hmeta()]).then(()=>{if(BK()!=='Player')board()})};
 const rkw=k=>$('top').style.setProperty('--rkw',k>999?'64px':k>99?'54px':'44px');
-function board(){exPH();const m=TOPK=BK();if(m==='Player')return boardPlayers();const a=m==='League'?L:C,k=Math.min(BN,a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(m==='League'?'leagues':'clans');
+// The top 10 shows one kind and crawlers always get the League board, so the FAQ answers also link the top clans and leagues:
+// without them nothing on the home page leads to a clan page.
+const topLinks=()=>{for(const[k,a,id]of[['League',L,'tlg'],['Clan',C,'tcl']])put($(id),a.length?' Top '+k.toLowerCase()+'s right now: '+a.slice(0,10).map(x=>'<a href="'+esc(tlink(k,x[0]))+'" data-open="'+k+'" data-n="'+esc(x[0])+'">'+esc(x[0])+'</a>').join(', ')+'.':'')};
+function board(){exPH();topLinks();const m=TOPK=BK();if(m==='Player')return boardPlayers();const a=m==='League'?L:C,k=Math.min(BN,a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(m==='League'?'leagues':'clans');
 w.dataset.k=m;repill(w);w.hidden=false;
 keepFocus($('top'),()=>put($('top'),a.length?a.slice(0,k).map((x,i)=>'<a class="rk'+(i<3?' m'+(i+1):'')+'" href="'+esc(tlink(m,x[0]))+'" data-n="'+esc(x[0])+'">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn">'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span></span><span class="rkv"><i>'+pt(fmt(x[1]))+'</i></span></span></a>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):LDFAIL?'<p class="st">The leaderboard could not load. Trying again...</p>':phRows()))}
 // While the list loads, ten hidden rows hold its place, so the page below doesn't jump when it fills in.
