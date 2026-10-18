@@ -1032,8 +1032,8 @@ if(!g.at){if(Date.now()-(g.tr||0)>30000){g.tr=Date.now();gplay('League').then(()
 const ids=g.list.slice(0,k).map(x=>x.id).filter(i=>!TRIED.has(i)&&(!U[i]||!IM[i]));ids.forEach(i=>TRIED.add(i));
 if(ids.length)Promise.all([names(ids),pics(ids)]).then(()=>{if(BK()==='Player')boardPlayers()})}
 function exPH(){const a=SK==='League'?L:SK==='Clan'?C:null;$('q').placeholder='Example: '+(a?a.length?a[0][0]:SK==='League'?'UN00':'UN0':'JOHNMAN1990')}
-// The top 10 follows what is on screen; with nothing on screen (the home page) it follows the tab.
-const BK=()=>S[mode]?mode:SK;
+// The top 10 shows the kind the tabs show.
+const BK=()=>SK;
 const pzLoad=()=>{if(BK()!=='Player')Promise.all([BK()==='League'?gplay('League'):null,hmeta()]).then(()=>{if(BK()!=='Player')board()})};
 const rkw=k=>$('top').style.setProperty('--rkw',k>999?'64px':k>99?'54px':'44px');
 function board(){exPH();const m=TOPK=BK();if(m==='Player')return boardPlayers();const a=m==='League'?L:C,k=Math.min(BN,a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(m==='League'?'leagues':'clans');
@@ -1042,9 +1042,9 @@ keepFocus($('top'),()=>put($('top'),a.length?a.slice(0,k).map((x,i)=>'<a class="
 // While the list loads, ten hidden rows hold its place, so the page below doesn't jump when it fills in.
 const phRows=()=>Array.from({length:10},(x,i)=>'<div class="rk ph" aria-hidden="true">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn"><span class="lg"></span><span>-</span></span><span class="rkv"><i>-</i></span></span></div>').join('')
 +'<button class="more ph" tabindex="-1" aria-hidden="true">Show 25 more</button><p class="st phs">Loading...</p>';
-// The kind on screen changes only with a lookup (go, Back, the first load). The tabs only change what the box searches.
-function setMode(m){if(m!==mode)BN=10;mode=m;kindUI(m);board();pzLoad()}
-const kindUI=m=>{SK=m;$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');$('tP').setAttribute('aria-pressed',m==='Player');$('ql').textContent=m==='Player'?'Roblox username':m+' name';exPH()};
+// The kind on screen changes only with a lookup (go, Back, the first load). The tabs change what the box searches and the top 10.
+function setMode(m){if(m!==mode)BN=10;mode=m;kindUI(m)}
+const kindUI=m=>{if(m!==SK)BN=10;SK=m;$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');$('tP').setAttribute('aria-pressed',m==='Player');$('ql').textContent=m==='Player'?'Roblox username':m+' name';board();pzLoad()};
 // A search closed without a lookup goes back to what is on screen.
 const reKind=()=>{kindUI(mode);$('q').value=S[mode]||'';sgSet('')};
 // One refresh at a time: a slow one is never doubled up by the next minute's.
@@ -1086,7 +1086,8 @@ const g=++NAV;stash();openFind(false);PENDY=null;sgSet('');if(k!==mode)setMode(k
 // The tabs keep the typed text (selected) and the keyboard: a tap on a tab while typing does not take the focus from the box.
 let TQF=false;const TABS=document.querySelector('.tabs');
 TABS.addEventListener('pointerdown',e=>{TQF=document.activeElement===$('q')&&!!e.target.closest('.tab');if(TQF)e.preventDefault()});TABS.addEventListener('mousedown',e=>{if(document.activeElement===$('q'))e.preventDefault()});
-const tab=m=>{const q=$('q'),f=TQF||document.activeElement===q||!!q.value;TQF=false;kindUI(m);sugg();if(f){q.focus();q.setSelectionRange(0,q.value.length)}if(!S[mode]){BN=10;board();pzLoad()}};
+// The name of the page on screen is not a search, so a tab tap shows no suggestions for it; typed text gets them.
+const tab=m=>{const q=$('q'),f=TQF||document.activeElement===q||!!q.value;TQF=false;kindUI(m);if(q.value.trim().toLowerCase()===String(S[mode]||'').toLowerCase())sgSet('');else sugg();if(f){q.focus();q.setSelectionRange(0,q.value.length)}};
 $('tL').onclick=()=>tab('League');$('tC').onclick=()=>tab('Clan');$('tP').onclick=()=>tab('Player');$('go').onclick=()=>go();
 // Links open in the page; with ctrl, cmd, shift or alt held the browser opens them as usual (a new tab or window).
 const mod=e=>e.ctrlKey||e.metaKey||e.shiftKey||e.altKey;
@@ -1144,7 +1145,7 @@ try{history.scrollRestoration='manual'}catch(e){}
 addEventListener('popstate',e=>{clearTimeout(SY);seoTags();const y=(e.state&&e.state.y)||0,q=new URLSearchParams(location.search);let k='',v='';
 for(const m of ['League','Clan','Player']){const x=(q.get(m.toLowerCase())||'').trim().slice(0,64);if(x){k=m;v=x;break}}
 stash();PSEQ++;NAV++;openFind(false);FY=null;PENDY=null;sgSet('');DEAD='';
-if(!k){S[mode]='';$('q').value='';$('dash').innerHTML='';document.title=DTITLE;kindUI(mode);BN=10;board();pzLoad();showRecent();foldSync();scrollTo(0,y);return}
+if(!k){S[mode]='';$('q').value='';$('dash').innerHTML='';document.title=DTITLE;BN=10;kindUI(mode);showRecent();foldSync();scrollTo(0,y);return}
 if(k!==mode)setMode(k);else kindUI(k);S[k]=v;$('q').value=v;showRecent();const c=CACHE.get(k+':'+v.toLowerCase());
 if(!c){PENDY=y;paint(true);return}
 LAST=c.last;PV=c.pv;CHD=null;$('dash').innerHTML=c.h;const h=$('dash').querySelector('.top h2,.pch h2');document.title=ttl(k,h?h.textContent:v);foldSync();fitNums();scrollTo(0,y);paint(false)});
