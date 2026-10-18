@@ -232,7 +232,7 @@ h1,h2,h3,summary,.st,.sub,.meta,.cap,label,#ld p,.cell small,.pk small,.prn smal
 #ld.out{opacity:0;pointer-events:none}
 /* A lookup that is loading fills the screen, so the result arriving doesn't push what is below it around in view.
    What is below stays hidden until then, so a short result (not found, a player) doesn't pull it up into view either. */
-.ldc{min-height:100vh}#dash:has(>.ldc)~*{visibility:hidden}
+.ldc{min-height:100vh}#dash:has(>.ldc)~*{visibility:hidden}.boot :is(.cols,footer){visibility:hidden}
 #top{position:relative}.ph{visibility:hidden}.phs{position:absolute;inset:0 0 auto;margin:0}
 #ld svg{width:84px;animation:ldw 1.2s ease-in-out infinite}
 @keyframes ldw{0%,100%{transform:rotate(-8deg)}50%{transform:rotate(10deg)}}
@@ -330,7 +330,15 @@ body.res .dash .top,body.res .pch{gap:6px;margin-bottom:10px}body.res .lg.lgb{wi
 /* With a result on screen, its own fold explains the numbers. */
 body.res .help{display:none}
 </style></head>
-<body><div id="ld" role="status" aria-live="polite"><svg viewBox="0 0 120 150" aria-hidden="true"><path d="M60 6C92 6 114 58 114 94c0 30-24 50-54 50S6 124 6 94C6 58 28 6 60 6Z" fill="#fff" stroke="#14204a" stroke-width="7" stroke-linejoin="round"/><path d="M14 84l17-13 15 15 15-17 15 15 17-13 13 11" fill="none" stroke="#14204a" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="40" cy="42" r="8" fill="#ff9ec7"/><circle cx="82" cy="34" r="6" fill="#ffd23f"/><circle cx="78" cy="118" r="9" fill="#7ee6ff"/><circle cx="36" cy="112" r="6" fill="#b98cff"/></svg>
+<body>
+<!-- On a slow phone the page can be laid out before the script at its end runs, and what it changes would then jump. So the columns
+     stay hidden until the page is read in full (the loading screen covers them on a first visit), and a page that opens on a lookup
+     starts with the compact header foldSync gives it, instead of the header shrinking later and pulling the page up.
+     Without JavaScript nothing changes. -->
+<script>{const h=document.documentElement,q=new URLSearchParams(location.search);h.classList.add('boot');addEventListener('DOMContentLoaded',()=>h.classList.remove('boot'));
+let s={};try{s=JSON.parse(localStorage.getItem('ps99s'))||{}}catch(e){}
+if(['league','clan','player'].some(x=>(q.get(x)||'').trim())||s[['Clan','Player'].includes(s.mode)?s.mode:'League'])h.classList.add('res'),document.body.classList.add('res')}</script>
+<div id="ld" role="status" aria-live="polite"><svg viewBox="0 0 120 150" aria-hidden="true"><path d="M60 6C92 6 114 58 114 94c0 30-24 50-54 50S6 124 6 94C6 58 28 6 60 6Z" fill="#fff" stroke="#14204a" stroke-width="7" stroke-linejoin="round"/><path d="M14 84l17-13 15 15 15-17 15 15 17-13 13 11" fill="none" stroke="#14204a" stroke-width="6" stroke-linejoin="round" stroke-linecap="round"/><circle cx="40" cy="42" r="8" fill="#ff9ec7"/><circle cx="82" cy="34" r="6" fill="#ffd23f"/><circle cx="78" cy="118" r="9" fill="#7ee6ff"/><circle cx="36" cy="112" r="6" fill="#b98cff"/></svg>
 <div class="ldt" id="ldh">Loading live leaderboards</div>
 <p id="ldp">Please wait...</p>
 <div class="bar ldb"><i id="ldbar" style="width:3%"></i></div>
