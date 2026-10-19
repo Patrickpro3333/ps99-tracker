@@ -140,7 +140,7 @@ h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
 .share{min-height:44px;padding:0 26px;border:2px solid var(--ed);border-radius:12px;background:#000;color:var(--tx);font-size:16px;cursor:pointer}
 .nw{white-space:nowrap}
 .recent{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;margin-top:10px}.recent:empty,.sgon .recent{display:none}
-.recent button{min-height:44px;max-width:100%;padding:0 16px;border:2px solid var(--ed);border-radius:12px;background:#000;color:var(--tx);font:700 15px "Atkinson Hyperlegible",system-ui,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}.recent button small{margin-right:5px;font-size:13px;font-weight:400}
+.recent button{min-height:44px;max-width:100%;padding:0 16px;border:2px solid var(--ed);border-radius:12px;background:#000;color:var(--tx);font:700 15px "Atkinson Hyperlegible",system-ui,sans-serif;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;cursor:pointer}
 @media(max-width:599px){.recent button:nth-of-type(n+5){display:none}}
 /* Player card. */
 .pc{position:relative;background:var(--pn);border:2px solid var(--ed);border-radius:18px;padding:16px 14px 14px;margin-bottom:16px;overflow:hidden}
@@ -1071,7 +1071,7 @@ const phRows=()=>Array.from({length:10},(x,i)=>'<div class="rk ph" aria-hidden="
 +'<button class="more ph" tabindex="-1" aria-hidden="true">Show 25 more</button><p class="st phs">Loading...</p>';
 // The kind on screen changes only with a lookup (go, Back, the first load). The tabs change what the box searches and the top 10.
 function setMode(m){mode=m;kindUI(m)}
-const kindUI=m=>{SK=m;$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');$('tP').setAttribute('aria-pressed',m==='Player');$('ql').textContent=m==='Player'?'Roblox username':m+' name';board();pzLoad()};
+const kindUI=m=>{SK=m;$('tL').setAttribute('aria-pressed',m==='League');$('tC').setAttribute('aria-pressed',m==='Clan');$('tP').setAttribute('aria-pressed',m==='Player');$('ql').textContent=m==='Player'?'Roblox username':m+' name';board();pzLoad();showRecent()};
 // A search closed without a lookup goes back to what is on screen.
 const reKind=()=>{kindUI(mode);$('q').value=S[mode]||'';sgSet('')};
 // One refresh at a time: a slow one is never doubled up by the next minute's.
@@ -1152,12 +1152,12 @@ const a=m.classList.contains('open')&&m.querySelector('.acts');if(a&&a.getBoundi
 document.addEventListener('click',e=>{const b=e.target.closest('[data-ny]');if(!b)return;SHOWALL.add(b.dataset.ny);document.querySelectorAll('.mem.hid').forEach(x=>x.classList.remove('hid'));const a=document.querySelector('#dash [data-all]'),f=document.querySelector('#dash .mem.z'),kb=b.matches(':focus-visible');if(a)a.remove();
 if(f){f.scrollIntoView({block:'start',behavior:RM.matches?'auto':'smooth'});if(kb)f.focus({preventScroll:true})}});
 document.addEventListener('click',e=>{const b=e.target.closest('[data-all]');if(!b)return;SHOWALL.add(b.dataset.all);const f=document.querySelector('.mem.hid'),kb=b.matches(':focus-visible');document.querySelectorAll('.mem.hid').forEach(x=>x.classList.remove('hid'));b.remove();if(f&&kb)f.focus({preventScroll:true})});
-// Recent lookups of every kind in one list, newest first; each opens in its own kind. Filled once from the old lists per kind.
+// Recent lookups in one list, newest first, up to 8 of each kind. Filled once from the old lists per kind.
 const rdR=()=>{try{const r=JSON.parse(localStorage.getItem('ps99r2'));return Array.isArray(r)?r.filter(x=>Array.isArray(x)&&['League','Clan','Player'].includes(x[0])&&x[1]):null}catch(e){return null}};
 const R=rdR()||(()=>{const o=ldS('ps99r'),ks=['League','Clan','Player'].sort((x,y)=>(y===S.mode)-(x===S.mode)),out=[];for(let i=0;i<6;i++)ks.forEach(k=>{const n=(o[k]||[])[i];if(n&&out.length<8)out.push([k,n])});if(out.length)store('ps99r2',JSON.stringify(out));return out})();
-// The page on screen is left out, as it is already open.
-let RCUR=null;function showRecent(){const c=RCUR=S[mode]?mode+':'+String(S[mode]).toLowerCase():'',r=R.filter(x=>x[0]+':'+String(x[1]).toLowerCase()!==c);
-keepFocus($('recent'),()=>{$('recent').innerHTML=r.length?'<small>Recent:</small>'+r.map(x=>'<button data-open="'+x[0]+'" data-n="'+esc(x[1])+'"><small>'+x[0]+'</small>'+esc(x[1])+'</button>').join(''):''})}
+// Each tab shows only its own kind (the League tab only leagues). The page on screen is left out, as it is already open.
+let RCUR=null;function showRecent(){const c=RCUR=S[mode]?mode+':'+String(S[mode]).toLowerCase():'',r=R.filter(x=>x[0]===SK&&x[0]+':'+String(x[1]).toLowerCase()!==c);
+keepFocus($('recent'),()=>{$('recent').innerHTML=r.length?'<small>Recent '+SK.toLowerCase()+'s:</small>'+r.map(x=>'<button data-open="'+x[0]+'" data-n="'+esc(x[1])+'">'+esc(x[1])+'</button>').join(''):''})}
 // The address bar always holds a link to what is on screen, e.g. ?clan=LSQ, so it can be shared or bookmarked. A lookup someone
 // starts gets its own history entry, so Back returns to the page before; each entry keeps its scroll position for that
 // (while the bar's search is open, the place the reader was before opening it). The same name in other letters is the same page.
@@ -1166,7 +1166,7 @@ function setURL(push){try{const u=S[mode]?'?'+mode.toLowerCase()+'='+encodeURICo
 history.replaceState(Object.assign({},history.state,{y:keepY()}),'');history[push&&u.toLowerCase()!==ls.toLowerCase()?'pushState':'replaceState']({k:mode,n:S[mode]||'',y:push?0:scrollY},'',location.pathname+u);seoTags()}catch(e){}}
 let SY=0;addEventListener('scroll',()=>{clearTimeout(SY);SY=setTimeout(()=>{try{history.replaceState(Object.assign({},history.state,{y:keepY()}),'')}catch(e){}},300)},{passive:true});
 // A lookup that worked: only now is it saved for the next visit and added to Recent, and the tab's title names it.
-function shown(m,n){if(m!==mode||!n)return;const r=rdR()||[],b=[[m,n]].concat(r.filter(x=>!(x[0]===m&&String(x[1]).toLowerCase()===n.toLowerCase()))).slice(0,8),ch=JSON.stringify(b)!==JSON.stringify(R);
+function shown(m,n){if(m!==mode||!n)return;const r=rdR()||[],b=[[m,n]].concat(r.filter(x=>!(x[0]===m&&String(x[1]).toLowerCase()===n.toLowerCase()))).filter((x,i,a)=>a.slice(0,i).filter(y=>y[0]===x[0]).length<8),ch=JSON.stringify(b)!==JSON.stringify(R);
 if(JSON.stringify(b)!==JSON.stringify(r))store('ps99r2',JSON.stringify(b));R.splice(0,R.length,...b);
 S[m]=n;S.mode=m;if(ch||RCUR!==m+':'+n.toLowerCase())showRecent();const c=ldS('ps99s');if(c.mode!==m||c[m]!==n)save(m);setURL(false);document.title=ttl(m,n)}
 // The last few pages stay in memory, so Back shows them at once, at the same place, before they refresh.
