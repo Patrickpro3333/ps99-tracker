@@ -71,6 +71,10 @@ h1,h2,h3,button,input{font-family:"Lilita One",Impact,system-ui,sans-serif;font-
 h1{font-size:clamp(38px,12vw,60px);line-height:1.05;margin:24px 0 6px}
 h1 span{color:var(--y)}
 .sub{max-width:34em;margin:0 auto 18px;color:var(--mut)}
+/* The title row: while a league, clan or player is open, a Home button sits left of the centred title. */
+.hdr{display:grid;grid-template-columns:1fr auto 1fr;gap:0 8px;align-items:center}.hdr>h1{grid-area:1/2}.hdr>.sub{grid-column:1/-1}
+.home{display:none;grid-area:1/1;justify-self:start;align-items:center;gap:4px;min-height:36px;padding:0 10px 0 8px;border:2px solid var(--ed);border-radius:12px;background:var(--pn);color:var(--tx);font:400 16px "Lilita One",Impact,system-ui,sans-serif;text-decoration:none}
+.home svg{width:18px;height:18px;color:var(--y)}body.res .home{display:inline-flex}
 .card{background:var(--pn);border:2px solid var(--ed);border-radius:18px;padding:16px;margin-bottom:16px}.card>b,.card p,#dash>p{overflow-wrap:anywhere}
 .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 .tab{min-height:50px;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx);font-size:20px;cursor:pointer}
@@ -246,7 +250,7 @@ h1,h2,h3,summary,.st,.sub,.meta,.cap,label,#ld p,.cell small,.pk small,.prn smal
 .ldbtn{display:grid;gap:10px;width:min(320px,80vw);margin-top:8px}
 @media(min-width:900px) and (max-width:1199px){.wrap{--gut:max(24px,env(safe-area-inset-left,0px),env(safe-area-inset-right,0px));max-width:none}}
 @media(max-width:399px){.cap.c4{min-height:4.5em}}
-@media(hover:hover){.rk:hover,.mem:hover,.sg:hover,a.lr:hover,.tag:hover,.qx:hover{background:#1a1a1a}a.lr:hover::after,.rk:hover::after,.sg:hover::after{border-color:var(--y)}.mem:hover::after,.qx:hover{color:var(--y)}.tab:not([aria-pressed=true]):hover,.seg button:not([aria-pressed=true]):hover,.share:hover,.more:hover,.recent button:hover{border-color:#555}.go:hover{filter:brightness(1.08)}}
+@media(hover:hover){.rk:hover,.mem:hover,.sg:hover,a.lr:hover,.tag:hover,.qx:hover{background:#1a1a1a}a.lr:hover::after,.rk:hover::after,.sg:hover::after{border-color:var(--y)}.mem:hover::after,.qx:hover{color:var(--y)}.tab:not([aria-pressed=true]):hover,.seg button:not([aria-pressed=true]):hover,.share:hover,.more:hover,.recent button:hover,.home:hover{border-color:#555}.go:hover{filter:brightness(1.08)}}
 /* Inside the stats, sizes follow the width of the main column (and of each half of it), so the same
    rules work on phones and in the middle column on PC. */
 .mainc{min-width:0;container:main/inline-size}.dg>div{min-width:0;container:half/inline-size}.dg.one>div>h3:first-child{margin-top:12px}.dg>div>:last-child{margin-bottom:0}.cap:not(#cap){min-height:0}.dg.one{display:block}
@@ -264,6 +268,8 @@ h1,h2,h3,summary,.st,.sub,.meta,.cap,label,#ld p,.cell small,.pk small,.prn smal
 .wrap{--sw:clamp(300px,21vw,520px);max-width:none;min-height:100vh;padding:0 24px;display:grid;grid-template-columns:var(--sw) minmax(0,1fr) var(--sw);grid-template-rows:auto 1fr auto;grid-template-areas:"h h h" "c c c" "f f f";gap:0 24px;align-items:start}
 .hdr{grid-area:h}.cols{grid-area:c;display:grid;grid-template-columns:subgrid;align-items:start}.side{grid-column:1}.mainc{grid-column:2}.rside{grid-column:3}.wrap>footer{grid-area:f;padding-bottom:12px}
 h1{font-size:60px;margin-top:28px}.sub{margin-bottom:26px}
+/* The title has 22px more margin above than below; the same on the Home button keeps the two lined up. */
+.home{margin-top:22px;min-height:44px;gap:6px;padding:0 14px 0 11px;border-radius:14px;font-size:18px}.home svg{width:20px;height:20px}
 .side,.rside{position:sticky;top:16px}
 #dash{scroll-margin-top:16px}#dash>.st:first-child{margin-top:0}
 #sg{max-height:max(124px,calc(100vh - 460px));overflow-y:auto;scrollbar-width:none}#sg::-webkit-scrollbar{display:none}#sg .sg:focus-visible{outline-offset:-3px}
@@ -349,7 +355,7 @@ if(['league','clan','player'].some(x=>(q.get(x)||'').trim())||s[['Clan','Player'
 <div class="ldbtn" id="ldbtns" hidden><button class="go" id="ldretry">Try again</button><button class="tab" id="ldopen">Open anyway</button></div></div>
 <noscript><style>#ld{display:none}</style></noscript>
 <main class="wrap">
-<header class="hdr"><h1>PS99 <span>Tracker</span></h1>
+<header class="hdr"><a class="home" id="home" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3.5 21 11"/><path d="M5.5 9v11h13V9"/></svg>Home</a><h1>PS99 <span>Tracker</span></h1>
 <p class="sub">Look up any Pet Simulator 99 league, clan or player. See their placement, points per hour and gains, live.</p></header>
 <div class="cols">
 <div class="side">
@@ -1107,6 +1113,8 @@ const pt=paint(true);foldSync();if($('dash').getBoundingClientRect().top<0)$('da
 let TQF=false;const TABS=document.querySelector('.tabs');
 TABS.addEventListener('pointerdown',e=>{TQF=document.activeElement===$('q')&&!!e.target.closest('.tab');if(TQF)e.preventDefault()});TABS.addEventListener('mousedown',e=>{if(document.activeElement===$('q'))e.preventDefault()});
 const tab=m=>{const q=$('q'),f=TQF||document.activeElement===q||!!q.value;TQF=false;kindUI(m);sugg();if(f){q.focus();q.setSelectionRange(0,q.value.length)}};
+// Home: the leaderboards with nothing open, as a new history entry, so Back returns to the page. Saved, so a reload stays home.
+$('home').onclick=e=>{if(mod(e))return;e.preventDefault();history.replaceState(Object.assign({},history.state,{y:keepY()}),'');history.pushState({y:0},'',location.pathname);dispatchEvent(new PopStateEvent('popstate',{state:{y:0}}));save(mode)};
 $('tL').onclick=()=>tab('League');$('tC').onclick=()=>tab('Clan');$('tP').onclick=()=>tab('Player');$('go').onclick=()=>go();
 // Links open in the page; with ctrl, cmd, shift or alt held the browser opens them as usual (a new tab or window).
 const mod=e=>e.ctrlKey||e.metaKey||e.shiftKey||e.altKey;
