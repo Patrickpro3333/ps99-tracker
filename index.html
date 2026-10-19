@@ -73,8 +73,10 @@ h1 span{color:var(--y)}
 .sub{max-width:34em;margin:0 auto 18px;color:var(--mut)}
 /* The title row: while a league, clan or player is open, a Home button sits left of the centred title. */
 .hdr{display:grid;grid-template-columns:1fr auto 1fr;gap:0 8px;align-items:center}.hdr>h1{grid-area:1/2}.hdr>.sub{grid-column:1/-1}
-.home{display:none;grid-area:1/1;justify-self:start;align-items:center;gap:4px;min-height:36px;padding:0 10px 0 8px;border:2px solid var(--ed);border-radius:12px;background:var(--pn);color:var(--tx);font:400 16px "Lilita One",Impact,system-ui,sans-serif;text-decoration:none}
+.home{display:none;grid-area:1/1;justify-self:start;align-items:center;gap:4px;min-height:36px;padding:0 10px 0 8px;border:2px solid var(--ed);border-radius:12px;background:var(--pn);color:var(--tx);font:400 16px "Lilita One",Impact,system-ui,sans-serif;text-decoration:none;white-space:nowrap}
 .home svg{width:18px;height:18px;color:var(--y)}body.res .home{display:inline-flex}
+/* Phones have no room for the button on both sides of a centred title, so the title moves to the right edge. */
+@media(max-width:479px){body.res .hdr{grid-template-columns:auto 1fr;gap:0 4px}body.res .hdr>h1{justify-self:end}}
 .card{background:var(--pn);border:2px solid var(--ed);border-radius:18px;padding:16px;margin-bottom:16px}.card>b,.card p,#dash>p{overflow-wrap:anywhere}
 .tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-bottom:14px}
 .tab{min-height:50px;border:2px solid var(--ed);border-radius:14px;background:#000;color:var(--tx);font-size:20px;cursor:pointer}
@@ -355,7 +357,7 @@ if(['league','clan','player'].some(x=>(q.get(x)||'').trim())||s[['Clan','Player'
 <div class="ldbtn" id="ldbtns" hidden><button class="go" id="ldretry">Try again</button><button class="tab" id="ldopen">Open anyway</button></div></div>
 <noscript><style>#ld{display:none}</style></noscript>
 <main class="wrap">
-<header class="hdr"><a class="home" id="home" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3.5 21 11"/><path d="M5.5 9v11h13V9"/></svg>Home</a><h1>PS99 <span>Tracker</span></h1>
+<header class="hdr"><a class="home" id="home" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>Back to home</a><h1>PS99 <span>Tracker</span></h1>
 <p class="sub">Look up any Pet Simulator 99 league, clan or player. See their placement, points per hour and gains, live.</p></header>
 <div class="cols">
 <div class="side">
