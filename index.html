@@ -71,9 +71,11 @@ h1,h2,h3,button,input{font-family:"Lilita One",Impact,system-ui,sans-serif;font-
 h1{font-size:clamp(38px,12vw,60px);line-height:1.05;margin:24px 0 6px}
 h1 span{color:var(--y)}
 .sub{max-width:34em;margin:0 auto 18px;color:var(--mut)}
-/* The title row: while a league, clan or player is open, a Home button sits left of the centred title. */
-.hdr{display:grid;grid-template-columns:1fr auto 1fr;gap:0 8px;align-items:center}.hdr>h1{grid-area:1/2}.hdr>.sub{grid-column:1/-1}
-.home{display:none;grid-area:1/1;justify-self:start;align-items:center;gap:4px;min-height:36px;padding:0 10px 0 8px;border:2px solid var(--ed);border-radius:12px;background:var(--pn);color:var(--tx);font:400 16px "Lilita One",Impact,system-ui,sans-serif;text-decoration:none;white-space:nowrap}
+/* The title row: while a league, clan or player is open, a Home button sits left of the centred title.
+   On the main page itself, a label above the title says so instead. */
+.hdr{display:grid;grid-template-columns:1fr auto 1fr;gap:0 8px;align-items:center}.hdr>h1{grid-area:2/2}.hdr>.sub{grid-area:3/1/4/-1}
+.here{grid-area:1/1/2/-1;justify-self:center;margin-top:14px}.here svg{width:16px;height:16px;color:var(--y)}body.res .here{display:none}body:not(.res) .hdr>h1{margin-top:10px}
+.home{display:none;grid-area:2/1;justify-self:start;align-items:center;gap:4px;min-height:36px;padding:0 10px 0 8px;border:2px solid var(--ed);border-radius:12px;background:var(--pn);color:var(--tx);font:400 16px "Lilita One",Impact,system-ui,sans-serif;text-decoration:none;white-space:nowrap}
 .home svg{width:18px;height:18px;color:var(--y)}body.res .home{display:inline-flex}
 /* Phones have no room for the button on both sides of a centred title, so the title moves to the right edge. */
 @media(max-width:479px){body.res .hdr{grid-template-columns:auto 1fr;gap:0 4px}body.res .hdr>h1{justify-self:end}}
@@ -357,7 +359,7 @@ if(['league','clan','player'].some(x=>(q.get(x)||'').trim())||s[['Clan','Player'
 <div class="ldbtn" id="ldbtns" hidden><button class="go" id="ldretry">Try again</button><button class="tab" id="ldopen">Open anyway</button></div></div>
 <noscript><style>#ld{display:none}</style></noscript>
 <main class="wrap">
-<header class="hdr"><a class="home" id="home" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>Main page</a><h1>PS99 <span>Tracker</span></h1>
+<header class="hdr"><a class="home" id="home" href="/"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 5 8 12l7 7"/></svg>Main page</a><span class="spill here" data-nosnippet><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11 12 3.5 21 11"/><path d="M5.5 9v11h13V9"/></svg>You are on the main page</span><h1>PS99 <span>Tracker</span></h1>
 <p class="sub">Look up any Pet Simulator 99 league, clan or player. See their placement, points per hour and gains, live.</p></header>
 <div class="cols">
 <div class="side">
