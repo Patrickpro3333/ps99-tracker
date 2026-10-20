@@ -137,6 +137,7 @@ h3{font-size:24px;line-height:1.1;margin:24px 0 8px;color:var(--y)}
 .top,.pch{display:flex;flex-direction:column;align-items:center;gap:8px;margin:0 0 14px}
 .top>div,.pcn{min-width:0;max-width:100%;align-self:stretch}
 .top h2,.pch h2{margin:0 0 2px}.top .meta,.pch .meta{margin:0}.pch .meta+.meta{margin-top:4px}
+.own{padding:10px 0;color:inherit;text-decoration-color:var(--y);text-decoration-thickness:2px;text-underline-offset:3px}
 .share{min-height:44px;padding:0 26px;border:2px solid var(--ed);border-radius:12px;background:#000;color:var(--tx);font-size:16px;cursor:pointer}
 .nw{white-space:nowrap}
 .recent{display:flex;flex-wrap:wrap;justify-content:center;align-items:center;gap:10px;margin-top:10px}.recent:empty,.sgon .recent{display:none}
@@ -776,7 +777,7 @@ const dg=!(PZ&&PZ.state==='ended')&&(!(d.pts||d.sum)||fresh)?'<p class="emp">'+(
 // The intro says who has no points yet (a tap shows them) and what the bars compare with.
 const ms='<h3>'+(kind==='Clan'?'Members ('+d.rows.length+')':'Contributors'+(d.nAll?' ('+d.nAll+')':''))+'</h3><p class="st" style="margin:0 0 4px">'+(kind==='Clan'&&d.rows.length>d.nAll?d.nAll+'\u00a0have points this war, <button class="nyl" data-ny="'+esc(d.key)+'">'+(d.rows.length-d.nAll)+'\u00a0not\u00a0yet</button>.<br>':'')+(d.rows.length?'Tap a player for details. Bars compare with all players in this war.'+(tl?' ~ means about.':''):'')+'</p>'
 +'<div class="mems" data-nosnippet>'+mem+'</div>'+(d.rows.length>LIMIT&&!all?'<button class="more" data-all="'+esc(d.key)+'">Show all '+d.rows.length+' '+(kind==='Clan'?'members':'contributors')+'</button>':'');
-return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2>'+(own?'<p class="meta" data-nosnippet>Owner '+esc(own)+'</p>':'')+'</div></div>'
+return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2>'+(own?'<p class="meta" data-nosnippet>Owner '+(/^\d+$/.test(d.oid)?'<a class="own" href="https://www.roblox.com/users/'+d.oid+'/profile" target="_blank" rel="noopener">'+esc(own)+'</a>':esc(own))+'</p>':'')+'</div></div>'
 +pill(kind,d.cut)
 +'<div class="hero'+(d.i===0?' gold':'')+'"><small>'+(d.i===0?CROWN:'')+kind+' placement</small><b>'+place+'</b>'+(ppl?'<span class="pill">'+ppl+'</span>':'')+(run?'<span class="trend '+tc+'">'+tr+'</span>':'')+'</div>'
 +'<div class="grid keys'+(one?' one':'')+'"><div class="cell"><small>'+PTI+(PZ&&PZ.state==='ended'?'Final points':'Points')+'</small><b class="kp">'+(d.pts==null?'n/a':fmt(d.pts))+'</b><small>'+(kind==='Clan'?'This clan war':'This season')+'</small></div>'
