@@ -296,7 +296,7 @@ h1{font-size:60px;margin-top:28px}.sub{margin-bottom:26px}
 .quiet{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));grid-template-rows:auto auto;margin-bottom:4px;border-top:1px solid var(--ed);border-bottom:1px solid var(--ed)}
 .quiet>div{display:grid;grid-row:span 2;grid-template-rows:subgrid;grid-template-columns:minmax(0,1fr);min-width:0;padding:10px 4px}
 .quiet>div+div{border-left:1px solid var(--ed)}
-.quiet small{align-self:end;font-size:15px;line-height:1.25}
+.quiet small{align-self:end;font-size:15px;line-height:1.25;text-wrap:balance}
 .quiet b{align-self:start;font:400 30px/1.15 "Lilita One",Impact,sans-serif;white-space:nowrap}
 .quiet.one{grid-template-columns:minmax(0,1fr)}
 /* Words in place of a number (Not placed, Unavailable, n/a) are quieter than real results. */
@@ -782,7 +782,7 @@ return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+
 +'<div class="hero'+(d.i===0?' gold':'')+'"><small>'+(d.i===0?CROWN:'')+kind+' placement</small><b>'+place+'</b>'+(ppl?'<span class="pill">'+ppl+'</span>':'')+(run?'<span class="trend '+tc+'">'+tr+'</span>':'')+'</div>'
 +'<div class="grid keys'+(one?' one':'')+'"><div class="cell"><small>'+PTI+(PZ&&PZ.state==='ended'?'Final points':'Points')+'</small><b class="kp">'+(d.pts==null?'n/a':fmt(d.pts))+'</b><small>'+(kind==='Clan'?'This clan war':'This season')+'</small></div>'
 +(one?'':'<div class="cell"><small>Points per hour</small>'+(pph==null?'<span class="wb"><b class="na">–</b>'+wt+'</span>':'<b class="'+(pph>0?'kh':'na')+'">'+fmt(pph)+'</b><small>'+ph+'</small>')+'</div>')+'</div>'
-+'<div class="quiet'+(ppm?'':' one')+'"><div><small>Members</small><b>'+d.mem+' of '+d.cap+'</b></div>'+(ppm?'<div><small>Points per member</small><b>'+ppm+'</b></div>':'')+'</div>'
++'<div class="quiet'+(ppm?'':' one')+'"><div><small>Members</small><b>'+d.mem+' of '+d.cap+'</b></div>'+(ppm?'<div><small>Average points per member</small><b>'+ppm+'</b></div>':'')+'</div>'
 // Phones: the rivals and members come first, then the gains and chart. PC keeps the gains and chart side by side above the members.
 +'<button class="share" data-share>Share</button>'+rv+(PCQ.matches?dg+ms:ms+dg)
 +'<details class="notes"'+(NOTESOPEN?' open':'')+'><summary>What do these numbers mean?</summary><ul>'+HELP+'</ul><p class="st">'+hist+'</p><div class="st" id="scan" data-k="'+kind+'">'+scanText(kind)+'</div>'
