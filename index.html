@@ -451,13 +451,17 @@ await Promise.all(ids.map(i=>PICP[i]).filter(Boolean))}
 let L=[],C=[],live=false,LT=0,CT=0,n=0,mode='League',SK='League',TOPK='League',BN={League:10,Clan:10,Player:10};const OPEN=new Set();
 // The official top players list per kind (exact live ranks): rank by user ID, size, lowest score, the list itself.
 const GPX={League:{P:{},N:0,T:0,at:0,list:[]},Clan:{P:{},N:0,T:0,at:0,list:[]}};
-let BID='',BIDT=0,BREC=null,WARNEW=false;
+let BID='',BIDT=0,BREC=null,WARNEW=false,SOON='';
+const wname=s=>String(s).replace(/([a-z])([A-Z0-9])/g,'$1 $2');
 // The active clan war, checked every minute so a new war shows up right away.
 let BP=null;
 const battle=()=>BID&&Date.now()-BIDT<60000?Promise.resolve(BID):BP||(BP=battle0().catch(e=>{if(BID){BIDT=Date.now()-30000;return BID}throw e}).finally(()=>{BP=null}));
 async function battle0(){const j=await jget('/api/activeClanBattle'),d=j.data,id=d&&d.configName;if(!id)throw 0;
-const cfg=d.configData||{};BREC={id,title:String(cfg.Title||id).replace(/([a-z])([A-Z0-9])/g,'$1 $2'),start:Date.parse(d.dateCreated)||0,begin:(cfg.StartTime||0)*1000,end:(cfg.FinishTime||0)*1000};
+const cfg=d.configData||{};BREC={id,title:wname(cfg.Title||id),start:Date.parse(d.dateCreated)||0,begin:(cfg.StartTime||0)*1000,end:(cfg.FinishTime||0)*1000};
 if(id!==BID)warSeen(id,!!BID);BID=id;BIDT=Date.now();return id}
+// BIG Games' API can list a new war hours after it starts in game; the top clan's own list of wars has it at once.
+let SOONT=0;function soon(){if(!(BREC&&BREC.end&&Date.now()>BREC.end)){SOON='';return}if(SOON||!C.length||Date.now()-SOONT<60000)return;SOONT=Date.now();const id=BREC.id;
+jget('/api/clan/'+encodeURIComponent(C[0][0]),true).then(j=>{const b=j.data&&j.data.Battles||{},k=Object.keys(b),n=k[k.length-1];if(BREC.id===id&&k.includes(id)&&n!==id&&b[n].Points>0)SOON=wname(n)}).catch(()=>{})}
 // A new war restarts every clan's points, so this device's old-war scan is dropped and clan views start over.
 function warSeen(id,changed){let s='';try{s=localStorage.getItem('ps99war')||''}catch(e){}
 if(s!==id||changed){SMP.Clan={};SV.Clan++;Q.Clan.length=0;savS();try{localStorage.setItem('ps99war',id)}catch(e){}}
@@ -832,7 +836,7 @@ function pzInfo(kind){const c=kind==='League'?lpause():cwar();return c?{state:c.
 // The end of a clan war shows the moment it passes; "Not updating" waits 20 s after the tab comes back, for the catch-up refresh,
 // and shows straight away when the first refresh failed.
 function pstate(k,cut){const z=pzInfo(k),now=Date.now(),T=BREC?BREC.title:'',day=t=>new Date(t*1000).toLocaleDateString([],{weekday:'short',month:'short',day:'numeric'});
-if(z&&z.state==='ended')return['','War over · final results',T+' ended '+when(z.t)];
+if(z&&z.state==='ended')return SOON?['wait','New war started',SOON+' started in game. Until BIG Games\' leaderboard has it, these are '+T+'\'s final results.']:['','War over · final results',T+' ended '+when(z.t)];
 if(z&&z.state==='upcoming')return['','Next war '+day(z.t),'Starts '+nbt(new Date(z.t*1000).toLocaleTimeString([],{hour:'numeric',minute:'2-digit'}))+'. Clan points start again at 0.'];
 if(z)return['wait',k+' war looks paused','No '+k.toLowerCase()+' has earned points '+pwhen(z)];
 if(!LIVEAT)return LFAIL?['','Not updating','Trying again every minute.']:['','Loading live numbers…',''];
@@ -1102,7 +1106,7 @@ if(p&&p.chg){d=p.late&&p.late<4?3000:p.chg+Math.ceil((now+2000-p.chg)/60000)*600
 else if(PROBES<15){PROBES++;d=10000}
 NEXT=setTimeout(refresh,Math.max(3000,Math.min(60000,d)))}
 function refresh(){if(document.hidden){NEXT=setTimeout(refresh,15000);return}n++;tick(dueFull()).then(()=>{if(live)ldDone()}).finally(schedule)}const tick=full=>TK||(TK=tick0(full).finally(()=>{TK=null}));
-async function tick0(full){LASTTICK=Date.now();try{const b=battle().catch(()=>{});if(!full)await b;const nw=WARNEW;WARNEW=false;await Promise.all([pull(full||nw),b]);
+async function tick0(full){LASTTICK=Date.now();try{const b=battle().catch(()=>{});if(!full)await b;const nw=WARNEW;WARNEW=false;await Promise.all([pull(full||nw),b]);soon();
 const nt=nw?(BREC.begin>Date.now()?'The next clan war ('+BREC.title+') was just announced. Clan points, placements and history start over.':'A new clan war just started ('+BREC.title+'). Clan points, placements and history start over.'):'';
 note(nt);if(nt)setTimeout(()=>{if(STNOTE===nt)note('')},60000);LIVEAT=Date.now();stTick();board();crawl();if(nw||ranksOld())loadRanks();pzLoad();if(S[mode]&&DEAD!==mode+':'+String(S[mode]).toLowerCase())await paint(false)}
 catch(e){LFAIL=1;board();if(!live){note('Live data could not load right now. Trying again every minute.');if(S[mode]&&!$('dash').querySelector('.dash,.pc'))$('dash').innerHTML='<section class="card"><b>Could not load '+esc(S[mode])+' right now.</b><p class="st">The game\'s servers did not answer. The page tries again every minute.</p></section>'}else if(!LISTT)note('Showing the leaderboards from your last visit. Live data could not load right now, trying again every minute.')}}
