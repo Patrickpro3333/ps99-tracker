@@ -456,8 +456,11 @@ const wname=s=>String(s).replace(/([a-z])([A-Z0-9])/g,'$1 $2');
 // The active clan war, checked every minute so a new war shows up right away.
 let BP=null;
 const battle=()=>BID&&Date.now()-BIDT<60000?Promise.resolve(BID):BP||(BP=battle0().catch(e=>{if(BID){BIDT=Date.now()-30000;return BID}throw e}).finally(()=>{BP=null}));
-async function battle0(){const j=await jget('/api/activeClanBattle'),d=j.data,id=d&&d.configName;if(!id)throw 0;
+async function battle0(){const j=await jget('/api/activeClanBattle'),d=j.data;let id=d&&d.configName;if(!id)throw 0;
 const cfg=d.configData||{};BREC={id,title:wname(cfg.Title||id),start:Date.parse(d.dateCreated)||0,begin:(cfg.StartTime||0)*1000,end:(cfg.FinishTime||0)*1000};
+// Until BIG Games' API lists a new war, the scan ranks its clans every 15 minutes (war.json, from scan.py).
+const w=BREC.end&&Date.now()>BREC.end&&await rawj('data-ranks/war.json').catch(()=>null);
+if(w&&w.battle&&w.battle!==id&&Array.isArray(w.top)){id=w.battle;BREC={id,title:wname(id),start:(w.since||0)*1000,begin:0,end:0,top:w.top}}
 if(id!==BID)warSeen(id,!!BID);BID=id;BIDT=Date.now();return id}
 // BIG Games' API can list a new war hours after it starts in game; the top clan's own list of wars has it at once.
 let SOONT=0;function soon(){if(!(BREC&&BREC.end&&Date.now()>BREC.end)){SOON='';return}if(SOON||!C.length||Date.now()-SOONT<60000)return;SOONT=Date.now();const id=BREC.id;
@@ -474,7 +477,7 @@ const GPP={};const gplay=k=>GPP[k]||(GPP[k]=gplay0(k).finally(()=>{delete GPP[k]
 async function gplay0(k){const g=GPX[k];if(Date.now()-g.at<180000)return;
 try{let list;
 if(k==='League'){const j=await jget('/v1/leagues/players');list=((j.data&&j.data.players)||[]).map(q=>({id:q.UserID,p:q.Points,team:q.League&&q.League.Name,icon:q.League&&q.League.Icon,t:q.Timestamp||0}))}
-else{const id=await battle();const j=await jget('/v1/clans/battles/'+encodeURIComponent(id));list=((j.data&&j.data.topPlayers)||[]).map(q=>({id:q.userId,p:q.points,team:q.clan&&q.clan.name,icon:q.clan&&q.clan.icon}))}
+else{const id=await battle();const j=BREC.top?{}:await jget('/v1/clans/battles/'+encodeURIComponent(id));list=((j.data&&j.data.topPlayers)||[]).map(q=>({id:q.userId,p:q.points,team:q.clan&&q.clan.name,icon:q.clan&&q.clan.icon}))}
 const P={};list.forEach((q,i)=>{P[q.id]=i+1});Object.assign(g,{P,N:list.length,T:list.length?list[list.length-1].p:0,at:Date.now(),ok:Date.now(),list,newest:list.reduce((m,q)=>Math.max(m,q.t||0),0)})}catch(e){g.at=0}}
 const S=(()=>{try{return JSON.parse(localStorage.getItem('ps99s'))||{}}catch(e){return{}}})();
 // Only the changed entry is written, on top of what other open tabs saved.
@@ -498,7 +501,7 @@ let LISTT=0,LISTA=0;
 const saveLists=()=>{const sl=a=>a.map(x=>[x[0],x[1],x[2],iid(x[3]),x[4]]);store('ps99lists',JSON.stringify({t:Date.now(),LT,CT,L:sl(L),C:sl(C)}))};
 const LOK={};
 async function pull(full){
-const m=full?2000:100,cs=Math.min(m,1000),[a,b,ct]=await Promise.all([pages('/v1/leagues?pageSize=100&sort=Points&sortOrder=desc',d=>d.leagues,m,full?(q=>{lp=q;ldUpd()}):null),pages('/api/clans?pageSize='+cs+'&sort=Points&sortOrder=desc',d=>d,m,full?(q=>{cp=q;ldUpd()}):null,cs),full?jget('/api/clansTotal').catch(()=>null):null]);
+const m=full?2000:100,cs=Math.min(m,1000),[a,b,ct]=await Promise.all([pages('/v1/leagues?pageSize=100&sort=Points&sortOrder=desc',d=>d.leagues,m,full?(q=>{lp=q;ldUpd()}):null),Promise.all([pages('/api/clans?pageSize='+cs+'&sort=Points&sortOrder=desc',d=>d,m,full?(q=>{cp=q;ldUpd()}):null,cs),battle().catch(()=>{})]).then(([r])=>BREC&&BREC.top?{rows:BREC.top.slice(0,m),total:0,complete:true}:r),full?jget('/api/clansTotal').catch(()=>null):null]);
 // New rows first, then every team they don't cover in its last known order: a team that just slipped
 // from #100 to #101 stays in the list instead of showing as "Not ranked".
 const fresh=(r,old)=>{const s=new Set(r.map(x=>String(x[0]).toLowerCase()));return r.concat(old.filter(x=>!s.has(String(x[0]).toLowerCase())))};
@@ -527,7 +530,7 @@ extra:(bid?'Clan war: '+(BREC&&BREC.id===bid?BREC.title:bid)+'. ':'')+(d.GuildLe
 // The team's page of the leaderboard is fetched fresh. The list skips teams the API repeats across page
 // edges, so the team can sit a page later on the API than its place suggests; then that page is read too.
 // The fresh teams replace their old entries at the place they held, and no other team is dropped.
-async function near(d){if(d.i<100||Date.now()-LISTT<30000)return d;const k=d.kind,lc=x=>String(x[0]).toLowerCase(),me=d.name.toLowerCase();
+async function near(d){if(d.i<100||Date.now()-LISTT<30000||d.kind==='Clan'&&BREC&&BREC.top)return d;const k=d.kind,lc=x=>String(x[0]).toLowerCase(),me=d.name.toLowerCase();
 const pg=p=>jget((k==='League'?'/v1/leagues?':'/api/clans?')+'pageSize=100&sort=Points&sortOrder=desc&page='+p).then(j=>(k==='League'?j.data&&j.data.leagues:j.data)||[]);
 try{const p=Math.floor(d.i/100)+1;let r=await pg(p);if(r.length&&!r.some(x=>String(x.Name).toLowerCase()===me))r=r.concat(await pg(p+1).catch(()=>[]));if(!r.length)return d;
 const seen=new Set(),rows=[];r.forEach(x=>{const n=String(x.Name).toLowerCase();if(!seen.has(n)){seen.add(n);rows.push([x.Name,x.Points,x.Members,x.Icon,x.ContributorCount])}});
@@ -843,7 +846,7 @@ if(!LIVEAT)return LFAIL?['','Not updating','Trying again every minute.']:['','Lo
 if(now-LIVEAT>180000&&now-VISAT>20000)return['','Not updating','Last update '+ago((now-LIVEAT)/1000)+'. Trying again every minute.'];
 if(k==='League')return cut&&now/1000-cut<86400?['live','Live · new season','New season started '+day(cut)]:['live','Live',''];
 const left=BREC&&BREC.end?BREC.end-now:0;
-return left>0?['live','Live · '+(left>=1728e5?Math.floor(left/864e5)+' days left':left>=72e5?Math.floor(left/36e5)+' hours left':left>=6e4?Math.floor(left/6e4)+' min left':'ending now'),T+' ends '+when(BREC.end/1000)]:['live','Live','']}
+return left>0?['live','Live · '+(left>=1728e5?Math.floor(left/864e5)+' days left':left>=72e5?Math.floor(left/36e5)+' hours left':left>=6e4?Math.floor(left/6e4)+' min left':'ending now'),T+' ends '+when(BREC.end/1000)]:['live','Live',BREC&&BREC.top?'Placements update every 15 minutes until BIG Games lists '+T+'.':'']}
 // What a number that is not there yet waits for: this device's next snapshots, or live data that could not load.
 // Like the pill, it waits 20 s after the tab comes back, for the catch-up refresh.
 const waitT=()=>LIVEAT&&Date.now()-LIVEAT>180000&&Date.now()-VISAT>20000||!LIVEAT&&LFAIL?'Waiting for live data':'Ready in a few minutes';

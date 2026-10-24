@@ -129,13 +129,18 @@ def due(c, lp, key, now):
 def make_plan():
     # Step 1 (one machine): the clan war, both top lists, and which teams changed since the last scan.
     global battle
-    battle = (get("/api/activeClanBattle") or {}).get("configName")
+    war = get("/api/activeClanBattle") or {}
+    battle = war.get("configName")
     if not battle:
         # Without the war's name every clan's points come back empty and every clan player's history would be
         # wiped, so nothing is written and the last good scan stays.
         sys.exit("Could not read the current clan war, so nothing was written.")
     now = int(time.time())
-    plan = {"battle": battle, "t": now, "prev": prev_updated(), "fetch": []}
+    early = newer_war(war, now)
+    if early:
+        print(f"BIG Games' API still lists {battle}, which is over; clans already earn points in {early}, so this scan ranks it", flush=True)
+        battle = early
+    plan = {"battle": battle, "early": bool(early), "t": now, "prev": prev_updated(), "fetch": []}
     for kind, (path, key, size, _) in KINDS.items():
         teams = top(path, key, a.leagues if kind == "League" else a.clans, size)
         cache = load_teams(kind) if a.prev else {}
@@ -143,6 +148,17 @@ def make_plan():
         plan[kind], plan["fetch"] = teams, plan["fetch"] + todo
         print(f"{kind}: {len(teams)} teams, {len(todo)} changed or due to be read again", flush=True)
     return plan
+
+
+def newer_war(war, now):
+    # BIG Games' API can list a new clan war hours after it starts in game, and its clan list keeps the old war's
+    # points until then. The top clan's own list of wars (in the order they started) has the new one at once.
+    if (war.get("configData") or {}).get("FinishTime", now) >= now:
+        return None
+    first = (get("/api/clans?sort=Points&sortOrder=desc&pageSize=1&page=1") or [{}])[0].get("Name")
+    wars = ((get("/api/clan/" + urllib.parse.quote(first, safe="")) or {}).get("Battles") or {}) if first else {}
+    last = list(wars)[-1] if wars else None
+    return last if last and last != war.get("configName") and war.get("configName") in wars and (wars[last].get("Points") or 0) > 0 else None
 
 
 def prev_updated():
@@ -167,6 +183,8 @@ def fetch(items, label=""):
                 got[kind][name.lower()] = {"name": d.get("Name") or name, "ft": int(time.time()), "rows": rows,
                                            "p": [sum(pt for _, pt in rows), lp[1]] if lp else None,
                                            "mem": [m for m in (league_members(d) if kind == "League" else clan_members(d)) if m]}
+                if kind == "Clan":  # for war.json: the clan's own total and picture
+                    got[kind][name.lower()].update(bp=((d.get("Battles") or {}).get(battle) or {}).get("Points"), icon=d.get("Icon"))
             if i % 100 == 0 or i == len(items):
                 print(f"{label}{i}/{len(items)} teams read", flush=True)
     except KeyboardInterrupt:
@@ -198,6 +216,16 @@ def merge(plan, got):
     with open(a.out, "w") as f:
         json.dump(out, f, separators=(",", ":"))
     print("Wrote", a.out)
+    if plan.get("early"):
+        # The new war's clan leaderboard, which the page and history.py use until BIG Games' API lists the war.
+        # shortcut: only the clans that were in the old war's top list are ranked; fine for the few hours the API lags.
+        rows = sorted(([c["name"], c.get("bp") or sum(p for _, p in c["rows"]), len(c["mem"]), c.get("icon"), len(c["rows"])]
+                       for c in teams["Clan"].values()), key=lambda r: -r[1])
+        since = load_json(os.path.join(a.prev, "war.json")) if a.prev else None
+        with open(os.path.join(os.path.dirname(a.out) or ".", "war.json"), "w") as f:
+            json.dump({"battle": battle, "updated": out["updated"], "top": [r for r in rows if r[1] > 0],
+                       "since": since["since"] if since and since.get("battle") == battle else plan["t"]}, f, separators=(",", ":"))
+        print("Wrote war.json:", sum(1 for r in rows if r[1] > 0), "clans with points in", battle)
     if a.players:
         write_players(a.players)
         print(f"Wrote the player index to {a.players}: {len(players['League'])} league players, {len(players['Clan'])} clan players")
@@ -205,6 +233,14 @@ def merge(plan, got):
         for k, v in teams.items():
             write_teams(k, v)
         print("Wrote the team cache to", a.teams, "-", ", ".join(f"{k}: {out[k]['read']} read, {len(v) - out[k]['read']} reused" for k, v in teams.items()))
+
+
+def load_json(path):
+    try:
+        with open(path) as f:
+            return json.load(f)
+    except (OSError, ValueError):
+        return None
 
 
 def load_teams(kind):

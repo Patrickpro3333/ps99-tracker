@@ -138,6 +138,7 @@ jobs:
           # Kept off main on purpose: every commit to main is a site deploy.
           # One commit with no parents, force-pushed, so the branch never piles up old copies.
           mkdir out && mv ranks.json players teams out/ && cd out
+          if [ -f ../war.json ]; then mv ../war.json .; fi  # only while BIG Games' API hasn't listed a new clan war
           git init -q && git checkout -q --orphan data-ranks && git add -A
           git -c user.name="ps99-scan-bot" -c user.email="ps99-scan-bot@users.noreply.github.com" commit -qm "Update ranks.json"
           git push -qf "https://x-access-token:${GITHUB_TOKEN}@github.com/${GITHUB_REPOSITORY}.git" HEAD:data-ranks
