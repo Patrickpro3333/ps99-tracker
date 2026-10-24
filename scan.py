@@ -152,13 +152,16 @@ def make_plan():
 
 def newer_war(war, now):
     # BIG Games' API can list a new clan war hours after it starts in game, and its clan list keeps the old war's
-    # points until then. The top clan's own list of wars (in the order they started) has the new one at once.
+    # points until then. The top clans' own lists of wars (in the order they started) have the new one at once;
+    # five are asked, in case the top clan sits the new war out.
     if (war.get("configData") or {}).get("FinishTime", now) >= now:
         return None
-    first = (get("/api/clans?sort=Points&sortOrder=desc&pageSize=1&page=1") or [{}])[0].get("Name")
-    wars = ((get("/api/clan/" + urllib.parse.quote(first, safe="")) or {}).get("Battles") or {}) if first else {}
-    last = list(wars)[-1] if wars else None
-    return last if last and last != war.get("configName") and war.get("configName") in wars and (wars[last].get("Points") or 0) > 0 else None
+    for c in get("/api/clans?sort=Points&sortOrder=desc&pageSize=5&page=1") or []:
+        wars = (get("/api/clan/" + urllib.parse.quote(c.get("Name") or "", safe="")) or {}).get("Battles") or {}
+        last = list(wars)[-1] if wars else None
+        if last and last != war.get("configName") and war.get("configName") in wars and (wars[last].get("Points") or 0) > 0:
+            return last
+    return None
 
 
 def prev_updated():
