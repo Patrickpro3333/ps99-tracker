@@ -51,6 +51,19 @@ def page(kind, p):
     return None
 
 
+def war_list():
+    # BIG Games' API can list a new clan war hours after it starts, and its clan list keeps the old war's points
+    # until then. Meanwhile the scan ranks the new war's clans itself and saves war.json to data-ranks (scan.py).
+    repo = os.environ.get("GITHUB_REPOSITORY")
+    if not repo:
+        return None
+    try:
+        with urllib.request.urlopen(f"https://raw.githubusercontent.com/{repo}/data-ranks/war.json", timeout=15) as r:
+            return json.load(r)
+    except Exception:
+        return None  # no war.json (the usual case) or GitHub didn't answer: the API's list is right
+
+
 def load(path):
     try:
         with open(path) as f:
@@ -89,9 +102,14 @@ if since < (2700 if os.environ.get("GITHUB_EVENT_NAME") == "schedule" else 600):
     sys.exit(0)
 saved = 0
 for kind in KINDS:
-    with ThreadPoolExecutor(4) as ex:  # 4 at a time, 20 pages per kind: far below 100 per minute
-        pages = list(ex.map(lambda p: page(kind, p), range(1, PAGES + 1)))
-    now, failed = {}, 0
+    war = war_list() if kind == "clan" else None
+    if war:  # one page holding the scan's ranking, timed when the scan read it
+        print(f"clan: {war['battle']} is not on BIG Games' API yet, so the scan's ranking is used", flush=True)
+        pages = [[{"Name": r[0], "Points": r[1]} for r in war["top"][:PAGES * 100]]]
+    else:
+        with ThreadPoolExecutor(4) as ex:  # 4 at a time, 20 pages per kind: far below 100 per minute
+            pages = list(ex.map(lambda p: page(kind, p), range(1, PAGES + 1)))
+    tk, now, failed = war["updated"] if war else t, {}, 0
     for pi, rows in enumerate(pages):
         if rows is None:
             failed += 1
@@ -102,7 +120,7 @@ for kind in KINDS:
             # higher place, like index.html does. The rank counts the teams kept, as index.html does, plus
             # 100 for each failed page before it, so a failed page never moves the teams after it up.
             if name and name not in now and isinstance(pts, (int, float)):
-                now[name] = [t, pts, len(now) + 1 + 100 * failed]
+                now[name] = [tk, pts, len(now) + 1 + 100 * failed]
     print(f"{kind}: {len(now)} teams, {failed} pages failed", flush=True)
     if not now:
         continue

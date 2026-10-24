@@ -14,6 +14,14 @@ Data never goes on `main`: every commit to `main` is a site deploy (free on Clou
 other branches must stay off (see Setup), or every push to the data branches (every 15 minutes) would start a
 failing build.
 
+### New clan wars
+
+BIG Games' API can list a new clan war hours after it starts in game, and until then its clan leaderboard keeps the old
+war's points. The clans' own pages have the new war at once, so while the API's war is over and the top clan already
+earns points in a newer one, the scan reads every top-2,000 clan's page, ranks them by the new war's points and saves
+that list as `war.json` on `data-ranks`. The page and `history.py` use it instead of the API's clan list until the API
+lists the war; then `war.json` disappears with the next scan and everything goes back to the API.
+
 Both data branches are a single commit that is force-pushed on every run, so the repository
 doesn't grow. The page shows how old the data is and leaves a gap in the chart where a snapshot
 is missing.
