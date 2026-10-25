@@ -556,10 +556,12 @@ if(k==='League')L=out;else C=out;d.list=out;d.i=out.findIndex(x=>lc(x)===me);d.r
 // The team's own page and the leaderboard are read at different moments (BIG Games keeps each for up to a minute), so the
 // team is placed by its own points: otherwise it can sit above a team with more points, or show "Tied" with one it leads.
 // A team the list misses (it crossed a page edge between two reads) goes in when it has more points than the last one.
-function fit(d){const a=d.list,n=a.length,p=d.pts;let i=d.i;if(p==null||!n||i<0&&p<=a[n-1][1])return d;
+function fit(d){const a=d.list,n=a.length,p=d.pts;let i=d.i;if(p!=null&&n&&(i>=0||p>a[n-1][1])){
 const row=i<0?[d.name,p,d.mem,d.icon,d.nAll]:a.splice(i,1)[0].slice();row[1]=p;
 if(i<0)i=a.findIndex(x=>x[1]<p);else{while(i>0&&a[i-1][1]<p)i--;while(i<a.length&&a[i][1]>p)i++}
-a.splice(i,0,row);if(d.i<0&&n>=2000)a.pop();d.i=i;d.rank=i+1;return d}
+a.splice(i,0,row);if(d.i<0&&n>=2000)a.pop();d.i=i}if(d.i>=0)d.rank=rk(a,d.i);return d}
+// Teams with the same points share a placement (the API orders them differently from page to page), as history.py counts it.
+const rk=(a,i)=>{while(i>0&&a[i-1][1]===a[i][1])i--;return i+1};
 const H={get(k){try{return JSON.parse(localStorage.getItem('ps99h:'+k))||[]}catch(e){return[]}},set(k,a){store('ps99h:'+k,JSON.stringify(a))}};
 function snap(d){if(d.pts==null)return[];
 const now=Math.floor(Date.now()/1000),a=H.get(d.key).filter(s=>now-s[0]<93600);
@@ -782,8 +784,8 @@ lgap=(v,w,T,c,e)=>'<p class="lgp">'+((v=Math.max(0,Math.round(v)))?'<b'+(c?' cla
 const rph=T=>{const h=HS[kind+':'+String(T[0]).toLowerCase()],s=h&&h.ok?sinceReset(h.h.concat([[now,T[1]]]),kind):[],g=s.length>1?gain(s,1):null;return g&&g[1]>=120?g[0]/(g[1]/3600):null},
 wend=kind==='Clan'&&BREC&&BREC.end?BREC.end/1000:0,eta=(T,gap,up)=>{const v=!PZ&&pph!=null?rph(T):null;if(v==null)return PZ?'':'\u00a0';const c=up?pph-v:v-pph,s=c>0?gap/c*3600:0;
 return(!s?up?'Not catching up':'Not getting caught':wend&&now+s>wend?up?"Won't pass before the war ends":"Won't get caught before the war ends":(up?'Passes':'Gets caught')+' in about '+durf(s>=3600?Math.round(s/600)*600:s))+' at this pace'};
-const lad=ok?(A?lrow(A,d.rank-1)+lgap(A[1]-me,'to pass',A,0,eta(A,A[1]-me,1)):lend(CROWN+'Already #1','gold'))+lrow([d.name,me,0,d.icon],d.rank,1)
-+(B?lgap(me-B[1],'ahead of',B,1,eta(B,me-B[1],0))+lrow(B,d.rank+1):lend((tot?d.rank<tot:d.list.length>=2000)?'Teams below #'+d.list.length.toLocaleString()+' are not tracked':'Last place'))
+const lad=ok?(A?lrow(A,rk(d.list,d.i-1))+lgap(A[1]-me,'to pass',A,0,eta(A,A[1]-me,1)):lend(CROWN+'Already #1','gold'))+lrow([d.name,me,0,d.icon],d.rank,1)
++(B?lgap(me-B[1],'ahead of',B,1,eta(B,me-B[1],0))+lrow(B,rk(d.list,d.i+1)):lend((tot?d.rank<tot:d.list.length>=2000)?'Teams below #'+d.list.length.toLocaleString()+' are not tracked':'Last place'))
 :'<p class="st">'+(unk?'Rivals are unavailable right now.':'Rivals show once '+esc(d.name)+(d.pts?' is in the top 2,000.':' has points.'))+'</p>';
 const tp=d.pts!=null?d.pts:d.sum,all=SHOWALL.has(d.key);let tl=0;
 // Speed in green; "No points this hour" only when this device has watched the member for at least 45 minutes.
@@ -807,7 +809,7 @@ const ms='<h3>'+(kind==='Clan'?'Members ('+d.rows.length+')':'Contributors'+(d.n
 +'<div class="mems" data-nosnippet>'+mem+'</div>'+(d.rows.length>LIMIT&&!all?'<button class="more" data-all="'+esc(d.key)+'">Show all '+d.rows.length+' '+(kind==='Clan'?'members':'contributors')+'</button>':'');
 return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2>'+(own?'<p class="meta" data-nosnippet>Owner '+(/^\d+$/.test(d.oid)?'<a class="own" href="https://www.roblox.com/users/'+d.oid+'/profile" target="_blank" rel="noopener">'+esc(own)+'</a>':esc(own))+'</p>':'')+'</div></div>'
 +pill(kind,d.cut)
-+'<div class="hero'+(d.i===0?' gold':'')+'"><small>'+(d.i===0?CROWN:'')+kind+' placement</small><b>'+place+'</b>'+(ppl?'<span class="pill">'+ppl+'</span>':'')+(run?'<span class="trend '+tc+'">'+tr+'</span>':'')+'</div>'
++'<div class="hero'+(d.rank===1?' gold':'')+'"><small>'+(d.rank===1?CROWN:'')+kind+' placement</small><b>'+place+'</b>'+(ppl?'<span class="pill">'+ppl+'</span>':'')+(run?'<span class="trend '+tc+'">'+tr+'</span>':'')+'</div>'
 +'<div class="grid keys'+(one?' one':'')+'"><div class="cell"><small>'+PTI+(PZ&&PZ.state==='ended'?'Final points':'Points')+'</small><b class="kp">'+(d.pts==null?'n/a':fmt(d.pts))+'</b><small>'+(kind==='Clan'?'This clan war':'This season')+'</small></div>'
 +(one?'':'<div class="cell"><small>Points per hour</small>'+(pph==null?'<span class="wb"><b class="na">–</b>'+wt+'</span>':'<b class="'+(pph>0?'kh':'na')+'">'+fmt(pph)+'</b><small>'+ph+'</small>')+'</div>')+'</div>'
 +'<div class="quiet'+(ppm?'':' one')+'"><div><small>Members</small><b>'+d.mem+' of '+d.cap+'</b></div>'+(ppm?'<div><small>Average points per member</small><b>'+ppm+'</b></div>':'')+'</div>'
@@ -1094,7 +1096,7 @@ const rkw=k=>$('top').style.setProperty('--rkw',k>999?'64px':k>99?'54px':'44px')
 const topLinks=()=>{for(const[k,a,id]of[['League',L,'tlg'],['Clan',C,'tcl']])put($(id),a.length?' Top '+k.toLowerCase()+'s right now: '+a.slice(0,10).map(x=>'<a href="'+esc(tlink(k,x[0]))+'" data-open="'+k+'" data-n="'+esc(x[0])+'">'+esc(x[0])+'</a>').join(', ')+'.':'')};
 function board(){exPH();topLinks();const m=TOPK=BK();if(m==='Player')return boardPlayers();const a=m==='League'?L:C,k=Math.min(BN[m],a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(m==='League'?'leagues':'clans');
 w.dataset.k=m;repill(w);w.hidden=false;
-keepFocus($('top'),()=>put($('top'),a.length?a.slice(0,k).map((x,i)=>'<a class="rk'+(i<3?' m'+(i+1):'')+'" href="'+esc(tlink(m,x[0]))+'" data-n="'+esc(x[0])+'">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn">'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span></span><span class="rkv"><i>'+pt(fmt(x[1]))+'</i></span></span></a>').join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):LDFAIL?'<p class="st">The leaderboard could not load. Trying again...</p>':phRows()))}
+keepFocus($('top'),()=>put($('top'),a.length?a.slice(0,k).map((x,i)=>{const r=rk(a,i);return '<a class="rk'+(r<4?' m'+r:'')+'" href="'+esc(tlink(m,x[0]))+'" data-n="'+esc(x[0])+'">'+(md(r-1)||'<b>#'+r+'</b>')+'<span class="rkm"><span class="rkn">'+logo(x[3],x[0])+'<span>'+esc(x[0])+'</span></span><span class="rkv"><i>'+pt(fmt(x[1]))+'</i></span></span></a>'}).join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):LDFAIL?'<p class="st">The leaderboard could not load. Trying again...</p>':phRows()))}
 // While the list loads, ten hidden rows hold its place, so the page below doesn't jump when it fills in.
 const phRows=(t='')=>Array.from({length:10},(x,i)=>'<div class="rk ph" aria-hidden="true">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn"><span class="lg"></span><span>-</span></span><span class="rkv"><i>-</i>'+t+'</span></span></div>').join('')
 +'<button class="more ph" tabindex="-1" aria-hidden="true">Show 25 more</button><p class="st phs">Loading...</p>';

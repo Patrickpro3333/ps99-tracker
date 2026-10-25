@@ -2,7 +2,7 @@
 """
 PS99 Tracker history snapshot.
 
-Reads the top 2,000 leagues and clans (40 list requests) and adds one snapshot of each
+Reads the top 2,000 leagues and clans (22 list requests) and adds one snapshot of each
 team's points and rank to the history kept in --dir (25 hours, so a 24-hour gain always has a start):
 
   h/league/<bucket>.json and h/clan/<bucket>.json   {"<lowercase name>": [[unixSeconds, points, rank], ...]}
@@ -12,15 +12,18 @@ GitHub Actions runs this every 15 minutes (.github/workflows/history.yml, starte
 the folder to the data-history branch, which index.html reads. Needs only Python 3.
 """
 import argparse, json, os, sys, time, urllib.error, urllib.request
+from bisect import bisect_left
 from concurrent.futures import ThreadPoolExecutor
 
 API = os.environ.get("PS99_API", "https://ps99.biggamesapi.io")
 KEEP = 25 * 3600 + 1200  # snapshots every 15 minutes: 24 hours plus one spare hour (and 20 minutes for a late run)
 BUCKETS = 128
-PAGES = 20  # 20 pages of 100 = top 2,000
+TOP = 2000
+# Clans come 1,000 a page like index.html reads them (leagues only 100): fewer page edges, where a team that moves
+# between two pages' reads can show twice or not at all.
 KINDS = {
-    "league": ("/v1/leagues?pageSize=100&sort=Points&sortOrder=desc&page=", lambda d: (d or {}).get("leagues")),
-    "clan": ("/api/clans?pageSize=100&sort=Points&sortOrder=desc&page=", lambda d: d),
+    "league": ("/v1/leagues?pageSize=100&sort=Points&sortOrder=desc&page=", lambda d: (d or {}).get("leagues"), 100),
+    "clan": ("/api/clans?pageSize=1000&sort=Points&sortOrder=desc&page=", lambda d: d, 1000),
 }
 
 
@@ -34,7 +37,7 @@ def bucket(name):
 
 
 def page(kind, p):
-    path, rows = KINDS[kind]
+    path, rows, _ = KINDS[kind]
     for _ in range(3):
         try:
             req = urllib.request.Request(API + path + str(p), headers={"User-Agent": "ps99-tracker-history/1.0"})
@@ -102,13 +105,13 @@ if since < (2700 if os.environ.get("GITHUB_EVENT_NAME") == "schedule" else 600):
     sys.exit(0)
 saved = 0
 for kind in KINDS:
-    war = war_list() if kind == "clan" else None
+    war, size = war_list() if kind == "clan" else None, KINDS[kind][2]
     if war:  # one page holding the scan's ranking, timed when the scan read it
         print(f"clan: {war['battle']} is not on BIG Games' API yet, so the scan's ranking is used", flush=True)
-        pages = [[{"Name": r[0], "Points": r[1]} for r in war["top"][:PAGES * 100]]]
+        pages = [[{"Name": r[0], "Points": r[1]} for r in war["top"][:TOP]]]
     else:
-        with ThreadPoolExecutor(4) as ex:  # 4 at a time, 20 pages per kind: far below 100 per minute
-            pages = list(ex.map(lambda p: page(kind, p), range(1, PAGES + 1)))
+        with ThreadPoolExecutor(4) as ex:  # 4 at a time, 22 pages in all: far below 100 per minute
+            pages = list(ex.map(lambda p: page(kind, p), range(1, TOP // size + 1)))
     tk, now, failed = war["updated"] if war else t, {}, 0
     for pi, rows in enumerate(pages):
         if rows is None:
@@ -117,10 +120,15 @@ for kind in KINDS:
         for i, x in enumerate(rows):
             name, pts = str(x.get("Name") or "").lower(), x.get("Points")
             # A team can show on two pages (the API caches pages at slightly different moments); keep the
-            # higher place, like index.html does. The rank counts the teams kept, as index.html does, plus
-            # 100 for each failed page before it, so a failed page never moves the teams after it up.
+            # first, like index.html does. Its failed pages so far go in the rank's place until the ranks are counted.
             if name and name not in now and isinstance(pts, (int, float)):
-                now[name] = [tk, pts, len(now) + 1 + 100 * failed]
+                now[name] = [tk, pts, failed]
+    # Teams with the same points share a placement, 1 + the teams with more points, as index.html counts it: the API
+    # orders tied teams differently from page to page, so their page positions would move the 24-hour trend.
+    # A failed page still adds its teams for every team after it, so it never moves them up.
+    desc = sorted(-e[1] for e in now.values())
+    for e in now.values():
+        e[2] = bisect_left(desc, -e[1]) + 1 + size * e[2]
     print(f"{kind}: {len(now)} teams, {failed} pages failed", flush=True)
     if not now:
         continue
@@ -129,9 +137,16 @@ for kind in KINDS:
     for name, entry in now.items():
         by_bucket[bucket(name)].append((name, entry))
     cut = t - KEEP
-    # Snapshots saved before ranks were counted like index.html counts them (page positions) can't be compared
-    # with new ones, so their rank is dropped once; the page then shows "Collecting" until a day has passed.
-    compact = (meta.get(kind) or {}).get("rank") == "compact"
+    # Snapshots saved before tied teams shared a placement get their ranks counted again once, from each
+    # snapshot's saved points (every saved team of one snapshot has the same time).
+    redo = {}
+    if (meta.get(kind) or {}).get("rank") != "shared":
+        for b in range(BUCKETS):
+            for h in (load(os.path.join(a.dir, "h", kind, f"{b}.json")) or {}).values():
+                for e in h:
+                    redo.setdefault(e[0], []).append(-e[1])
+        for v in redo.values():
+            v.sort()
     # When any team's points last changed, for the page's "league war looks paused" notice. Worked out from
     # the whole kept history each time; if nothing moved in it at all, "moved" is its oldest snapshot and
     # "still" says so (paused for at least that long).
@@ -141,7 +156,7 @@ for kind in KINDS:
         old = load(path) or {}
         nxt = {}
         for name, h in old.items():
-            h = [e if compact else e[:2] + [None] for e in h if e[0] >= cut]
+            h = [e[:2] + [bisect_left(redo[e[0]], -e[1]) + 1] if redo else e for e in h if e[0] >= cut]
             if h:
                 nxt[name] = h
         for name, entry in by_bucket[b]:
@@ -160,7 +175,7 @@ for kind in KINDS:
                     moved = max(moved, h[i][0])
                     break
         save(path, nxt)
-    meta[kind] = {"t": t, "n": len(now), "failedPages": failed, "rank": "compact",
+    meta[kind] = {"t": t, "n": len(now), "failedPages": failed, "rank": "shared",
                   "moved": moved or oldest, "still": not moved}
 
 if not saved:
