@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en"><head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#000000">
+<title>About PS99 Tracker: Where the Numbers Come From</title>
+<meta name="description" content="What PS99 Tracker shows, where its Pet Simulator 99 numbers come from, how often they update, and what it can't show.">
+<link rel="canonical" href="https://ps99tracker.xyz/about">
+<link rel="icon" href="/favicon.ico" sizes="48x48">
+<link rel="icon" href="/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="/apple-touch-icon.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Atkinson+Hyperlegible:wght@400;700&family=Lilita+One&display=swap">
+<style>
+body{margin:0;background:#000;color:#f5f5f5;font:17px/1.6 "Atkinson Hyperlegible",system-ui,sans-serif}
+main{max-width:680px;margin:0 auto;padding:16px 16px 56px}
+.top{display:flex;flex-wrap:wrap;align-items:center;justify-content:space-between;gap:4px 20px}
+.home{display:inline-block;font:400 28px/1.1 "Lilita One",Impact,system-ui,sans-serif;color:#f5f5f5;text-decoration:none;padding:8px 0}.home span{color:#ffd23f}
+nav a{display:inline-block;padding:10px 0;margin-left:18px;color:#f5f5f5}nav a:first-child{margin-left:0}nav a[aria-current]{color:#ffd23f}
+h1{font:400 40px/1.1 "Lilita One",Impact,system-ui,sans-serif;margin:24px 0 8px}
+h2{font:400 24px/1.2 "Lilita One",Impact,system-ui,sans-serif;margin:32px 0 6px}
+p,li{color:#d4d4d4}ul{padding-left:22px}li{margin:6px 0}
+a{color:#ffd23f;text-underline-offset:2px}
+a:focus-visible{outline:3px solid #ffd23f;outline-offset:3px}
+footer{color:#a8a8a8;font-size:14px;border-top:1px solid #333;margin-top:40px}footer a{color:#a8a8a8}footer p:last-child a{margin-right:16px}
+</style></head>
+<body><main>
+<header class="top"><a class="home" href="/">PS99 <span>Tracker</span></a><nav><a href="/">Leaderboards</a><a href="/clan-battles">Clan battles</a><a href="/about" aria-current="page">About</a></nav></header>
+<h1>About PS99 Tracker</h1>
+<p>PS99 Tracker is a free, fan-made site for Pet Simulator 99, the Roblox game by BIG Games. It follows the two team leaderboards in the game, the league war and the clan battle, and works out how fast each team is gaining and how far it is from the teams around it.</p>
+
+<h2>What you can look up</h2>
+<ul>
+<li>Any league or clan in the top 2,000: its placement, points, points per hour, points gained over the last 1, 6, 12 and 24 hours, places climbed or lost since yesterday, and a chart of the last 24 hours.</li>
+<li>Its close rivals: the teams just above and below, the gap in points, and how long it would take to pass them at the current pace.</li>
+<li>Every player in the team, with their points and how they compare with all players in the top 2,000 teams.</li>
+<li>Any player, by Roblox username or user ID, if their league or clan is in the top 2,000.</li>
+<li>Every <a href="/clan-battles">past clan battle</a> since December 2023, with its prizes and the clans that won it.</li>
+</ul>
+
+<h2>Where the numbers come from</h2>
+<p>All game numbers come from BIG Games' <a href="https://github.com/BIG-Games-LLC/ps99-public-api-docs">public Pet Simulator 99 API</a>. Names and profile pictures come from Roblox.</p>
+<ul>
+<li>The top 100 and the team you open refresh as soon as the API has new numbers, about once a minute. The full top 2,000 refreshes every 5 minutes.</li>
+<li>Every 15 minutes the site saves a snapshot of the top 2,000 leagues and clans and keeps the last 24 hours. Points per hour, points gained, places climbed and the chart are worked out from these snapshots.</li>
+<li>Every 15 minutes it also reads the points of every member of the top 2,000 teams. That is where the "better than 98%" comparison and the player search come from.</li>
+<li>When a new clan battle starts, the API can take a few hours to list it. Until it does, the site ranks clans by the new battle's points from each clan's own page, so the new battle shows from the start.</li>
+<li>Teams with the same points share a placement.</li>
+</ul>
+
+<h2>What it can't show</h2>
+<ul>
+<li>Teams below the top 2,000, and players whose league or clan is below it.</li>
+<li>Anything older than 24 hours for a single team, apart from the results of past clan battles.</li>
+<li>Numbers the API doesn't publish. If BIG Games' servers are slow or down, the site shows the last numbers it got and says how old they are.</li>
+</ul>
+
+<h2>Who runs it</h2>
+<p>PS99 Tracker is an independent fan project. It isn't affiliated with BIG Games or Roblox. The site is free to use, with no sign-up, and ads pay for running it (see the <a href="/privacy">privacy policy</a>). Its code is public on <a href="https://github.com/Patrickpro3333/ps99-tracker">GitHub</a>.</p>
+
+<h2>Contact</h2>
+<p>To report a wrong number, a bug or an idea, open an issue on the site's <a href="https://github.com/Patrickpro3333/ps99-tracker/issues">GitHub page</a>. Issues there are public, so don't post anything private.</p>
+
+<footer><p>Fan-made and unofficial. Data comes from the <a href="https://github.com/BIG-Games-LLC/ps99-public-api-docs">BIG Games public API</a>. Pet Simulator 99 belongs to BIG Games, and Roblox is a trademark of Roblox Corporation.</p><p><a href="/">Leaderboards</a><a href="/clan-battles">Clan battles</a><a href="/privacy">Privacy policy</a></p></footer>
+</main></body></html>

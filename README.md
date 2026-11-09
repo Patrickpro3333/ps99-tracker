@@ -61,6 +61,14 @@ pictures, a couple of Worker requests per page. Once a day (03:00 UTC) the timer
 IndexNow, which passes them to Bing, Yandex and other search engines; Google doesn't take part, so the sitemap
 goes to Google through Search Console. The IndexNow key is the `.txt` file named after it at the top of the repo.
 
+### Clan battle history
+
+`clan-battles.html` lists every clan battle with its dates, prizes and top 3 clans. It is a plain page, so search engines
+and AdSense read it without running any script. `python3 battles.py` refills the part between its `<!-- battles -->`
+markers from the API (about 25 minutes: it reads the top 2,000 clans' own pages at 90 a minute); run it after each battle
+ends and commit the page. The rest of the page, `about.html` and `privacy.html` are edited by hand, and
+`sitemap-pages.xml` lists them for search engines.
+
 ## Setup (one time)
 
 1. Create a PUBLIC GitHub repository (public repos get free Actions minutes) and upload every
@@ -76,7 +84,7 @@ goes to Google through Search Console. The IndexNow key is the `.txt` file named
    The 15-minute Cron Trigger comes from `wrangler.jsonc`. From then on the jobs run on their own.
 
 If the repository or its owner changes, update `RAW` in `index.html`. If the site address
-changes, update it in `index.html` (canonical and share tags), `robots.txt`, `sitemap.xml` and `cloudflare/worker.js` (the sitemap).
+changes, update it in `index.html` (canonical and share tags), `clan-battles.html`, `about.html`, `privacy.html`, `robots.txt`, `sitemap.xml`, `sitemap-pages.xml` and `cloudflare/worker.js` (the sitemap).
 
 ## Without GitHub
 

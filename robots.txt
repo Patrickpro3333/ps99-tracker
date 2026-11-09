@@ -2,3 +2,4 @@ User-agent: *
 Allow: /
 
 Sitemap: https://ps99tracker.xyz/sitemap.xml
+Sitemap: https://ps99tracker.xyz/sitemap-pages.xml
