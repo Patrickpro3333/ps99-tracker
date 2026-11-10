@@ -38,11 +38,12 @@ a:focus-visible{outline:3px solid #ffd23f;outline-offset:3px}
 <p>When you look something up, your browser fetches the data from:</p>
 <ul>
 <li>BIG Games' public Pet Simulator 99 API, for leaderboards, clans and leagues.</li>
-<li>Roblox, for player names and profile pictures when you search for a player.</li>
+<li>Roblox, for profile pictures, and for the name of a player the site has no saved copy of.</li>
 <li>GitHub, where the site keeps its points history and rank data.</li>
 <li>Google Fonts, for the site's fonts.</li>
 </ul>
 <p>Like any website you visit, these services see your IP address and what was requested, which can include the name you searched. Some of these requests go through a small relay on the site's Cloudflare account; Cloudflare keeps a log of those requests for a few days, used only to fix problems. The site doesn't keep your searches anywhere else.</p>
+<p>For players in the top 2,000 leagues and clans, the site keeps a copy of their public Roblox username, display name and profile picture address with its rank data on GitHub, so pages can show them. These are the details Roblox shows on every public profile. The copy is refreshed every few hours, and a player who leaves the top 2,000 teams is dropped from it.</p>
 
 <h2>Hosting</h2>
 <p>The site is hosted on Cloudflare, which processes your IP address and basic request details to deliver pages and protect the site from attacks. See <a href="https://www.cloudflare.com/privacypolicy/">Cloudflare's privacy policy</a>.</p>

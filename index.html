@@ -443,14 +443,25 @@ const PE={};
 async function rj(k,p,o){for(const b of RB[k]){try{const r=await fetch(b+p,o);if(r.ok){RB[k]=[b].concat(RB[k].filter(x=>x!==b));return await r.json()}PE[k]=r.status}catch(e){PE[k]='blocked'}}throw 0}
 // Names are looked up again after a day, so a renamed player shows their new name.
 const stale=i=>!U[i]||!(Date.now()-(U[i][2]||0)<864e5);
-async function names(ids){
-const need=ids.filter(stale);if(!need.length)return;let ok=false;
+// Names and pictures come first from the copy the scan saves (names.py, data-ranks/names), because Roblox refuses the
+// site's own proxy most of the time and never answers a browser directly. A team's players are one file (kind and team
+// given); anyone else, or a team the copy doesn't list yet, is one small file per player, 50 at most. Only what the
+// saved copy lacks is asked from Roblox.
+const NMF={},nmf=f=>{const c=NMF[f];return c&&Date.now()-c.at<3e5?c.pr:(NMF[f]={at:Date.now(),pr:rawj('data-ranks/names/'+f+'.json').catch(()=>null)}).pr};
+const nmh=(s,n)=>{let h=0;for(const b of new TextEncoder().encode(s))h=(h*31+b)%n;return h};
+const pic=p=>/^[0-9A-F]{32}$/.test(p)?'https://tr.rbxcdn.com/30DAY-AvatarHeadshot-'+p+'-Png/150/150/AvatarHeadshot/Png/noFilter':/^https:\/\/[a-z0-9]+\.rbxcdn\.com\//.test(p)?p:'';
+let NMD=0;function nmPut(i,e){if(!Array.isArray(e)||!e[0])return;if(stale(i)){U[i]=[String(e[0]),String(e[1]||e[0]),Date.now()];NMD=1}const p=pic(String(e[2]||''));if(p&&!IM[i])IM[i]=p}
+async function saved(ids,k,team){const need=ids.filter(i=>stale(i)||!IM[i]);if(!need.length)return;
+if(team){const key=team.toLowerCase(),f=await nmf('team/'+k.toLowerCase()+'/'+nmh(key,512)),t=f&&f[key];if(t){for(const i in t)nmPut(i,t[i]);return}if(!f)return}
+await Promise.all(need.slice(0,50).map(async i=>{const f=await nmf('id/'+i%1024);nmPut(i,f&&f[i])}))}
+async function names(ids,k,team){
+await saved(ids,k,team);const need=ids.filter(stale);if(!need.length){if(NMD){NMD=0;store('ps99u',JSON.stringify(U))}return}let ok=false;
 try{const j=await rj('u','/v1/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({userIds:need,excludeBannedUsers:false})});(j.data||[]).forEach(x=>{U[x.id]=[x.name,x.displayName||x.name,Date.now()]});ok=true}catch(e){}
 // One by one only for IDs the batch did not return, or (when the batch failed) for the few a player card needs.
 for(const i of need.filter(i=>!U[i]&&!X[i]).slice(0,ok?Infinity:3)){try{const j=await rj('u','/v1/users/'+i);if(j.name)U[i]=[j.name,j.displayName||j.name,Date.now()]}catch(e){X[i]=1}}
 store('ps99u',JSON.stringify(U))}
 const PICP={};
-async function pics(ids){const need=ids.filter(i=>!IM[i]&&!PICP[i]);
+async function pics(ids,k,team){await saved(ids,k,team);const need=ids.filter(i=>!IM[i]&&!PICP[i]);
 if(need.length){const pr=rj('t','/v1/users/avatar-headshot?userIds='+need.join(',')+'&size=150x150&format=Png&isCircular=false').then(j=>{(j.data||[]).forEach(x=>{if(x.imageUrl)IM[x.targetId]=x.imageUrl})},()=>{}).finally(()=>need.forEach(i=>{delete PICP[i]}));need.forEach(i=>{PICP[i]=pr})}
 await Promise.all(ids.map(i=>PICP[i]).filter(Boolean))}
 // BN: the rows each kind's top list shows, kept while the tabs switch between kinds.
@@ -840,9 +851,12 @@ const UIDS=ldS('ps99uid');
 // A plain number is a user ID; "@123456" looks up the username 123456.
 async function findUser0(q){const raw=q.trim();q=raw.replace(/^@/,'');if(!q)return null;
 if(!raw.startsWith('@')&&/^\d+$/.test(q)){const id=+q;await names([id]);if(U[id]){UIDS[U[id][0].toLowerCase()]=id;store('ps99uid',JSON.stringify(UIDS))}return id}
-const key=q.toLowerCase();if(UIDS[key])return UIDS[key];let j;
-try{j=await rj('u','/v1/usernames/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usernames:[q],excludeBannedUsers:false})})}catch(e){throw 'roblox'}
-const u=j&&j.data&&j.data[0];if(!u)return null;U[u.id]=[u.name,u.displayName||u.name,Date.now()];store('ps99u',JSON.stringify(U));
+const key=q.toLowerCase();if(UIDS[key])return UIDS[key];
+// The scan's saved usernames first (every player in a top team); Roblox only for a name they don't have. When Roblox
+// can't be reached either, "none" says the name isn't among the saved ones, which is all that can be known.
+const sv=await nmf('by/'+nmh(key,256));let u=sv&&Number.isSafeInteger(sv[key])&&sv[key]>0?{id:sv[key]}:null;
+if(!u){let j;try{j=await rj('u','/v1/usernames/users',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify({usernames:[q],excludeBannedUsers:false})})}catch(e){throw sv?'none':'roblox'}
+u=j&&j.data&&j.data[0];if(!u)return null;U[u.id]=[u.name,u.displayName||u.name,Date.now()];store('ps99u',JSON.stringify(U))}
 UIDS[key]=u.id;const ks=Object.keys(UIDS);if(ks.length>200)delete UIDS[ks[0]];store('ps99uid',JSON.stringify(UIDS));return u.id}
 // The startup prefetch, the card and its first refresh share one lookup instead of asking Roblox 2-3 times.
 const FU={};const findUser=q=>{const k=q.trim().toLowerCase();return FU[k]||(FU[k]=findUser0(q).finally(()=>{delete FU[k]}))};
@@ -1058,8 +1072,8 @@ if(mode==='Player'&&PV&&$('dash').querySelector('.pchs')&&pW()!==PW)drawPlayer(P
 document.addEventListener('click',e=>{const b=e.target.closest('[data-pk]');if(!b||!PV)return;PKIND[PV.id]=b.dataset.pk;drawPlayer(PV)});
 async function paintPlayer(show){const q=S.Player,seq=++PSEQ,box=$('dash'),ok=()=>seq===PSEQ&&mode==='Player';if(!q){box.innerHTML='';return}
 if(show)box.innerHTML='<section class="card ldc"><p class="st" style="margin:0">Looking up '+esc(q)+'...</p></section>';
-try{const id=await findUser(q);if(!ok())return;
-if(!id){DEAD='Player:'+q.toLowerCase();PENDY=null;document.title=DTITLE;box.innerHTML='<section class="card nf"><b>No Roblox user called “'+esc(q.replace(/^@/,''))+'”.</b><p>Check the spelling of their username (not their display name), or type their user ID.</p><button class="go" data-again>Search again</button></section>';return}
+try{let none=false;const id=await findUser(q).catch(e=>{if(e!=='none')throw e;none=true;return null});if(!ok())return;
+if(!id){const nm='“'+esc(q.replace(/^@/,''))+'”';DEAD='Player:'+q.toLowerCase();PENDY=null;document.title=DTITLE;box.innerHTML='<section class="card nf"><b>'+(none?'Could not find '+nm+' among the players of the top 2,000 leagues and clans.':'No Roblox user called '+nm+'.')+'</b><p>Check the spelling of their username (not their display name), or type their user ID.'+(none?' A player who just joined a top team can take half an hour to show up.':'')+'</p><button class="go" data-again>Search again</button></section>';return}
 // Each team's live data is requested the moment its name is known; a slow profile picture never holds up the numbers.
 const pp=Promise.all([pics([id]),names([id]),grank(id)]),tl=teamOfC('League',id),tc=teamOfC('Clan',id),real=t=>t&&!t.unk?t:null;
 const [lt,ct,pm,,ld,cd]=await Promise.all([tl,tc,pmeta(),hmeta(),tl.then(t=>real(t)?dataL(t.name).catch(()=>null):null),tc.then(t=>real(t)?dataC(t.name).catch(()=>null):null),gplay('League'),gplay('Clan'),Promise.race([pp,sleep(2500)])]);if(!ok())return;
@@ -1085,7 +1099,7 @@ const name=S[mode],k=mode,seq=++PSEQ;if(!name){$('dash').innerHTML='';return}
 if(show)$('dash').innerHTML='<section class="card ldc"><p class="st" style="margin:0">Loading '+esc(name)+'...</p></section>';
 try{const hp=shist(k,name.toLowerCase()),d=fit(await near(await(k==='League'?dataL(name):dataC(name))));phase('t:'+d.key,d.pts+':'+d.sum);const ids=d.rows.map(r=>r.id),ln=d.name.toLowerCase(),loc=snap(d);
 const rv=d.i<0?[]:[d.list[d.i-1],d.list[d.i+1]].filter(Boolean).map(x=>shist(k,String(x[0]).toLowerCase()));
-const extra=Promise.all([names(d.oid?ids.concat(d.oid):ids),pics(ids),gplay(k),ln===name.toLowerCase()?hp:shist(k,ln)].concat(rv));
+const extra=Promise.all([names(d.oid?ids.concat(d.oid):ids,k,ln),pics(ids,k,ln),gplay(k),ln===name.toLowerCase()?hp:shist(k,ln)].concat(rv));
 // Draw as soon as the numbers are in; names, pictures and player ranks fill in on a second draw.
 const draw=fin=>{if(seq!==PSEQ||k!==mode||name.toLowerCase()!==String(S[mode]||'').toLowerCase())return;d.hs=HS[k+':'+ln];d.loc=sinceReset(loc,k);const m=merge(loc,d.hs&&d.hs.ok?d.hs.h:[]),a=sinceReset(m,k);d.cut=a.length<m.length?a[0][0]:0;
 keepFocus($('dash'),()=>put($('dash'),render(d,a)+(fin&&ids.length&&!ids.some(i=>IM[i])?'<p class="st">Profile pictures could not load from Roblox ('+esc(PE.t||'no answer')+').</p>':'')));atY();if(!fin)shown(k,d.name)};

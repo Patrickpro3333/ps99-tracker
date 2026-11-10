@@ -51,13 +51,24 @@ Every other file, the page included, is served as a static asset, free and unlim
 stays up even if the daily requests run out; `.assetsignore` keeps scripts and docs off the site.
 The old workers.dev address forwards to ps99tracker.xyz from the page itself.
 
+### Player names and pictures
+
+Roblox refuses the `/rbx` and `/rbxt` proxies almost every time: Cloudflare's addresses are shared with many
+other sites and stay over Roblox's limit per address, and Roblox doesn't let a browser ask it directly. So each
+scan also runs `names.py` on one of GitHub's machines, which Roblox does answer. It asks about the players it
+has no answer for yet, then the ones checked longest ago, 8,000 a run, and the scan saves the result to `names/`
+on the `data-ranks` branch. The page reads names and pictures from there (one file for a whole team, one small
+file for a single player, and a username list for the player search) and asks Roblox only for players the saved
+copy lacks. A player who just joined a top team shows as "User 123" until the next scan or two, and a new name
+or picture shows within about 2 hours. If the names job fails, the scan is saved anyway with the names it had.
+
 ### Search engines
 
 Every league and clan link (`?clan=NAME`) is a page of its own for search engines, with its own title,
 description and canonical address. The top 10 and Close rivals are real links, so crawlers can follow them,
 and `/sitemap.xml` (made by the Worker) lists the top 1,000 clans and top 100 leagues. Player pages are kept
-out of search results on purpose. Each page a search engine renders asks the Roblox proxies for names and
-pictures, a couple of Worker requests per page. Once a day (03:00 UTC) the timer also sends the same pages to
+out of search results on purpose. Names and pictures on those pages come from the saved copy on the `data-ranks`
+branch (see below), not through the Worker. Once a day (03:00 UTC) the timer also sends the same pages to
 IndexNow, which passes them to Bing, Yandex and other search engines; Google doesn't take part, so the sitemap
 goes to Google through Search Console. The IndexNow key is the `.txt` file named after it at the top of the repo.
 
