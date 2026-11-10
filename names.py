@@ -116,20 +116,6 @@ if __name__ == "__main__":
         # Players with no answer yet, in the scan's order, then the ones checked longest ago.
         return [u for u in ids if not store[u][stamp]] + sorted((u for u in ids if store[u][stamp]), key=lambda u: store[u][stamp])[:again]
 
-    logos = {}
-    for kind in icons:
-        was = load(os.path.join(a.prev, "names", "logo", kind + ".json"))
-        logos.update(was if isinstance(was, dict) else {})
-    turn = int(time.time()) // 900 % 96  # 96 runs a day, so each saved logo is asked about again once a day
-    todo = sorted(i for i in set().union(*icons.values()) if not logos.get(i) or int(i) % 96 == turn)
-    for n in range(0, len(todo), 100):
-        j = ask("thumbnails", "/v1/assets?assetIds=" + ",".join(todo[n:n + 100]) + "&size=150x150&format=Webp&isCircular=false", 100)
-        if j is None:
-            break
-        for x in j.get("data") or []:
-            m = LOGO.fullmatch(x.get("imageUrl") or "") if x.get("state") == "Completed" else None
-            logos[str(x.get("targetId"))] = m[1] if m else ""  # none: the page shows BIG Games' picture, and it is asked again next run
-
     names, pics = queue(3, 700), queue(4, 6000)
     now, asked, until = int(time.time()), [0, 0], time.monotonic() + 480  # the scan's merge step waits for this job
     while (names or pics) and time.monotonic() < until:
@@ -159,6 +145,20 @@ if __name__ == "__main__":
                 if state in ("Completed", "Blocked"):  # anything else (still being drawn, an error) is asked for again next run
                     store[u][2], store[u][4] = short(got[u].get("imageUrl")) if state == "Completed" else "", now
             asked[1] += len(part)
+    # Logos come after the names and pictures, so a refusal here can't cost those their turn.
+    logos = {}
+    for kind in icons:
+        was = load(os.path.join(a.prev, "names", "logo", kind + ".json"))
+        logos.update(was if isinstance(was, dict) else {})
+    turn = int(time.time()) // 900 % 96  # 96 runs a day, so each saved logo is asked about again once a day
+    todo = sorted(i for i in set().union(*icons.values()) if not logos.get(i) or int(i) % 96 == turn)
+    for n in range(0, len(todo), 100):
+        j = ask("thumbnails", "/v1/assets?assetIds=" + ",".join(todo[n:n + 100]) + "&size=150x150&format=Webp&isCircular=false", 100)
+        if j is None:
+            break
+        for x in j.get("data") or []:
+            m = LOGO.fullmatch(x.get("imageUrl") or "") if x.get("state") == "Completed" else None
+            logos[str(x.get("targetId"))] = m[1] if m else ""  # none: the page shows BIG Games' picture, and it is asked again next run
     by_id, by_name = [{} for _ in range(1024)], [{} for _ in range(256)]
     for u, e in store.items():
         if e[3] or e[4]:
