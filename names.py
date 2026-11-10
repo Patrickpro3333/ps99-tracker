@@ -29,7 +29,7 @@ a = ap.parse_args()
 PIC = re.compile(r"https://tr\.rbxcdn\.com/30DAY-AvatarHeadshot-([0-9A-F]{32})-Png/150/150/AvatarHeadshot/Png/noFilter")
 # A logo Roblox won't show (private, removed, not reviewed yet) comes back as a stand-in whose kind ends in "Image".
 LOGO = re.compile(r"https://tr\.rbxcdn\.com/180DAY-([0-9a-f]{32})/150/150/(?:Image|(?!\w*Image/)\w+)/(?:Webp|Png)/noFilter")
-next_at, stopped = {}, set()
+next_at, stopped, refused = {}, set(), {}
 
 
 def ask(host, path, per_minute, body=None):
@@ -51,6 +51,7 @@ def ask(host, path, per_minute, body=None):
             if e.code != 429:
                 break
             # Roblox says "too many requests" now and then even under its stated limit, so wait and ask again.
+            refused[host] = refused.get(host, 0) + 1
             next_at[host] = time.monotonic() + 10 * (attempt + 1)
         except Exception as e:
             why = e
@@ -178,4 +179,5 @@ if __name__ == "__main__":
             json.dump({i: logos[i] for i in sorted(want) if re.fullmatch("[0-9a-f]{32}", str(logos.get(i)))}, f, separators=(",", ":"))
     print(f"Asked Roblox about {asked[0]} names, {asked[1]} pictures and {len(todo)} logos. Of {len(ids)} players, "
           f"{sum(1 for e in store.values() if e[0])} have a name saved and {sum(1 for e in store.values() if e[2])} a picture. "
-          f"Of {len(set().union(*icons.values()))} logos, {sum(1 for i in set().union(*icons.values()) if logos.get(i))} have a small copy.")
+          f"Of {len(set().union(*icons.values()))} logos, {sum(1 for i in set().union(*icons.values()) if logos.get(i))} have a small copy. "
+          f"Requests Roblox refused and were asked again: {refused or 'none'}.")
