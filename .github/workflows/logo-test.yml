@@ -19,25 +19,6 @@ jobs:
           python-version: "3.12"
       - name: Load the previous scan
         run: git clone -q --depth 1 --branch data-ranks "https://github.com/${GITHUB_REPOSITORY}.git" prev
-      - name: Ask Roblox for the clan logos alone, 100 a request
-        run: |
-          python - <<'PY'
-          import json, re, time, urllib.request, urllib.error
-          t = json.load(open('prev/teams/clan.json'))['teams']
-          ids = sorted({m[0] for c in t.values() if (m := re.search(r'\d+', c.get('icon') or ''))})
-          t0 = time.time()
-          for n in range(0, len(ids), 100):
-              for attempt in range(6):
-                  try:
-                      with urllib.request.urlopen("https://thumbnails.roblox.com/v1/assets?assetIds=" + ",".join(ids[n:n + 100]) + "&size=150x150&format=Webp&isCircular=false", timeout=30) as r:
-                          h, d = r.headers, json.load(r)
-                          print(n, 200, round(time.time() - t0, 1), h.get('x-ratelimit-limit'), h.get('x-ratelimit-remaining'), h.get('x-ratelimit-reset'), sum(1 for x in d['data'] if x['state'] == 'Completed'), flush=True)
-                          break
-                  except urllib.error.HTTPError as e:
-                      print(n, e.code, round(time.time() - t0, 1), e.headers.get('x-ratelimit-limit'), e.headers.get('x-ratelimit-remaining'), e.headers.get('x-ratelimit-reset'), e.headers.get('retry-after'), e.read()[:200], flush=True)
-                      time.sleep(5)
-              time.sleep(0.6)
-          PY
       - name: Run the names job as the scan would
         run: |
           time python names.py --prev prev --out names

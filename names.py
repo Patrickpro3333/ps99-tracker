@@ -153,8 +153,8 @@ if __name__ == "__main__":
         logos.update(was if isinstance(was, dict) else {})
     turn = int(time.time()) // 900 % 96  # 96 runs a day, so each saved logo is asked about again once a day
     todo = sorted(i for i in set().union(*icons.values()) if not logos.get(i) or int(i) % 96 == turn)
-    for n in range(0, len(todo), 100):
-        j = ask("thumbnails", "/v1/assets?assetIds=" + ",".join(todo[n:n + 100]) + "&size=150x150&format=Webp&isCircular=false", 100)
+    for n in range(0, len(todo), 100):  # Roblox takes one logo request a second from a GitHub machine (measured), so 50 a minute
+        j = ask("thumbnails", "/v1/assets?assetIds=" + ",".join(todo[n:n + 100]) + "&size=150x150&format=Webp&isCircular=false", 50)
         if j is None:
             break
         for x in j.get("data") or []:
