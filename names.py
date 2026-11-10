@@ -14,8 +14,11 @@ answering, what was saved before is kept. The scan's merge step saves --out next
   id/<user ID % 1024>.json           {user ID: [username, display name, picture, name checked, picture checked]}
   team/<league|clan>/<0-511>.json    {team name in lowercase: {user ID: [username, display name, picture]}}
   by/<0-255>.json                    {username in lowercase: user ID}, for the player search
+  logo/<league|clan>.json            {logo's asset ID: picture}, for the logos of the teams in the last scan
 The team and username files are picked by shard() of the name; index.html has the same sum (nmh). A picture is the
-32 characters that differ between Roblox's picture addresses; pic() in index.html puts the address back together.
+32 characters that differ between Roblox's picture addresses; pic() and lsrc() in index.html put the address back
+together. Logos: BIG Games only serves each one full size (80 to 260 KB). Roblox keeps a small copy (a few KB), at an
+address only Roblox can tell, so each run asks for the logos that have none saved and, once a day, each saved one again.
 """
 import argparse, json, os, re, sys, time, urllib.error, urllib.request
 
@@ -24,6 +27,8 @@ ap.add_argument("--prev", default="prev", help="folder holding the previous data
 ap.add_argument("--out", default="names", help="folder to write the names to")
 a = ap.parse_args()
 PIC = re.compile(r"https://tr\.rbxcdn\.com/30DAY-AvatarHeadshot-([0-9A-F]{32})-Png/150/150/AvatarHeadshot/Png/noFilter")
+# A logo Roblox won't show (private, removed, not reviewed yet) comes back as a stand-in whose kind ends in "Image".
+LOGO = re.compile(r"https://tr\.rbxcdn\.com/180DAY-([0-9a-f]{32})/150/150/(?:Image|(?!\w*Image/)\w+)/(?:Webp|Png)/noFilter")
 next_at, stopped = {}, set()
 
 
@@ -84,16 +89,20 @@ def write(folder, shards):
 
 assert shard("un0", 512) == 183 and shard("", 512) == 0
 assert short("https://tr.rbxcdn.com/30DAY-AvatarHeadshot-33EBC42BC550FCB5158C6AF17BE3E4C8-Png/150/150/AvatarHeadshot/Png/noFilter") == "33EBC42BC550FCB5158C6AF17BE3E4C8"
+assert LOGO.fullmatch("https://tr.rbxcdn.com/180DAY-7e8df1efb862c16dbbbaddf3ef22e793/150/150/Decal/Png/noFilter")[1] == "7e8df1efb862c16dbbbaddf3ef22e793"
+assert LOGO.fullmatch("https://tr.rbxcdn.com/180DAY-7e8df1efb862c16dbbbaddf3ef22e793/150/150/Image/Webp/noFilter")
+assert not LOGO.fullmatch("https://tr.rbxcdn.com/180DAY-92f01c392ee9a79829852ac02d3fb15a/150/150/PrivateImage/Webp/noFilter")
 assert short("https://t1.rbxcdn.com/abc/150/150") == "https://t1.rbxcdn.com/abc/150/150" and short("https://evil.example/x.png") == "" and short(None) == ""
 
 if __name__ == "__main__":
-    teams, ids = {}, {}
+    teams, ids, icons = {}, {}, {}
     for kind in ("league", "clan"):  # in the scan's order, so the top teams' players are asked about first
         saved = (load(os.path.join(a.prev, "teams", kind + ".json")) or {}).get("teams") or {}
         teams[kind] = {key: list(dict.fromkeys(int(u) for u in (c.get("mem") or []) + [r[0] for r in c.get("rows") or []] if u))
                        for key, c in saved.items()}
         for members in teams[kind].values():
             ids.update(dict.fromkeys(members))
+        icons[kind] = {m[0] for c in saved.values() if (m := re.search(r"\d+", c.get("icon") or ""))}
     if not ids:
         sys.exit("The last scan has no teams, so no names were written.")
     old = {}
@@ -106,6 +115,20 @@ if __name__ == "__main__":
     def queue(stamp, again):
         # Players with no answer yet, in the scan's order, then the ones checked longest ago.
         return [u for u in ids if not store[u][stamp]] + sorted((u for u in ids if store[u][stamp]), key=lambda u: store[u][stamp])[:again]
+
+    logos = {}
+    for kind in icons:
+        was = load(os.path.join(a.prev, "names", "logo", kind + ".json"))
+        logos.update(was if isinstance(was, dict) else {})
+    turn = int(time.time()) // 900 % 96  # 96 runs a day, so each saved logo is asked about again once a day
+    todo = sorted(i for i in set().union(*icons.values()) if not logos.get(i) or int(i) % 96 == turn)
+    for n in range(0, len(todo), 100):
+        j = ask("thumbnails", "/v1/assets?assetIds=" + ",".join(todo[n:n + 100]) + "&size=150x150&format=Webp&isCircular=false", 100)
+        if j is None:
+            break
+        for x in j.get("data") or []:
+            m = LOGO.fullmatch(x.get("imageUrl") or "") if x.get("state") == "Completed" else None
+            logos[str(x.get("targetId"))] = m[1] if m else ""  # none: the page shows BIG Games' picture, and it is asked again next run
 
     names, pics = queue(3, 700), queue(4, 6000)
     now, asked, until = int(time.time()), [0, 0], time.monotonic() + 480  # the scan's merge step waits for this job
@@ -149,5 +172,10 @@ if __name__ == "__main__":
         for key, members in t.items():
             packs[shard(key, 512)][key] = {str(u): store[u][:3] for u in members if store[u][0] or store[u][2]}
         write(os.path.join(a.out, "team", kind), packs)
-    print(f"Asked Roblox about {asked[0]} names and {asked[1]} pictures. Of {len(ids)} players, "
-          f"{sum(1 for e in store.values() if e[0])} have a name saved and {sum(1 for e in store.values() if e[2])} a picture.")
+    os.makedirs(os.path.join(a.out, "logo"), exist_ok=True)
+    for kind, want in icons.items():
+        with open(os.path.join(a.out, "logo", kind + ".json"), "w") as f:
+            json.dump({i: logos[i] for i in sorted(want) if re.fullmatch("[0-9a-f]{32}", str(logos.get(i)))}, f, separators=(",", ":"))
+    print(f"Asked Roblox about {asked[0]} names, {asked[1]} pictures and {len(todo)} logos. Of {len(ids)} players, "
+          f"{sum(1 for e in store.values() if e[0])} have a name saved and {sum(1 for e in store.values() if e[2])} a picture. "
+          f"Of {len(set().union(*icons.values()))} logos, {sum(1 for i in set().union(*icons.values()) if logos.get(i))} have a small copy.")

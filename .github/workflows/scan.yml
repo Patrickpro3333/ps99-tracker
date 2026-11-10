@@ -103,7 +103,7 @@ jobs:
           path: part-${{ matrix.shard }}.json
           retention-days: 1
 
-  # Roblox names and profile pictures for the page (names.py), read from the last scan's teams while the fetch
+  # Roblox names, profile pictures and small team logos for the page (names.py), read from the last scan's teams while the fetch
   # machines work. Read-only like them. If Roblox doesn't answer, the scan is saved anyway with the names it had.
   # A normal run takes about a minute. With many new players to ask about it runs up to 8 minutes, and merge waits.
   names:

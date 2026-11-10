@@ -64,6 +64,11 @@ one small file for a single player, and a username list for the player search) a
 the saved copy lacks. A player who just joined a top team shows as "User 123" until the next scan or two. If
 the names job fails, the scan is saved anyway with the names it had.
 
+The same job saves a small copy of each team logo. BIG Games serves a logo only at full size (80 to 260 KB).
+Roblox keeps a 150-pixel copy of a few KB, at an address only Roblox can tell, so `names.py` asks for it and
+saves `names/logo/league.json` and `names/logo/clan.json`. The page shows the small copy and falls back to BIG
+Games' picture for a logo that has none yet.
+
 ### Search engines
 
 Every league and clan link (`?clan=NAME`) is a page of its own for search engines, with its own title,
