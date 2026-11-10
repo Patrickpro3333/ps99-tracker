@@ -401,12 +401,12 @@ if(['league','clan','player'].some(x=>(q.get(x)||'').trim())||s[['Clan','Player'
 <details class="faq"><summary>How often does the leaderboard update?</summary><p>The top 100 and the team you look up refresh within seconds of the official BIG Games public API having new numbers, which it does about once a minute, and the full top 2,000 every 5 minutes. Points per hour, gains and the chart use snapshots the site saves every 15 minutes and keeps for 24 hours.</p></details>
 <details class="faq"><summary>What does "better than 98%" mean?</summary><p>The player has more points than 98 in 100 players. It compares a player with every player in the top 2,000 leagues, or the top 2,000 clans for the clan war. A ~ means it is an estimate while the scan of those teams is still running.</p></details>
 <details class="faq"><summary>How do I look up a player?</summary><p>Pick Player, type their Roblox username or user ID, and tap Show stats. You see their points, placement and share of points in their league and in the clan war, as long as their league or clan is in the top 2,000.</p></details>
-<details class="faq"><summary>Who won past clan battles?</summary><p>The <a href="/clan-battles">clan battle history</a> lists every battle since December 2023 with its dates, the prize for each placement and the top 3 clans. How the live numbers are collected is on the <a href="/about">about page</a>.</p></details>
+<details class="faq"><summary>Who won past clan battles?</summary><p>The <a href="/clan-battles" rel="noreferrer">clan battle history</a> lists every battle since December 2023 with its dates, the prize for each placement and the top 3 clans. How the live numbers are collected is on the <a href="/about">about page</a>.</p></details>
 <details class="faq"><summary>Is this an official tool?</summary><p>No. It is fan-made and not affiliated with BIG Games or Roblox.</p></details></details></section>
 </div>
 <aside class="rside"></aside>
 </div>
-<footer><p>Fan-made and unofficial. Data comes from the <a href="https://github.com/BIG-Games-LLC/ps99-public-api-docs">BIG Games public API</a>. Pet Simulator 99 belongs to BIG Games, and Roblox is a trademark of Roblox Corporation.</p><p><a href="/clan-battles">Clan battle history</a> · <a href="/about">About</a> · <a href="/privacy">Privacy policy</a></p></footer>
+<footer><p>Fan-made and unofficial. Data comes from the <a href="https://github.com/BIG-Games-LLC/ps99-public-api-docs">BIG Games public API</a>. Pet Simulator 99 belongs to BIG Games, and Roblox is a trademark of Roblox Corporation.</p><p><a href="/clan-battles" rel="noreferrer">Clan battle history</a> · <a href="/about">About</a> · <a href="/privacy">Privacy policy</a></p></footer>
 </main>
 <div id="toast" class="toast" role="status" hidden></div>
 <script>
@@ -1206,7 +1206,11 @@ keepFocus($('recent'),()=>{$('recent').innerHTML=r.length?'<small>Recent '+SK.to
 // starts gets its own history entry, so Back returns to the page before; each entry keeps its scroll position for that
 // (while the bar's search is open, the place the reader was before opening it). The same name in other letters is the same page.
 const keepY=()=>FY!=null?FY:scrollY;
-function setURL(push){try{const u=S[mode]?'?'+mode.toLowerCase()+'='+encodeURIComponent(S[mode]):'',ls=location.search;if(u===ls)return;
+// A player's page is addressed by Roblox ID number, not username: the address goes to Google with every ad request, and
+// Google counts usernames as personal data. A name just typed stays in the address only until its ID is known, and no ad
+// is asked for before that (adsOK). pnm turns an ID from the address back into the name the page shows and caches under.
+const pid=()=>{const r=String(S.Player||''),v=r.replace(/^@/,'');return r===v&&/^\d+$/.test(v)?v:String(UIDS[v.toLowerCase()]||'')},pnm=v=>/^\d+$/.test(v)&&U[v]&&!/^\d+$/.test(U[v][0])?U[v][0]:v;
+function setURL(push){try{const v=mode==='Player'&&pid()||S[mode],u=v?'?'+mode.toLowerCase()+'='+encodeURIComponent(v):'',ls=location.search;if(u===ls)return;
 history.replaceState(Object.assign({},history.state,{y:keepY()}),'');history[push&&u.toLowerCase()!==ls.toLowerCase()?'pushState':'replaceState']({k:mode,n:S[mode]||'',y:push?0:scrollY},'',location.pathname+u);seoTags()}catch(e){}}
 let SY=0;addEventListener('scroll',()=>{clearTimeout(SY);SY=setTimeout(()=>{try{history.replaceState(Object.assign({},history.state,{y:keepY()}),'')}catch(e){}},300)},{passive:true});
 // A lookup that worked: only now is it saved for the next visit and added to Recent, and the tab's title names it.
@@ -1218,7 +1222,7 @@ const stash=()=>{const b=$('dash');if(!S[mode]||!b.querySelector('.dash,.pc'))re
 try{history.scrollRestoration='manual'}catch(e){}
 // Back and Forward: the entry's league, clan or player again (an entry without one is the home page). Nothing is saved or pushed.
 addEventListener('popstate',e=>{clearTimeout(SY);seoTags();const y=(e.state&&e.state.y)||0,q=new URLSearchParams(location.search);let k='',v='';
-for(const m of ['League','Clan','Player']){const x=(q.get(m.toLowerCase())||'').trim().slice(0,64);if(x){k=m;v=x;break}}
+for(const m of ['League','Clan','Player']){const x=(q.get(m.toLowerCase())||'').trim().slice(0,64);if(x){k=m;v=m==='Player'?pnm(x):x;break}}
 stash();PSEQ++;NAV++;openFind(false);FY=null;PENDY=null;sgSet('');DEAD='';
 if(!k){S[mode]='';$('q').value='';$('dash').innerHTML='';document.title=DTITLE;kindUI(mode);showRecent();foldSync();scrollTo(0,y);return}
 if(k!==mode)setMode(k);else kindUI(k);S[k]=v;$('q').value=v;showRecent();const c=CACHE.get(k+':'+v.toLowerCase());
@@ -1259,7 +1263,7 @@ function nfCard(k,name){const z=nz(name),out=[];
 const top=out.sort((p,q)=>p[0]-q[0]||p[1]-q[1]).slice(0,3);
 return '<section class="card nf"><b>No '+k.toLowerCase()+' called “'+esc(name)+'”.</b><p>'+(top.length?'Check the spelling, or pick one:':'Check the spelling.')+'</p>'+top.map(o=>sgRow(o[2],o[3],o[1])).join('')+'<button class="go" data-again>Search again</button></section>'}
 // A shared link (?league=, ?clan= or ?player=) opens straight to that page.
-let LINK='';{const q=new URLSearchParams(location.search);for(const m of ['League','Clan','Player']){const v=(q.get(m.toLowerCase())||'').trim().slice(0,64);if(v){S.mode=m;S[m]=v;LINK=v;break}}}
+let LINK='';{const q=new URLSearchParams(location.search);for(const m of ['League','Clan','Player']){const v=(q.get(m.toLowerCase())||'').trim().slice(0,64);if(v){S.mode=m;S[m]=LINK=m==='Player'?pnm(v):v;break}}}
 {hmeta();const k=S.mode;if((k==='League'||k==='Clan')&&S[k]){prefetch(k,S[k]);shist(k,S[k].toLowerCase())}
 // A saved player: their user ID (remembered), teams, team data and picture are all requested straight away.
 if(k==='Player'&&S.Player){gplay('League');gplay('Clan');findUser(S.Player).then(id=>{if(!id)return;pics([id]);pmeta();['League','Clan'].forEach(x=>teamOfC(x,id).then(t=>{if(t&&!t.unk)prefetch(x,t.name)}))}).catch(()=>{})}}
@@ -1284,10 +1288,12 @@ const dueFull=()=>!live||Date.now()-Math.max(LISTT,LISTA)>=290000;
 ready.then(schedule);
 // Back on the tab (or the phone unlocked) after a while: refresh straight away instead of waiting up to a minute.
 document.addEventListener('visibilitychange',()=>{if(document.hidden)return;VISAT=Date.now();if(live&&Date.now()-LASTTICK>60000){clearTimeout(NEXT);tick(dueFull()).finally(schedule)}});
-// Google's publisher policies: no ads on screens without content (loading, not found, could not load), and nothing that
-// names a person may be sent to Google, which a player page's address does (their Roblox username). So ad requests run
-// only on the main page once its top 10 is in, and on league and clan pages.
-const adsOK=()=>{const d=$('dash');return !$('ld')&&!/[?&]player=/i.test(location.search)&&!!(d.firstElementChild?d.querySelector('.dash'):$('top').querySelector('.rk:not(.ph)'))};
+// Google's publisher policies: no ads on screens without content (loading, not found, could not load, a player with no
+// team), and nothing that names a person may be sent to Google, which a username in the address would be. So ad requests
+// run only on the main page once its top 10 is in, on league and clan pages, and on a player's stats once the address
+// holds their ID number (see pid). The links to /clan-battles, the other page with ads, are rel="noreferrer" for the same
+// reason: a username still in the address (a name that was not found) would reach that page's ad request as the referrer.
+const adsOK=()=>{const d=$('dash'),p=new URLSearchParams(location.search).get('player');return !$('ld')&&(p==null||/^\d+$/.test(p.trim()))&&!!(d.firstElementChild?d.querySelector('.dash,.pc .pgx'):$('top').querySelector('.rk:not(.ph)'))};
 const adsMO=new MutationObserver(()=>{adsbygoogle.pauseAdRequests=adsOK()?0:1});[document.body,$('dash'),$('top')].forEach(e=>adsMO.observe(e,{childList:true}));
 </script>
 </body></html>
