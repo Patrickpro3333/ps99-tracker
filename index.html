@@ -428,7 +428,7 @@ const BASE=['https://ps99.biggamesapi.io','/ps99api'];
 const RQ=[];let RP=0;
 async function slot(lim){for(;;){const now=Date.now();while(RQ.length&&now-RQ[0]>=60000)RQ.shift();if(now>=RP&&RQ.length<lim){RQ.push(now);return}
 await new Promise(r=>setTimeout(r,Math.max(50,RP-now,RQ.length>=lim?60000-(now-RQ[0])+20:0)))}}
-async function jget(p,bg){let st=0;for(const b of BASE){await slot(bg?76:90);const c=new AbortController(),t=setTimeout(()=>c.abort(),25000);try{const r=await fetch(b+p,{signal:c.signal,cache:'no-cache'});if(r.ok){if(BASE[0]!==b)BASE.unshift(BASE.splice(BASE.indexOf(b),1)[0]);return await r.json()}st=r.status;if(st===429){RP=Date.now()+30000;break}if(GONE(st))break}catch(e){}finally{clearTimeout(t)}}throw st}
+async function jget(p,bg,solo){let st=0;for(const b of solo?[BASE[0]]:BASE){await slot(bg?76:90);const c=new AbortController(),t=setTimeout(()=>c.abort(),25000);try{const r=await fetch(b+p,{signal:c.signal,cache:'no-cache'});if(r.ok){if(BASE[0]!==b)BASE.unshift(BASE.splice(BASE.indexOf(b),1)[0]);return await r.json()}st=r.status;if(st===429){RP=Date.now()+30000;break}if(GONE(st))break}catch(e){}finally{clearTimeout(t)}}throw st}
 const GONE=e=>e===400||e===404;
 // Browser storage holds about 5 MB. When it is full, data that is simply downloaded again (the saved
 // leaderboards and this device's scan) goes first, then the saved history of the teams and players
@@ -449,7 +449,7 @@ const stale=i=>!U[i]||!(Date.now()-(U[i][2]||0)<864e5);
 // saved copy lacks is asked from Roblox.
 const NMF={},nmf=f=>{const c=NMF[f];return c&&Date.now()-c.at<3e5?c.pr:(NMF[f]={at:Date.now(),pr:rawj('data-ranks/names/'+f+'.json').catch(()=>null)}).pr};
 const nmh=(s,n)=>{let h=0;for(const b of new TextEncoder().encode(s))h=(h*31+b)%n;return h};
-const pic=p=>/^[0-9A-F]{32}$/.test(p)?'https://tr.rbxcdn.com/30DAY-AvatarHeadshot-'+p+'-Png/150/150/AvatarHeadshot/Png/noFilter':/^https:\/\/[a-z0-9]+\.rbxcdn\.com\//.test(p)?p:'';
+const pic=p=>/^[0-9A-F]{32}$/.test(p)?'https://tr.rbxcdn.com/30DAY-AvatarHeadshot-'+p+'-Png/150/150/AvatarHeadshot/Webp/noFilter':/^https:\/\/[a-z0-9]+\.rbxcdn\.com\//.test(p)?p:'';
 let NMD=0;function nmPut(i,e){if(!Array.isArray(e))return;if(e[0]&&stale(i)){U[i]=[String(e[0]),String(e[1]||e[0]),Date.now()];NMD=1}const p=pic(String(e[2]||''));if(p&&!IM[i])IM[i]=p}
 async function saved(ids,k,team){const need=ids.filter(i=>stale(i)||!IM[i]);if(!need.length)return;
 if(team){const key=team.toLowerCase(),f=await nmf('team/'+k.toLowerCase()+'/'+nmh(key,512)),t=f&&f[key];if(t){for(const i in t)nmPut(i,t[i]);return}if(!f)return}
@@ -460,9 +460,10 @@ try{const j=await rj('u','/v1/users',{method:'POST',headers:{'Content-Type':'app
 // One by one only for IDs the batch did not return, or (when the batch failed) for the few a player card needs.
 for(const i of need.filter(i=>!U[i]&&!X[i]).slice(0,ok?Infinity:3)){try{const j=await rj('u','/v1/users/'+i);if(j.name)U[i]=[j.name,j.displayName||j.name,Date.now()]}catch(e){X[i]=1}}
 store('ps99u',JSON.stringify(U))}
-const PICP={};
-async function pics(ids,k,team){await saved(ids,k,team);const need=ids.filter(i=>!IM[i]&&!PICP[i]);
-if(need.length){const pr=rj('t','/v1/users/avatar-headshot?userIds='+need.join(',')+'&size=150x150&format=Png&isCircular=false').then(j=>{(j.data||[]).forEach(x=>{if(x.imageUrl)IM[x.targetId]=x.imageUrl})},()=>{}).finally(()=>need.forEach(i=>{delete PICP[i]}));need.forEach(i=>{PICP[i]=pr})}
+// PICT: a picture Roblox didn't give is asked for again a minute later, not by every draw.
+const PICP={},PICT={};
+async function pics(ids,k,team){await saved(ids,k,team);const need=ids.filter(i=>!IM[i]&&!PICP[i]&&!(Date.now()-PICT[i]<60000));
+if(need.length){need.forEach(i=>{PICT[i]=Date.now()});const pr=rj('t','/v1/users/avatar-headshot?userIds='+need.join(',')+'&size=150x150&format=Png&isCircular=false').then(j=>{(j.data||[]).forEach(x=>{if(x.imageUrl)IM[x.targetId]=x.imageUrl})},()=>{}).finally(()=>need.forEach(i=>{delete PICP[i]}));need.forEach(i=>{PICP[i]=pr})}
 await Promise.all(ids.map(i=>PICP[i]).filter(Boolean))}
 // BN: the rows each kind's top list shows, kept while the tabs switch between kinds.
 let L=[],C=[],live=false,LT=0,CT=0,n=0,mode='League',SK='League',TOPK='League',BN={League:10,Clan:10,Player:10};const OPEN=new Set();
@@ -503,13 +504,19 @@ const save=k=>{const c=ldS('ps99s');c.mode=S.mode;if(k)c[k]=S[k];store('ps99s',J
 // Then the other pages at once (well under the rate limit). A page that fails twice ends the list there,
 // so every rank shown is still the team's real position, and the list says it is incomplete.
 // Clans come up to 1,000 a page (leagues only 100), so both full lists take 22 requests instead of 40.
-async function pages(path,rows,max,cb,size=100){const n=Math.ceil(max/size),get=p=>jget(path+'&page='+p);let got=0;
-const one=p=>get(p).catch(()=>get(p)).catch(()=>null).then(j=>{if(j&&cb)cb(++got);return j});
-const p1=await one(1),res=[p1].concat(p1&&n>1?await Promise.all(Array.from({length:n-1},(_,i)=>one(i+2))):[]);
+// A list of two pages (the clans) asks for both at once and saves a round trip; so does the first try of a league or player
+// opened by a link (all), which needs all 20 pages of leagues. A page asked for that early gets one try on the main route
+// only (quick), so an API that is down still costs next to nothing; once page 1 has answered, one that failed is asked again.
+// first gets page 1's rows the moment they arrive, for the top 10 of a first visit.
+async function pages(path,rows,max,cb,size=100,first,all){const n=Math.ceil(max/size),get=p=>jget(path+'&page='+p),hit=j=>{if(j&&cb)cb(++got);return j};let got=0;
+const one=p=>get(p).catch(()=>get(p)).catch(()=>null).then(hit),quick=p=>jget(path+'&page='+p,0,1).then(hit,()=>null);
+const row=x=>[x.Name,x.Points,x.Members,x.Icon,x.ContributorCount],rest=f=>Promise.all(Array.from({length:n-1},(_,i)=>f(i+2)));
+const r2=n===2||all?rest(quick):null,p1=await one(1),a1=first&&p1&&rows(p1.data);if(a1&&a1.length)first(a1.map(row));
+const res=[p1].concat(!p1||n<2?[]:r2?await Promise.all((await r2).map((j,i)=>j||one(i+2))):await rest(one));
 // Pages are cached by the API at slightly different moments, so a team near a page edge can show on two
 // pages; only its first (higher) place is kept, like history.py does.
 const out=[],seen=new Set();let total=0,complete=true;
-for(let i=0;i<n;i++){const j=res[i],a=j&&rows(j.data);if(!a||!a.length){complete=!!(j&&a);break}if(!i)total=(j.data&&j.data.total)||0;a.forEach(x=>{const k=String(x.Name).toLowerCase();if(!seen.has(k)){seen.add(k);out.push([x.Name,x.Points,x.Members,x.Icon,x.ContributorCount])}})}
+for(let i=0;i<n;i++){const j=res[i],a=j&&rows(j.data);if(!a||!a.length){complete=!!(j&&a);break}if(!i)total=(j.data&&j.data.total)||0;a.forEach(x=>{const k=String(x.Name).toLowerCase();if(!seen.has(k)){seen.add(k);out.push(row(x))}})}
 return{rows:out.slice(0,max),total,complete}}
 let lp=0,cp=0;
 const ldUpd=()=>{const b=$('ldbar');if(b)b.style.width=Math.max(3,Math.min(100,Math.round((lp+cp)/22*100)))+'%'};
@@ -517,8 +524,23 @@ let LISTT=0,LISTA=0;
 // The leaderboards are kept for the next visit, so they show at once while fresh ones load.
 const saveLists=()=>{const sl=a=>a.map(x=>[x[0],x[1],x[2],iid(x[3]),x[4]]);store('ps99lists',JSON.stringify({t:Date.now(),LT,CT,L:sl(L),C:sl(C)}))};
 const LOK={};
+// A first visit has no saved leaderboards, so it uses each one the moment it is in instead of waiting for both: the main
+// page's top 10 shows with page 1 of its list, and an opened league or clan when its own list is complete (EAT, when that
+// was), which is asked for before the other one. live stays false until both are in; until then paint() holds back any
+// page whose list is still partial, and the top 10 leaves its logos (100 KB and more each) out of the lists' way.
+const EAT={};
+function early(k,r,all){if(live||!r.length||all&&!all.complete||!all&&(k==='League'?L:C).length)return;
+if(k==='League'){L=r;if(all)LT=all.total||LT}else C=r;if(all)EAT[k]=Date.now();board();
+// When this was the second list, the refresh that loaded them paints next.
+if(all&&mode===k&&S[k]&&!(EAT.League&&EAT.Clan))paint(false).then(()=>ldDone(1))}
 async function pull(full){
-const m=full?2000:100,cs=Math.min(m,1000),[a,b,ct]=await Promise.all([pages('/v1/leagues?pageSize=100&sort=Points&sortOrder=desc',d=>d.leagues,m,full?(q=>{lp=q;ldUpd()}):null),Promise.all([pages('/api/clans?pageSize='+cs+'&sort=Points&sortOrder=desc',d=>d,m,full?(q=>{cp=q;ldUpd()}):null,cs),battle().catch(()=>{})]).then(([r])=>BREC&&BREC.top?{rows:BREC.top.slice(0,m),total:0,complete:true}:r),full?jget('/api/clansTotal').catch(()=>null):null]);
+const m=full?2000:100,cs=Math.min(m,1000),e1=full&&!live,own=e1&&S[mode]?mode:'',p1=e1&&!own,
+lgf=()=>pages('/v1/leagues?pageSize=100&sort=Points&sortOrder=desc',d=>d.leagues,m,full?(q=>{lp=q;ldUpd()}):null,100,p1&&(r=>early('League',r)),own&&own!=='Clan'&&!n),
+// The clans' page 1 waits for the war: while BIG Games hasn't listed a new war, the scan's own ranking (BREC.top) is the list.
+clf=()=>Promise.all([pages('/api/clans?pageSize='+cs+'&sort=Points&sortOrder=desc',d=>d,m,full?(q=>{cp=q;ldUpd()}):null,cs,p1&&(r=>battle().catch(()=>{}).then(()=>{if(!(BREC&&BREC.top))early('Clan',r)}))),battle().catch(()=>{})]).then(([r])=>BREC&&BREC.top?{rows:BREC.top.slice(0,m),total:0,complete:true}:r),
+cl=own==='League'?null:clf(),lg=own==='Clan'?cl.then(lgf):lgf(),cl2=cl||lg.then(clf);
+if(e1){lg.then(a=>early('League',a.rows,a)).catch(()=>{});cl2.then(b=>early('Clan',b.rows,b)).catch(()=>{})}
+const [a,b,ct]=await Promise.all([lg,cl2,full?jget('/api/clansTotal').catch(()=>null):null]);
 // New rows first, then every team they don't cover in its last known order: a team that just slipped
 // from #100 to #101 stays in the list instead of showing as "Not ranked".
 const fresh=(r,old)=>{const s=new Set(r.map(x=>String(x[0]).toLowerCase()));return r.concat(old.filter(x=>!s.has(String(x[0]).toLowerCase())))};
@@ -535,7 +557,7 @@ const PF={};
 function prefetch(k,name){const p=(k==='League'?'/v1/leagues/':'/api/clan/')+encodeURIComponent(name);if(!PF[p])PF[p]={at:Date.now(),pre:1,pr:jget(p)};PF[p].pr.catch(()=>{})}
 // A request made in the last 20 seconds is shared (the startup prefetch, the page and its first redraw),
 // and a failed one that wasn't "not found" is tried again.
-const take=p=>{const f=PF[p],age=f?Date.now()-f.at:1e9;if(f&&(f.pre&&!f.used&&age<20000||age<2500)){f.used=1;return f.pr.catch(e=>{if(GONE(e))throw e;delete PF[p];return take(p)})}
+const take=p=>{const f=PF[p],age=f?Date.now()-f.at:1e9;if(f&&(f.pre&&!f.used&&age<20000||Date.now()-(f.used||f.at)<2500)){f.used=f.used||Date.now();return f.pr.catch(e=>{if(GONE(e))throw e;delete PF[p];return take(p)})}
 const e=PF[p]={at:Date.now(),pr:jget(p)};e.pr.catch(()=>{});return e.pr};
 async function dataL(name){const j=await take('/v1/leagues/'+encodeURIComponent(name));if(j.status!=='ok')throw 0;const d=j.data,i=L.findIndex(x=>String(x[0]).toLowerCase()===d.Name.toLowerCase());
 SMP.League[d.Name.toLowerCase()]={t:Date.now(),p:(d.PointContributions||[]).map(x=>Math.round(x.Points))};SV.League++;return{kind:'League',at:Date.now(),key:'l:'+d.Name.toLowerCase(),name:d.Name,icon:d.Icon,pts:d.Points,mem:(d.Members||[]).length+1,cap:d.MemberCapacity,oid:d.Owner&&typeof d.Owner==='object'?d.Owner.UserID:d.Owner,owner:d.Owner&&d.Owner.DisplayName,members:(d.Members||[]).map(m=>m.UserID).concat(d.Owner&&typeof d.Owner==='object'?d.Owner.UserID:d.Owner),i,list:L,rank:i+1,sum:(d.PointContributions||[]).reduce((s,x)=>s+x.Points,0),nAll:(d.PointContributions||[]).length,rows:(d.PointContributions||[]).slice().sort((a,b)=>b.Points-a.Points).map(x=>({id:x.UserID,n:x.DisplayName,p:x.Points,t:x.Timestamp}))}}
@@ -557,7 +579,7 @@ return(LP[n]={at:Date.now(),pr:jget('/api/clan/'+encodeURIComponent(n),true).the
 // The team's page of the leaderboard is fetched fresh. The list skips teams the API repeats across page
 // edges, so the team can sit a page later on the API than its place suggests; then that page is read too.
 // The fresh teams replace their old entries at the place they held, and no other team is dropped.
-async function near(d){if(d.kind==='Clan'&&BREC&&BREC.top)return nearLive(d);if(d.i<100||Date.now()-LISTT<30000)return d;const k=d.kind,lc=x=>String(x[0]).toLowerCase(),me=d.name.toLowerCase();
+async function near(d){if(d.kind==='Clan'&&BREC&&BREC.top)return nearLive(d);if(d.i<100||Date.now()-Math.max(LISTT,EAT[d.kind]||0)<30000)return d;const k=d.kind,lc=x=>String(x[0]).toLowerCase(),me=d.name.toLowerCase();
 const pg=p=>jget((k==='League'?'/v1/leagues?':'/api/clans?')+'pageSize=100&sort=Points&sortOrder=desc&page='+p).then(j=>(k==='League'?j.data&&j.data.leagues:j.data)||[]);
 // A rival just across the page's edge would keep its older points, so a team near the edge gets the next page read too.
 try{const p=Math.floor(d.i/100)+1,o=d.i%100,pp=await Promise.all([o<10&&p>1?pg(p-1).catch(()=>[]):[],pg(p),o>89?pg(p+1).catch(()=>[]):[]]);if(!pp[1].length)return d;
@@ -849,8 +871,11 @@ document.addEventListener('toggle',e=>{if(e.target.classList&&e.target.classList
 // (data-ranks/players/<kind>/<user ID % 256>.json); the player's points then come live from those teams.
 const UIDS=ldS('ps99uid');
 // A plain number is a user ID; "@123456" looks up the username 123456.
+// A player's own name: one lookup a minute, shared by the startup prefetch, the card and its redraws, alongside their teams
+// and never ahead of them. Without the minute, a name Roblox won't give would be asked for again by every draw.
+const UN={},uname=id=>{const c=UN[id];return c&&Date.now()-c.at<60000?c.pr:(UN[id]={at:Date.now(),pr:names([id]).then(()=>{const k=U[id]&&U[id][0].toLowerCase();if(k&&UIDS[k]!==id){UIDS[k]=id;store('ps99uid',JSON.stringify(UIDS))}})}).pr};
 async function findUser0(q){const raw=q.trim();q=raw.replace(/^@/,'');if(!q)return null;
-if(!raw.startsWith('@')&&/^\d+$/.test(q)){const id=+q;await names([id]);if(U[id]){UIDS[U[id][0].toLowerCase()]=id;store('ps99uid',JSON.stringify(UIDS))}return id}
+if(!raw.startsWith('@')&&/^\d+$/.test(q)){uname(+q);return +q}
 const key=q.toLowerCase();if(UIDS[key])return UIDS[key];
 // The scan's saved usernames first (every player in a top team); Roblox only for a name they don't have. When Roblox
 // can't be reached either, "none" says the name isn't among the saved ones, which is all that can be known.
@@ -1075,7 +1100,7 @@ if(show)box.innerHTML='<section class="card ldc"><p class="st" style="margin:0">
 try{let none=false;const id=await findUser(q).catch(e=>{if(e!=='none')throw e;none=true;return null});if(!ok())return;
 if(!id){const nm='“'+esc(q.replace(/^@/,''))+'”';DEAD='Player:'+q.toLowerCase();PENDY=null;document.title=DTITLE;box.innerHTML='<section class="card nf"><b>'+(none?'Could not find '+nm+' among the players of the top 2,000 leagues and clans.':'No Roblox user called '+nm+'.')+'</b><p>Check the spelling of their username (not their display name), or type their user ID.'+(none?' A player who just joined a top team can take half an hour to show up.':'')+'</p><button class="go" data-again>Search again</button></section>';return}
 // Each team's live data is requested the moment its name is known; a slow profile picture never holds up the numbers.
-const pp=Promise.all([pics([id]),names([id]),grank(id)]),tl=teamOfC('League',id),tc=teamOfC('Clan',id),real=t=>t&&!t.unk?t:null;
+const pp=Promise.all([pics([id]),uname(id),grank(id)]),tl=teamOfC('League',id),tc=teamOfC('Clan',id),real=t=>t&&!t.unk?t:null;
 const [lt,ct,pm,,ld,cd]=await Promise.all([tl,tc,pmeta(),hmeta(),tl.then(t=>real(t)?dataL(t.name).catch(()=>null):null),tc.then(t=>real(t)?dataC(t.name).catch(()=>null):null),gplay('League'),gplay('Clan'),Promise.race([pp,sleep(2500)])]);if(!ok())return;
 // On a refresh, anything that failed to load keeps what was on screen instead of saying "no team" or "could not load".
 const prev=PV&&PV.id===id?PV:null,got={League:lt,Clan:ct};
@@ -1094,7 +1119,11 @@ const ids=[].concat(...nbs.filter(Boolean).map(x=>[x.a&&x.a.id,x.b&&x.b.id])).fi
 await Promise.race([Promise.all([pp,ids.length?Promise.all([names(ids),pics(ids)]):null]),sleep(4000)]);
 if(ok()&&PV===V)drawPlayer(V)}
 catch(e){PENDY=null;if(ok()&&(show||!box.querySelector('.pc'))){document.title=DTITLE;box.innerHTML='<section class="card"><b>'+(e==='roblox'?'Could not reach Roblox to look up that username.':'Could not load this player.')+'</b><p class="st">Try again in a moment, or type their user ID.</p></section>'}}}
-async function paint(show){if(mode==='Player')return paintPlayer(show);
+async function paint(show){
+// First visit, leaderboards still loading: the page waits for its own list (a partial one would give a wrong placement).
+// The refresh that is loading them paints it when they are in.
+if(!live&&!(mode!=='Player'&&EAT[mode])){if(show&&S[mode]){PSEQ++;$('dash').innerHTML='<section class="card ldc"><p class="st" style="margin:0">'+(mode==='Player'?'Looking up ':'Loading ')+esc(S[mode])+'...</p></section>'}tick(true);return}
+if(mode==='Player')return paintPlayer(show);
 const name=S[mode],k=mode,seq=++PSEQ;if(!name){$('dash').innerHTML='';return}
 if(show)$('dash').innerHTML='<section class="card ldc"><p class="st" style="margin:0">Loading '+esc(name)+'...</p></section>';
 try{const hp=shist(k,name.toLowerCase()),d=fit(await near(await(k==='League'?dataL(name):dataC(name))));phase('t:'+d.key,d.pts+':'+d.sum);const ids=d.rows.map(r=>r.id),ln=d.name.toLowerCase(),loc=snap(d);
@@ -1111,6 +1140,8 @@ const TRIED=new Set();
 function boardPlayers(){const g=GPX.League,k=Math.min(BN.Player,g.list.length);rkw(k);$('th').textContent='Top '+(k||10)+' league players';$('war').hidden=true;
 keepFocus($('top'),()=>put($('top'),g.list.length?g.list.slice(0,k).map((x,i)=>{const u=U[x.id];return '<button class="rk'+(i<3?' m'+(i+1):'')+'" data-n="'+esc(u&&!/^\d+$/.test(u[0])?u[0]:x.id)+'">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn"><span class="lg"><b>'+esc((u?u[0][0]:'?').toUpperCase())+'</b>'+(IM[x.id]?'<img src="'+esc(IM[x.id])+'" alt="" loading="lazy">':'')+'</span><span class="rkt"><span>'+esc(u?'@'+u[0]:'User '+x.id)+'</span>'+(x.team?'<small>in '+esc(x.team)+'</small>':'')+'</span></span><span class="rkv"><i>'+pt(fmt(x.p))+'</i></span></span></button>'}).join('')+(k<g.list.length?'<button class="more" id="more">Show 25 more</button>':''):LDFAIL?'<p class="st">The leaderboard could not load. Trying again...</p>':phRows('<small>-</small>')));
 if(!g.at){if(Date.now()-(g.tr||0)>30000){g.tr=Date.now();gplay('League').then(()=>{if(BK()==='Player'&&GPX.League.at)board()})}return}
+// Under a player opened by a link on a first visit, the list's names and pictures wait until that player's own data is in.
+if(!live&&S[mode])return;
 const ids=g.list.slice(0,k).map(x=>x.id).filter(i=>!TRIED.has(i)&&(!U[i]||!IM[i]));ids.forEach(i=>TRIED.add(i));
 if(ids.length)Promise.all([names(ids),pics(ids)]).then(()=>{if(BK()==='Player')boardPlayers()})}
 function exPH(){const a=SK==='League'?L:SK==='Clan'?C:null;$('q').placeholder='Example: '+(a?a.length?a[0][0]:SK==='League'?'UN00':'UN0':'JOHNMAN1990')}
@@ -1121,9 +1152,11 @@ const rkw=k=>$('top').style.setProperty('--rkw',k>999?'64px':k>99?'54px':'44px')
 // The top 10 shows one kind and crawlers always get the League board, so the FAQ answers also link the top clans and leagues:
 // without them nothing on the home page leads to a clan page.
 const topLinks=()=>{for(const[k,a,id]of[['League',L,'tlg'],['Clan',C,'tcl']])put($(id),a.length?' Top '+k.toLowerCase()+'s right now: '+a.slice(0,10).map(x=>'<a href="'+esc(tlink(k,x[0]))+'" data-open="'+k+'" data-n="'+esc(x[0])+'">'+esc(x[0])+'</a>').join(', ')+'.':'')};
-function board(){exPH();topLinks();const m=TOPK=BK();if(m==='Player')return boardPlayers();const a=m==='League'?L:C,k=Math.min(BN[m],a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(m==='League'?'leagues':'clans');
+// On a first visit the loading screen goes as soon as the main page's top 10 is on screen.
+function board(){board0();if(!live&&!S[mode]&&$('top').querySelector('.rk:not(.ph)'))ldDone(1)}
+function board0(){exPH();topLinks();const m=TOPK=BK();if(m==='Player')return boardPlayers();const a=m==='League'?L:C,k=Math.min(BN[m],a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(m==='League'?'leagues':'clans');
 w.dataset.k=m;repill(w);w.hidden=false;
-keepFocus($('top'),()=>put($('top'),a.length?a.slice(0,k).map((x,i)=>{const r=rk(a,i);return '<a class="rk'+(r<4?' m'+r:'')+'" href="'+esc(tlink(m,x[0]))+'" data-n="'+esc(x[0])+'">'+(md(r-1)||'<b>#'+r+'</b>')+'<span class="rkm"><span class="rkn">'+logo(x[3],x[0])+'<span class="rkt"><span>'+esc(x[0])+'</span></span></span><span class="rkv"><i>'+pt(fmt(x[1]))+'</i></span></span></a>'}).join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):LDFAIL?'<p class="st">The leaderboard could not load. Trying again...</p>':phRows()))}
+keepFocus($('top'),()=>put($('top'),a.length?a.slice(0,k).map((x,i)=>{const r=rk(a,i);return '<a class="rk'+(r<4?' m'+r:'')+'" href="'+esc(tlink(m,x[0]))+'" data-n="'+esc(x[0])+'">'+(md(r-1)||'<b>#'+r+'</b>')+'<span class="rkm"><span class="rkn">'+logo(live?x[3]:'',x[0])+'<span class="rkt"><span>'+esc(x[0])+'</span></span></span><span class="rkv"><i>'+pt(fmt(x[1]))+'</i></span></span></a>'}).join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):LDFAIL?'<p class="st">The leaderboard could not load. Trying again...</p>':phRows()))}
 // While the list loads, ten hidden rows hold its place, so the page below doesn't jump when it fills in.
 const phRows=(t='')=>Array.from({length:10},(x,i)=>'<div class="rk ph" aria-hidden="true">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn"><span class="lg"></span><span class="rkt"><span>-</span>'+t+'</span></span><span class="rkv"><i>-</i></span></span></div>').join('')
 +'<button class="more ph" tabindex="-1" aria-hidden="true">Show 25 more</button><p class="st phs">Loading...</p>';
@@ -1167,7 +1200,7 @@ catch(e){LFAIL=1;board();if(!live){note('Live data could not load right now. Try
 // in memory for Back, and the new address gets its own history entry. Nothing is saved until the lookup works (shown()).
 // A Back or a newer lookup while it loads (NAV) cancels its scroll to the result, so the page Back restored stays put.
 async function go(k,v){k=k||SK;v=String(v==null?$('q').value:v).trim();if(!v){$('q').focus();return}
-const g=++NAV;stash();openFind(false);PENDY=null;sgSet('');if(k!==mode)setMode(k);else kindUI(k);$('q').value=v;S[k]=v;DEAD='';setURL(true);FY=null;if(!live)await ready;if(g!==NAV)return;
+const g=++NAV;stash();openFind(false);PENDY=null;sgSet('');if(k!==mode)setMode(k);else kindUI(k);$('q').value=v;S[k]=v;DEAD='';setURL(true);FY=null;
 // A tap far down the page goes up to the loading card at once, since what is below it stays hidden while it loads.
 // foldSync first: the search folding into the bar moves the card up.
 const pt=paint(true);foldSync();if($('dash').getBoundingClientRect().top<0)$('dash').scrollIntoView({behavior:RM.matches?'auto':'smooth',block:'start'});await pt;if(g===NAV)$('dash').scrollIntoView({behavior:RM.matches?'auto':'smooth',block:'start'})}
@@ -1191,7 +1224,8 @@ $('q').addEventListener('focus',()=>{if(PCQ.matches||!KBQ.matches)return;const v
 document.addEventListener('click',e=>{if(!e.target.closest('[data-again]'))return;const q=$('q');scrollTo(0,0);if(document.body.classList.contains('res'))openFind(true);q.focus({preventScroll:true});q.setSelectionRange(0,q.value.length)});
 $('q').onkeydown=e=>{if(e.key==='Enter')go()};
 $('top').onclick=e=>{if(e.target.id==='more'){const y=RS.getBoundingClientRect().top,kb=e.target.matches(':focus-visible'),n=BN[TOPK];BN[TOPK]+=25;board();if(PCQ.matches){stick();scrollBy(0,RS.getBoundingClientRect().top-y)}const f=kb&&document.querySelectorAll('#top .rk')[n];if(f)f.focus({preventScroll:true});return}const b=e.target.closest('.rk');if(!b||b.tagName==='A'&&mod(e))return;e.preventDefault();go(TOPK,b.dataset.n)};
-document.addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;if(i.dataset.id&&!i.dataset.t){i.dataset.t=1;i.src='/ps99api/image/'+i.dataset.id}else i.style.display='none'},true);
+// A player picture is asked for as WebP (a quarter of the PNG's size); a browser that can't show it gets the PNG.
+document.addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;if(/\/Webp\/noFilter$/.test(i.src)){i.src=i.src.replace(/Webp\/noFilter$/,'Png/noFilter');return}if(i.dataset.id&&!i.dataset.t){i.dataset.t=1;i.src='/ps99api/image/'+i.dataset.id}else i.style.display='none'},true);
 document.addEventListener('load',e=>{if(e.target.tagName==='IMG')e.target.parentNode.classList.add('ok')},true);
 document.addEventListener('click',e=>{const b=e.target.closest('.seg button[data-r],.seg button[data-m]');if(!b||!LAST||!$('chw'))return;if(b.dataset.r)RG=+b.dataset.r;if(b.dataset.m)CM=b.dataset.m;keepFocus($('chw'),()=>{$('chw').innerHTML=chartHtml(LAST.a,LAST.d)})});
 const chHit=e=>{const s=e.target.closest&&e.target.closest('.ch');if(!s||!CHD)return;const R=s.getBoundingClientRect(),x=(e.clientX-R.left)/R.width*CW;CHX=x/CW;CHK=LAST&&LAST.d.key;const p=CHD.ser[0].pts;let bi=0,bd=1e9;p.forEach((q,i)=>{const dx=Math.abs(CHD.X(q[0])-x);if(dx<bd){bd=dx;bi=i}});
@@ -1278,9 +1312,9 @@ const top=out.sort((p,q)=>p[0]-q[0]||p[1]-q[1]).slice(0,3);
 return '<section class="card nf"><b>No '+k.toLowerCase()+' called “'+esc(name)+'”.</b><p>'+(top.length?'Check the spelling, or pick one:':'Check the spelling.')+'</p>'+top.map(o=>sgRow(o[2],o[3],o[1])).join('')+'<button class="go" data-again>Search again</button></section>'}
 // A shared link (?league=, ?clan= or ?player=) opens straight to that page.
 let LINK='';{const q=new URLSearchParams(location.search);for(const m of ['League','Clan','Player']){const v=(q.get(m.toLowerCase())||'').trim().slice(0,64);if(v){S.mode=m;S[m]=LINK=m==='Player'?pnm(v):v;break}}}
-{hmeta();const k=S.mode;if((k==='League'||k==='Clan')&&S[k]){prefetch(k,S[k]);shist(k,S[k].toLowerCase())}
+{hmeta();const k=S.mode;if((k==='League'||k==='Clan')&&S[k]){const t=S[k].toLowerCase();prefetch(k,S[k]);shist(k,t);nmf('team/'+k.toLowerCase()+'/'+nmh(t,512))}
 // A saved player: their user ID (remembered), teams, team data and picture are all requested straight away.
-if(k==='Player'&&S.Player){gplay('League');gplay('Clan');findUser(S.Player).then(id=>{if(!id)return;pics([id]);pmeta();['League','Clan'].forEach(x=>teamOfC(x,id).then(t=>{if(t&&!t.unk)prefetch(x,t.name)}))}).catch(()=>{})}}
+if(k==='Player'&&S.Player){gplay('League');gplay('Clan');findUser(S.Player).then(id=>{if(!id)return;pics([id]);uname(id);grank(id);pmeta();['League','Clan'].forEach(x=>teamOfC(x,id).then(t=>{if(t&&!t.unk)prefetch(x,t.name)}))}).catch(()=>{})}}
 // The leaderboards from the last visit (up to 6 hours old) show at once while the live ones load.
 {const c=ldS('ps99lists');if(c.t&&Date.now()-c.t<216e5&&c.L&&c.L.length&&c.C&&c.C.length){L=c.L;C=c.C;LT=c.LT||0;CT=c.CT||0;live=true}}
 loadRanks();setMode(['Clan','Player'].includes(S.mode)?S.mode:'League');$('q').value=S[mode]||'';showRecent();if(S[mode]&&live)paint(true);else if(S[mode])$('dash').innerHTML='<section class="card ldc"><p class="st" style="margin:0">Loading '+esc(S[mode])+'...</p></section>';
@@ -1291,8 +1325,8 @@ $('ldp').textContent=FIRST?'The first visit can take a little longer.':'Please w
 setTimeout(()=>{const e=$('ldslow');if(e&&$('ld')&&$('ldbtns').hidden)e.hidden=false},15000);
 const ldIn=v=>{document.querySelector('main.wrap').inert=v};ldIn(true);
 const ldOut=el=>{el.classList.add('out');ldIn(false);setTimeout(()=>el.remove(),450)};
-function ldDone(){const el=$('ld');if(!el)return;
-if(live){try{localStorage.setItem('ps99v',JSON.stringify({x:1}))}catch(e){}ldOut(el);return}
+function ldDone(ok){const el=$('ld');if(!el||el.classList.contains('out'))return;
+if(live||ok){try{localStorage.setItem('ps99v',JSON.stringify({x:1}))}catch(e){}ldOut(el);return}
 LDFAIL=true;board();$('ldh').textContent="Couldn't load the data";$('ldp').textContent='The game servers did not answer. Check your connection and try again.';$('ldbtns').hidden=false;$('ldslow').hidden=true}
 ready.then(ldDone);
 if(live){$('st').textContent='Showing the leaderboards from your last visit while the live ones load...';ldDone()}
