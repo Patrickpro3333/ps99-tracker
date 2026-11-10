@@ -6,10 +6,12 @@ stay over Roblox's limit) and doesn't let a browser ask it directly. It does ans
 
 Usage:  python3 names.py --prev prev --out names
 --prev is the last data-ranks branch: its teams/ lists every team's players, its names/ is what was saved before.
-Each run asks Roblox about the players it has no answer for yet, then about the ones checked longest ago, --max in all:
-8,000 takes about 100 seconds and gets round all 60,000 players in about 2 hours. When Roblox stops answering,
-what was saved before is kept. The scan's merge step saves --out next to ranks.json:
-  id/<user ID % 1024>.json           {user ID: [username, display name, picture, when checked]}
+Each run asks Roblox about the players it has no answer for yet, then about the ones checked longest ago: 700 names
+(everyone's name is checked again about once a day) and 6,000 pictures (every 3 hours or so). Measured from a
+GitHub machine, Roblox takes about 1,000 names and 10,000 pictures a minute, so a normal run needs about a minute
+and the first fill of 60,000 players about 2 hours of runs, each stopping after 8 minutes. When Roblox stops
+answering, what was saved before is kept. The scan's merge step saves --out next to ranks.json:
+  id/<user ID % 1024>.json           {user ID: [username, display name, picture, name checked, picture checked]}
   team/<league|clan>/<0-511>.json    {team name in lowercase: {user ID: [username, display name, picture]}}
   by/<0-255>.json                    {username in lowercase: user ID}, for the player search
 The team and username files are picked by shard() of the name; index.html has the same sum (nmh). A picture is the
@@ -20,7 +22,6 @@ import argparse, json, os, re, sys, time, urllib.error, urllib.request
 ap = argparse.ArgumentParser()
 ap.add_argument("--prev", default="prev", help="folder holding the previous data-ranks branch")
 ap.add_argument("--out", default="names", help="folder to write the names to")
-ap.add_argument("--max", type=int, default=8000, help="how many players to ask Roblox about in one run")
 a = ap.parse_args()
 PIC = re.compile(r"https://tr\.rbxcdn\.com/30DAY-AvatarHeadshot-([0-9A-F]{32})-Png/150/150/AvatarHeadshot/Png/noFilter")
 next_at, stopped = {}, set()
@@ -98,40 +99,47 @@ if __name__ == "__main__":
     old = {}
     for i in range(1024):
         for u, e in (load(os.path.join(a.prev, "names", "id", f"{i}.json")) or {}).items():
-            if isinstance(e, list) and len(e) == 4:
+            if isinstance(e, list) and len(e) == 5:
                 old[int(u)] = e
-    store = {u: old[u] for u in ids if u in old}  # a player who left every top team is dropped
-    todo = sorted(ids, key=lambda u: store[u][3] if u in store else 0)[:a.max]  # never asked or not answered first
-    now, asked, until = int(time.time()), 0, time.monotonic() + 240  # the scan's merge step waits for this, so 4 minutes at most
-    for i in range(0, len(todo), 200):  # Roblox takes 200 players a request for names, 100 for pictures
-        if time.monotonic() > until:
-            break
-        chunk = todo[i:i + 200]
-        j = ask("users", "/v1/users", 25, {"userIds": chunk, "excludeBannedUsers": False})
-        who = None if j is None else {x.get("id"): x for x in j.get("data") or []}
-        pics, seen = {}, set()
-        for part in (chunk[:100], chunk[100:]):
-            j = part and ask("thumbnails", "/v1/users/avatar-headshot?userIds=" + ",".join(map(str, part)) + "&size=150x150&format=Png&isCircular=false", 100)
-            if j:
-                seen.update(part)
-                pics.update({x.get("targetId"): x for x in j.get("data") or []})
-        if who is None and not seen:
-            break
-        for u in chunk:
-            name, shown, pic, checked = store.get(u) or ["", "", "", 0]
-            if who is not None:
-                x = who.get(u) or {}  # an account Roblox no longer has comes back without a name
-                name = str(x.get("name") or "")[:40]
-                shown = str(x.get("displayName") or name)[:40]
-            p = pics.get(u) or {}
-            waiting = u not in seen or p.get("state") == "Pending"  # a picture Roblox is still drawing is asked for again next run
-            if not waiting:
-                pic = short(p.get("imageUrl"))
-            store[u] = [name, shown, pic, checked if who is None or waiting else now]
-        asked += len(chunk)
+    store = {u: old.get(u) or ["", "", "", 0, 0] for u in ids}  # a player who left every top team is dropped
+
+    def queue(stamp, again):
+        # Players with no answer yet, in the scan's order, then the ones checked longest ago.
+        return [u for u in ids if not store[u][stamp]] + sorted((u for u in ids if store[u][stamp]), key=lambda u: store[u][stamp])[:again]
+
+    names, pics = queue(3, 700), queue(4, 6000)
+    now, asked, until = int(time.time()), [0, 0], time.monotonic() + 480  # the scan's merge step waits for this job
+    while (names or pics) and time.monotonic() < until:
+        if names:
+            part, names = names[:100], names[100:]
+            j = ask("users", "/v1/users", 10, {"userIds": part, "excludeBannedUsers": False})
+            if j is None:
+                names = []
+            else:
+                who = {x.get("id"): x for x in j.get("data") or []}
+                for u in part:
+                    x = who.get(u) or {}  # an account Roblox no longer has comes back without a name
+                    name = str(x.get("name") or "")[:40]
+                    store[u][0], store[u][1], store[u][3] = name, str(x.get("displayName") or name)[:40], now
+                asked[0] += len(part)
+        for _ in range(9):  # nine picture requests fit in the six seconds between two name requests
+            if not pics:
+                break
+            part, pics = pics[:100], pics[100:]
+            j = ask("thumbnails", "/v1/users/avatar-headshot?userIds=" + ",".join(map(str, part)) + "&size=150x150&format=Png&isCircular=false", 100)
+            if j is None:
+                pics = []
+                break
+            got = {x.get("targetId"): x for x in j.get("data") or []}
+            for u in part:
+                state = (got.get(u) or {}).get("state")
+                if state in ("Completed", "Blocked"):  # anything else (still being drawn, an error) is asked for again next run
+                    store[u][2], store[u][4] = short(got[u].get("imageUrl")) if state == "Completed" else "", now
+            asked[1] += len(part)
     by_id, by_name = [{} for _ in range(1024)], [{} for _ in range(256)]
     for u, e in store.items():
-        by_id[u % 1024][str(u)] = e
+        if e[3] or e[4]:
+            by_id[u % 1024][str(u)] = e
         if e[0]:
             by_name[shard(e[0].lower(), 256)][e[0].lower()] = u
     write(os.path.join(a.out, "id"), by_id)
@@ -139,7 +147,7 @@ if __name__ == "__main__":
     for kind, t in teams.items():
         packs = [{} for _ in range(512)]
         for key, members in t.items():
-            packs[shard(key, 512)][key] = {str(u): store[u][:3] for u in members if u in store and store[u][0]}
+            packs[shard(key, 512)][key] = {str(u): store[u][:3] for u in members if store[u][0] or store[u][2]}
         write(os.path.join(a.out, "team", kind), packs)
-    print(f"Asked Roblox about {asked} of {len(ids)} players. {sum(1 for e in store.values() if e[0])} have a name saved, "
-          f"{sum(1 for e in store.values() if e[2])} a picture.")
+    print(f"Asked Roblox about {asked[0]} names and {asked[1]} pictures. Of {len(ids)} players, "
+          f"{sum(1 for e in store.values() if e[0])} have a name saved and {sum(1 for e in store.values() if e[2])} a picture.")

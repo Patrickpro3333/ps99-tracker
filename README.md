@@ -56,11 +56,13 @@ The old workers.dev address forwards to ps99tracker.xyz from the page itself.
 Roblox refuses the `/rbx` and `/rbxt` proxies almost every time: Cloudflare's addresses are shared with many
 other sites and stay over Roblox's limit per address, and Roblox doesn't let a browser ask it directly. So each
 scan also runs `names.py` on one of GitHub's machines, which Roblox does answer. It asks about the players it
-has no answer for yet, then the ones checked longest ago, 8,000 a run, and the scan saves the result to `names/`
-on the `data-ranks` branch. The page reads names and pictures from there (one file for a whole team, one small
-file for a single player, and a username list for the player search) and asks Roblox only for players the saved
-copy lacks. A player who just joined a top team shows as "User 123" until the next scan or two, and a new name
-or picture shows within about 2 hours. If the names job fails, the scan is saved anyway with the names it had.
+has no answer for yet, then the ones checked longest ago, and the scan saves the result to `names/` on the
+`data-ranks` branch. Roblox takes about 1,000 names and 10,000 pictures a minute from one machine, so every
+name is checked again about once a day and every picture every 3 hours or so; the first fill of all 60,000
+players takes about 2 hours of scans. The page reads names and pictures from there (one file for a whole team,
+one small file for a single player, and a username list for the player search) and asks Roblox only for players
+the saved copy lacks. A player who just joined a top team shows as "User 123" until the next scan or two. If
+the names job fails, the scan is saved anyway with the names it had.
 
 ### Search engines
 
