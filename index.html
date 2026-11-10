@@ -15,7 +15,9 @@
 c=document.querySelector('link[rel=canonical]')||document.head.appendChild(Object.assign(document.createElement('link'),{rel:'canonical'}));
 c.href='https://ps99tracker.xyz/'+(k?'?'+k+'='+encodeURIComponent(q.get(k).trim().slice(0,64)):'');const p=!k&&(q.get('player')||'').trim();r.content=nf||p?'noindex,follow':r0;if(p)c.remove();if(!k)ds.content=d0}})();seoTags()</script>
 <!-- Google AdSense: confirms the site belongs to the AdSense account, and shows ads once AdSense approves the site.
-     Not on 404.html: AdSense doesn't allow ads on error pages. -->
+     Not on 404.html: AdSense doesn't allow ads on error pages. For the same reason ad requests start paused, and the
+     script at the end of the page (adsOK) lets them run only once a page with content is on screen. -->
+<script>(window.adsbygoogle=window.adsbygoogle||[]).pauseAdRequests=1</script>
 <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5379725081260083" crossorigin="anonymous"></script>
 <meta name="application-name" content="PS99 Tracker">
 <meta name="apple-mobile-web-app-title" content="PS99 Tracker">
@@ -1282,5 +1284,10 @@ const dueFull=()=>!live||Date.now()-Math.max(LISTT,LISTA)>=290000;
 ready.then(schedule);
 // Back on the tab (or the phone unlocked) after a while: refresh straight away instead of waiting up to a minute.
 document.addEventListener('visibilitychange',()=>{if(document.hidden)return;VISAT=Date.now();if(live&&Date.now()-LASTTICK>60000){clearTimeout(NEXT);tick(dueFull()).finally(schedule)}});
+// Google's publisher policies: no ads on screens without content (loading, not found, could not load), and nothing that
+// names a person may be sent to Google, which a player page's address does (their Roblox username). So ad requests run
+// only on the main page once its top 10 is in, and on league and clan pages.
+const adsOK=()=>{const d=$('dash');return !$('ld')&&!/[?&]player=/i.test(location.search)&&!!(d.firstElementChild?d.querySelector('.dash'):$('top').querySelector('.rk:not(.ph)'))};
+const adsMO=new MutationObserver(()=>{adsbygoogle.pauseAdRequests=adsOK()?0:1});[document.body,$('dash'),$('top')].forEach(e=>adsMO.observe(e,{childList:true}));
 </script>
 </body></html>
