@@ -47,7 +47,6 @@ c.href='https://ps99tracker.xyz/'+(k?'?'+k+'='+encodeURIComponent(q.get(k).trim(
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://ps99.biggamesapi.io" crossorigin>
-<link rel="preconnect" href="https://ps99.biggamesapi.io">
 <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
 <link rel="preconnect" href="https://tr.rbxcdn.com">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[
@@ -452,7 +451,7 @@ const nmh=(s,n)=>{let h=0;for(const b of new TextEncoder().encode(s))h=(h*31+b)%
 const pic=p=>/^[0-9A-F]{32}$/.test(p)?'https://tr.rbxcdn.com/30DAY-AvatarHeadshot-'+p+'-Png/150/150/AvatarHeadshot/Webp/noFilter':/^https:\/\/[a-z0-9]+\.rbxcdn\.com\//.test(p)?p:'';
 let NMD=0;function nmPut(i,e){if(!Array.isArray(e))return;if(e[0]&&stale(i)){U[i]=[String(e[0]),String(e[1]||e[0]),Date.now()];NMD=1}const p=pic(String(e[2]||''));if(p&&!IM[i])IM[i]=p}
 async function saved(ids,k,team){const need=ids.filter(i=>stale(i)||!IM[i]);if(!need.length)return;
-if(team){const key=team.toLowerCase(),f=await nmf('team/'+k.toLowerCase()+'/'+nmh(key,512)),t=f&&f[key];if(t){for(const i in t)nmPut(i,t[i]);return}if(!f)return}
+if(team){const key=team.toLowerCase(),f=await nmf('team/'+k.toLowerCase()+'/'+nmh(key,512)),t=f&&f[key];if(t){if(t.logo){LGH[k]=Object.assign(LGH[k]||{},t.logo);lgFill(k)}for(const i in t)nmPut(i,t[i]);return}if(!f)return}
 await Promise.all(need.slice(0,50).map(async i=>{const f=await nmf('id/'+i%1024);nmPut(i,f&&f[i])}))}
 async function names(ids,k,team){
 await saved(ids,k,team);const need=ids.filter(stale);if(!need.length){if(NMD){NMD=0;store('ps99u',JSON.stringify(U))}return}let ok=false;
@@ -658,11 +657,12 @@ md=(i,c)=>i<3?'<b class="'+(c||'')+'md m'+(i+1)+'"><i class="vh">#</i>'+(i+1)+'<
 const nbt=t=>t.replace(/\s([AP]M)\b/gi,'\u00a0$1');
 const iid=s=>{const m=/\d+/.exec(s||'');return m?m[0]:''};
 // BIG Games only serves a logo full size (80 to 260 KB). Roblox keeps a small copy at an address the data job saves
-// (names.py), one file per kind, kept in the browser for a day. A logo with no small copy uses BIG Games' picture.
+// (names.py), one file per kind, kept in the browser for a day; a team's own logo also comes with its saved names,
+// so its page needn't wait for the file. A logo with no small copy uses BIG Games' picture.
 const LGS={},lgh=id=>{const h=(LGH.League||{})[id]||(LGH.Clan||{})[id];return /^[0-9a-f]{32}$/.test(h)?h:''};
 const lsrc=(id,big)=>{const h=lgh(id);return h?'https://tr.rbxcdn.com/180DAY-'+h+(big?'/250/250':'/150/150')+'/Image/Webp/noFilter':'https://ps99.biggamesapi.io/image/'+id};
-function lgGet(k){LGS[k]=1;nmf('logo/'+k.toLowerCase()).then(j=>{if(j){LGH[k]=j;LGH[k+'T']=Date.now();store('ps99lg',JSON.stringify(LGH))}LGS[k]=2;
-document.querySelectorAll('img[data-k="'+k+'"]:not([src])').forEach(i=>{i.src=lsrc(i.dataset.id,i.dataset.b)})})}
+const lgFill=k=>document.querySelectorAll('img[data-k="'+k+'"]:not([src])').forEach(i=>{if(LGS[k]===2||lgh(i.dataset.id))i.src=lsrc(i.dataset.id,i.dataset.b)});
+function lgGet(k){LGS[k]=1;nmf('logo/'+k.toLowerCase()).then(j=>{if(j){LGH[k]=j;LGH[k+'T']=Date.now();store('ps99lg',JSON.stringify(LGH))}LGS[k]=2;lgFill(k)})}
 // A logo whose address isn't known yet is drawn without a picture (the letter shows) until its kind's file is in.
 const logo=(ic,name,k,c)=>{const id=iid(ic),h=id&&lgh(id),wait=id&&!h&&LGS[k]!==2;if(id&&!LGS[k]&&!(h&&Date.now()-LGH[k+'T']<864e5))lgGet(k);
 return '<span class="lg '+(c||'')+'"><b>'+esc((String(name)[0]||'?').toUpperCase())+'</b>'+(id?'<img data-id="'+id+'"'+(wait?' data-k="'+k+'"'+(c?' data-b="1"':''):' src="'+lsrc(id,c)+'"')+' alt="" loading="lazy">':'')+'</span>'};

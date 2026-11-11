@@ -12,7 +12,7 @@ GitHub machine, Roblox takes about 1,000 names and 10,000 pictures a minute, so 
 and the first fill of 60,000 players about 2 hours of runs, each stopping after 8 minutes. When Roblox stops
 answering, what was saved before is kept. The scan's merge step saves --out next to ranks.json:
   id/<user ID % 1024>.json           {user ID: [username, display name, picture, name checked, picture checked]}
-  team/<league|clan>/<0-511>.json    {team name in lowercase: {user ID: [username, display name, picture]}}
+  team/<league|clan>/<0-511>.json    {team name in lowercase: {user ID: [username, display name, picture], "logo": {asset ID: picture}}}
   by/<0-255>.json                    {username in lowercase: user ID}, for the player search
   logo/<league|clan>.json            {logo's asset ID: picture}, for the logos of the teams in the last scan
 The team and username files are picked by shard() of the name; index.html has the same sum (nmh). A picture is the
@@ -103,7 +103,7 @@ if __name__ == "__main__":
                        for key, c in saved.items()}
         for members in teams[kind].values():
             ids.update(dict.fromkeys(members))
-        icons[kind] = {m[0] for c in saved.values() if (m := re.search(r"\d+", c.get("icon") or ""))}
+        icons[kind] = {key: m[0] for key, c in saved.items() if (m := re.search(r"\d+", c.get("icon") or ""))}
     if not ids:
         sys.exit("The last scan has no teams, so no names were written.")
     old = {}
@@ -152,7 +152,8 @@ if __name__ == "__main__":
         was = load(os.path.join(a.prev, "names", "logo", kind + ".json"))
         logos.update(was if isinstance(was, dict) else {})
     turn = int(time.time()) // 900 % 96  # 96 runs a day, so each saved logo is asked about again once a day
-    todo = sorted(i for i in set().union(*icons.values()) if not logos.get(i) or int(i) % 96 == turn)
+    used = {i for t in icons.values() for i in t.values()}
+    todo = sorted(i for i in used if not logos.get(i) or int(i) % 96 == turn)
     for n in range(0, len(todo), 100):  # Roblox takes one logo request a second from a GitHub machine (measured), so 50 a minute
         j = ask("thumbnails", "/v1/assets?assetIds=" + ",".join(todo[n:n + 100]) + "&size=150x150&format=Webp&isCircular=false", 50)
         if j is None:
@@ -160,6 +161,7 @@ if __name__ == "__main__":
         for x in j.get("data") or []:
             m = LOGO.fullmatch(x.get("imageUrl") or "") if x.get("state") == "Completed" else None
             logos[str(x.get("targetId"))] = m[1] if m else ""  # none: the page shows BIG Games' picture, and it is asked again next run
+    logos = {i: h for i, h in logos.items() if i in used and re.fullmatch("[0-9a-f]{32}", str(h))}
     by_id, by_name = [{} for _ in range(1024)], [{} for _ in range(256)]
     for u, e in store.items():
         if e[3] or e[4]:
@@ -172,12 +174,14 @@ if __name__ == "__main__":
         packs = [{} for _ in range(512)]
         for key, members in t.items():
             packs[shard(key, 512)][key] = {str(u): store[u][:3] for u in members if store[u][0] or store[u][2]}
+            if icons[kind].get(key) in logos:  # the team's own logo, so its page can show it without reading the logo file
+                packs[shard(key, 512)][key]["logo"] = {icons[kind][key]: logos[icons[kind][key]]}
         write(os.path.join(a.out, "team", kind), packs)
     os.makedirs(os.path.join(a.out, "logo"), exist_ok=True)
-    for kind, want in icons.items():
+    for kind, t in icons.items():
         with open(os.path.join(a.out, "logo", kind + ".json"), "w") as f:
-            json.dump({i: logos[i] for i in sorted(want) if re.fullmatch("[0-9a-f]{32}", str(logos.get(i)))}, f, separators=(",", ":"))
+            json.dump({i: logos[i] for i in sorted(set(t.values())) if i in logos}, f, separators=(",", ":"))
     print(f"Asked Roblox about {asked[0]} names, {asked[1]} pictures and {len(todo)} logos. Of {len(ids)} players, "
           f"{sum(1 for e in store.values() if e[0])} have a name saved and {sum(1 for e in store.values() if e[2])} a picture. "
-          f"Of {len(set().union(*icons.values()))} logos, {sum(1 for i in set().union(*icons.values()) if logos.get(i))} have a small copy. "
+          f"Of {len(used)} logos, {len(logos)} have a small copy. "
           f"Requests Roblox refused and were asked again: {refused or 'none'}.")

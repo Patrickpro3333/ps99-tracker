@@ -24,3 +24,4 @@ jobs:
           time python names.py --prev prev --out names
           ls -la names/logo
           python -c "import json;[print(k,len(json.load(open('names/logo/'+k+'.json')))) for k in ('league','clan')]"
+          python -c "import json;print('teams with their logo in the names file:',sum('logo' in t for k in ('league','clan') for i in range(512) for t in json.load(open(f'names/team/{k}/{i}.json')).values()))"
