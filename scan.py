@@ -185,9 +185,10 @@ def fetch(items, label=""):
                 rows = [[x["UserID"], round(x.get("Points") or 0)] for x in found if x.get("UserID")]
                 got[kind][name.lower()] = {"name": d.get("Name") or name, "ft": int(time.time()), "rows": rows,
                                            "p": [sum(pt for _, pt in rows), lp[1]] if lp else None,
-                                           "mem": [m for m in (league_members(d) if kind == "League" else clan_members(d)) if m]}
-                if kind == "Clan":  # for war.json: the clan's own total and picture
-                    got[kind][name.lower()].update(bp=((d.get("Battles") or {}).get(battle) or {}).get("Points"), icon=d.get("Icon"))
+                                           "mem": [m for m in (league_members(d) if kind == "League" else clan_members(d)) if m],
+                                           "icon": d.get("Icon")}  # the logo, for war.json and for names.py
+                if kind == "Clan":  # for war.json: the clan's own total
+                    got[kind][name.lower()].update(bp=((d.get("Battles") or {}).get(battle) or {}).get("Points"))
             if i % 100 == 0 or i == len(items):
                 print(f"{label}{i}/{len(items)} teams read", flush=True)
     except KeyboardInterrupt:

@@ -47,7 +47,6 @@ c.href='https://ps99tracker.xyz/'+(k?'?'+k+'='+encodeURIComponent(q.get(k).trim(
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="preconnect" href="https://ps99.biggamesapi.io" crossorigin>
-<link rel="preconnect" href="https://ps99.biggamesapi.io">
 <link rel="preconnect" href="https://raw.githubusercontent.com" crossorigin>
 <link rel="preconnect" href="https://tr.rbxcdn.com">
 <script type="application/ld+json">{"@context":"https://schema.org","@graph":[
@@ -452,7 +451,7 @@ const nmh=(s,n)=>{let h=0;for(const b of new TextEncoder().encode(s))h=(h*31+b)%
 const pic=p=>/^[0-9A-F]{32}$/.test(p)?'https://tr.rbxcdn.com/30DAY-AvatarHeadshot-'+p+'-Png/150/150/AvatarHeadshot/Webp/noFilter':/^https:\/\/[a-z0-9]+\.rbxcdn\.com\//.test(p)?p:'';
 let NMD=0;function nmPut(i,e){if(!Array.isArray(e))return;if(e[0]&&stale(i)){U[i]=[String(e[0]),String(e[1]||e[0]),Date.now()];NMD=1}const p=pic(String(e[2]||''));if(p&&!IM[i])IM[i]=p}
 async function saved(ids,k,team){const need=ids.filter(i=>stale(i)||!IM[i]);if(!need.length)return;
-if(team){const key=team.toLowerCase(),f=await nmf('team/'+k.toLowerCase()+'/'+nmh(key,512)),t=f&&f[key];if(t){for(const i in t)nmPut(i,t[i]);return}if(!f)return}
+if(team){const key=team.toLowerCase(),f=await nmf('team/'+k.toLowerCase()+'/'+nmh(key,512)),t=f&&f[key];if(t){if(t.logo){LGH[k]=Object.assign(LGH[k]||{},t.logo);lgFill(k)}for(const i in t)nmPut(i,t[i]);return}if(!f)return}
 await Promise.all(need.slice(0,50).map(async i=>{const f=await nmf('id/'+i%1024);nmPut(i,f&&f[i])}))}
 async function names(ids,k,team){
 await saved(ids,k,team);const need=ids.filter(stale);if(!need.length){if(NMD){NMD=0;store('ps99u',JSON.stringify(U))}return}let ok=false;
@@ -657,7 +656,16 @@ md=(i,c)=>i<3?'<b class="'+(c||'')+'md m'+(i+1)+'"><i class="vh">#</i>'+(i+1)+'<
 // A time never breaks between the minutes and AM/PM.
 const nbt=t=>t.replace(/\s([AP]M)\b/gi,'\u00a0$1');
 const iid=s=>{const m=/\d+/.exec(s||'');return m?m[0]:''};
-const logo=(ic,name,c)=>{const id=iid(ic);return '<span class="lg '+(c||'')+'"><b>'+esc((String(name)[0]||'?').toUpperCase())+'</b>'+(id?'<img data-id="'+id+'" src="https://ps99.biggamesapi.io/image/'+id+'" alt="" loading="lazy">':'')+'</span>'};
+// BIG Games only serves a logo full size (80 to 260 KB). Roblox keeps a small copy at an address the data job saves
+// (names.py), one file per kind, kept in the browser for a day; a team's own logo also comes with its saved names,
+// so its page needn't wait for the file. A logo with no small copy uses BIG Games' picture.
+const LGS={},lgh=id=>{const h=(LGH.League||{})[id]||(LGH.Clan||{})[id];return /^[0-9a-f]{32}$/.test(h)?h:''};
+const lsrc=(id,big)=>{const h=lgh(id);return h?'https://tr.rbxcdn.com/180DAY-'+h+(big?'/250/250':'/150/150')+'/Image/Webp/noFilter':'https://ps99.biggamesapi.io/image/'+id};
+const lgFill=k=>document.querySelectorAll('img[data-k="'+k+'"]:not([src])').forEach(i=>{if(LGS[k]===2||lgh(i.dataset.id))i.src=lsrc(i.dataset.id,i.dataset.b)});
+function lgGet(k){LGS[k]=1;nmf('logo/'+k.toLowerCase()).then(j=>{if(j){LGH[k]=j;LGH[k+'T']=Date.now();store('ps99lg',JSON.stringify(LGH))}LGS[k]=2;lgFill(k)})}
+// A logo whose address isn't known yet is drawn without a picture (the letter shows) until its kind's file is in.
+const logo=(ic,name,k,c)=>{const id=iid(ic),h=id&&lgh(id),wait=id&&!h&&LGS[k]!==2;if(id&&!LGS[k]&&!(h&&Date.now()-LGH[k+'T']<864e5))lgGet(k);
+return '<span class="lg '+(c||'')+'"><b>'+esc((String(name)[0]||'?').toUpperCase())+'</b>'+(id?'<img data-id="'+id+'"'+(wait?' data-k="'+k+'"'+(c?' data-b="1"':''):' src="'+lsrc(id,c)+'"')+' alt="" loading="lazy">':'')+'</span>'};
 function interp(a,get,t,gap){for(let i=0;i<a.length-1;i++){const s=a[i],e=a[i+1];if(s[0]<=t&&t<=e[0]){const x=get(s),y=get(e);if(x==null||y==null||e[0]-s[0]>gap)return null;return x+(y-x)*(t-s[0])/Math.max(1,e[0]-s[0])}}return null}
 function series(a,get,hrs){const now=a[a.length-1][0],t0=Math.max(a[0][0],now-hrs*3600),span=now-t0,k=Math.min(36,Math.max(3,Math.floor(span/120))),step=span/k,gap=5400,v=[];
 for(let j=0;j<=k;j++)v.push(interp(a,get,t0+step*j,gap));
@@ -704,7 +712,7 @@ const v1=ser[0].pts.filter(p=>p[1]!=null&&!p[2]).map(p=>p[1]),nw=d.pph!=null?d.p
 const leg=ser.length>1?'<div class="leg'+(ser.length>3?' n4':'')+'">'+ser.map(q=>'<span class="lgd">'+av(q.r).replace('class="av"','class="av xs" style="box-shadow:0 0 0 2px '+q.c+'"')+'<span style="color:'+q.c+'">'+esc([...q.n].length>10?[...q.n].slice(0,10).join('')+'…':q.n)+'</span></span>').join('')+'</div>':'';
 return ctl(hrs,d)+sum+leg+'<svg class="ch" viewBox="0 0 '+CW+' '+CH+'" role="img" aria-label="Points per hour chart">'+g+'</svg>'+(EST?'<p class="dsh"><i></i>No snapshot: average for that stretch</p>':'')+'<p class="cap'+(ser.length>1?' c4':'')+'" id="cap" data-d="'+TAP+'">'+TAP+'</p>'}
 const sleep=ms=>new Promise(r=>setTimeout(r,ms));
-const ldS=k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){return{}}};
+const ldS=k=>{try{return JSON.parse(localStorage.getItem(k))||{}}catch(e){return{}}},LGH=ldS('ps99lg');
 try{localStorage.removeItem('ps99g:League');localStorage.removeItem('ps99g:Clan');
 // Player points history used to be saved per player; it is now saved per player and team.
 for(let i=localStorage.length-1;i>=0;i--){const x=localStorage.key(i);if(/^ps99p:(League|Clan):\d+$/.test(x))localStorage.removeItem(x)}}catch(e){}
@@ -817,7 +825,7 @@ const A=d.i>0?d.list[d.i-1]:null,B=d.i>=0?d.list[d.i+1]:null,ok=d.pts!=null&&d.i
 document.querySelector('meta[name=description]').content=d.name+(ok?' is #'+d.rank.toLocaleString()+(tot?' of '+tot.toLocaleString()+' '+war+'s':'')+(kind==='Clan'?' in the Pet Simulator 99 clan battle':' in Pet Simulator 99')+' with '+fmt(me)+' points':' in Pet Simulator 99')+'. Live points per hour, gains, close rivals and '+(kind==='Clan'?'every member':'each contributor')+"'s points.";
 // Close rivals: the team above, this team and the team below, with the gaps in between; a rival opens with a tap.
 // At #1 the ladder starts with this team (the placement box already says #1); at the end of the list an end row takes the rival's place.
-const lrow=(T,r,c)=>(c?'<div class="lr me">':'<a class="lr" href="'+esc(tlink(kind,T[0]))+'" data-open="'+kind+'" data-n="'+esc(T[0])+'">')+'<b>#'+r.toLocaleString()+'</b><span class="lm"><span class="ln">'+logo(T[3],T[0]).replace('<span','<span aria-hidden="true"')+'<span>'+esc(T[0])+'</span></span><i>'+pt(fmt(T[1]))+'</i></span>'+(c?'</div>':'</a>'),
+const lrow=(T,r,c)=>(c?'<div class="lr me">':'<a class="lr" href="'+esc(tlink(kind,T[0]))+'" data-open="'+kind+'" data-n="'+esc(T[0])+'">')+'<b>#'+r.toLocaleString()+'</b><span class="lm"><span class="ln">'+logo(T[3],T[0],kind).replace('<span','<span aria-hidden="true"')+'<span>'+esc(T[0])+'</span></span><i>'+pt(fmt(T[1]))+'</i></span>'+(c?'</div>':'</a>'),
 lgap=(v,w,T,c,e)=>'<p class="lgp">'+((v=Math.max(0,Math.round(v)))?'<b'+(c?' class="up"':'')+'>'+fmt(v)+'</b> '+w+' ':'<b>Tied</b> with ')+esc(T[0])+(v&&e?'<span class="eta">'+e+'</span>':'')+'</p>',lend=(t,c)=>'<div class="lr '+(c||'end')+'"><span class="lm">'+t+'</span></div>';
 // Time to pass, only while the war runs: the gap over how much faster the chaser earns. Both speeds cover the last hour;
 // a rival's comes from its saved snapshots plus its points on the leaderboard now.
@@ -850,7 +858,7 @@ const dg=!(PZ&&PZ.state==='ended')&&(!(d.pts||d.sum)||fresh)?'<p class="emp">'+(
 const lf=d.rows.filter(r=>r.l).length,mw=kind==='Clan'?lf?'players':'members':'contributors';
 const ms='<h3>'+(kind==='Clan'?(lf?'Players':'Members')+' ('+d.rows.length+')':'Contributors'+(d.nAll?' ('+d.nAll+')':''))+'</h3><p class="st" style="margin:0 0 4px">'+(lf?lf+'\u00a0left the clan but still '+(lf>1?'have':'has')+' points this war.<br>':'')+(kind==='Clan'&&d.rows.length>d.nAll?d.nAll+'\u00a0have points this war, <button class="nyl" data-ny="'+esc(d.key)+'">'+(d.rows.length-d.nAll)+'\u00a0not\u00a0yet</button>.<br>':'')+(d.rows.length?'Bars compare with all players in this war.'+(tl?' ~ means about.':''):'')+'</p>'
 +'<div class="mems" data-nosnippet>'+mem+'</div>'+(d.rows.length>LIMIT&&!all?'<button class="more" data-all="'+esc(d.key)+'">Show all '+d.rows.length+' '+mw+'</button>':'');
-return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2>'+(own?'<p class="meta" data-nosnippet>Owner '+(/^\d+$/.test(d.oid)?'<a class="own" href="https://www.roblox.com/users/'+d.oid+'/profile" target="_blank" rel="noopener">'+esc(own)+'</a>':esc(own))+'</p>':'')+'</div></div>'
+return '<section class="card dash"><div class="top">'+logo(d.icon,d.name,d.kind,'lgb')+'<div style="min-width:0"><h2>'+esc(d.name)+'</h2>'+(own?'<p class="meta" data-nosnippet>Owner '+(/^\d+$/.test(d.oid)?'<a class="own" href="https://www.roblox.com/users/'+d.oid+'/profile" target="_blank" rel="noopener">'+esc(own)+'</a>':esc(own))+'</p>':'')+'</div></div>'
 +pill(kind,d.cut)
 +'<div class="hero'+(d.rank===1?' gold':'')+'"><small>'+(d.rank===1?CROWN:'')+kind+' placement</small><b>'+place+'</b>'+(ppl?'<span class="pill">'+ppl+'</span>':'')+(run?'<span class="trend '+tc+'">'+tr+'</span>':'')+'</div>'
 +'<div class="grid keys'+(one?' one':'')+'"><div class="cell"><small>'+PTI+(PZ&&PZ.state==='ended'?'Final points':'Points')+'</small><b class="kp">'+(d.pts==null?'n/a':fmt(d.pts))+'</b><small>'+(kind==='Clan'?'This clan war':'This season')+'</small></div>'
@@ -1156,7 +1164,7 @@ const topLinks=()=>{for(const[k,a,id]of[['League',L,'tlg'],['Clan',C,'tcl']])put
 function board(){board0();if(!live&&!S[mode]&&$('top').querySelector('.rk:not(.ph)'))ldDone(1)}
 function board0(){exPH();topLinks();const m=TOPK=BK();if(m==='Player')return boardPlayers();const a=m==='League'?L:C,k=Math.min(BN[m],a.length),w=$('war');rkw(k);$('th').textContent='Top '+(a.length?k:10)+' '+(m==='League'?'leagues':'clans');
 w.dataset.k=m;repill(w);w.hidden=false;
-keepFocus($('top'),()=>put($('top'),a.length?a.slice(0,k).map((x,i)=>{const r=rk(a,i);return '<a class="rk'+(r<4?' m'+r:'')+'" href="'+esc(tlink(m,x[0]))+'" data-n="'+esc(x[0])+'">'+(md(r-1)||'<b>#'+r+'</b>')+'<span class="rkm"><span class="rkn">'+logo(live?x[3]:'',x[0])+'<span class="rkt"><span>'+esc(x[0])+'</span></span></span><span class="rkv"><i>'+pt(fmt(x[1]))+'</i></span></span></a>'}).join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):LDFAIL?'<p class="st">The leaderboard could not load. Trying again...</p>':phRows()))}
+keepFocus($('top'),()=>put($('top'),a.length?a.slice(0,k).map((x,i)=>{const r=rk(a,i);return '<a class="rk'+(r<4?' m'+r:'')+'" href="'+esc(tlink(m,x[0]))+'" data-n="'+esc(x[0])+'">'+(md(r-1)||'<b>#'+r+'</b>')+'<span class="rkm"><span class="rkn">'+logo(live?x[3]:'',x[0],m)+'<span class="rkt"><span>'+esc(x[0])+'</span></span></span><span class="rkv"><i>'+pt(fmt(x[1]))+'</i></span></span></a>'}).join('')+(k<a.length?'<button class="more" id="more">Show 25 more</button>':''):LDFAIL?'<p class="st">The leaderboard could not load. Trying again...</p>':phRows()))}
 // While the list loads, ten hidden rows hold its place, so the page below doesn't jump when it fills in.
 const phRows=(t='')=>Array.from({length:10},(x,i)=>'<div class="rk ph" aria-hidden="true">'+(md(i)||'<b>#'+(i+1)+'</b>')+'<span class="rkm"><span class="rkn"><span class="lg"></span><span class="rkt"><span>-</span>'+t+'</span></span><span class="rkv"><i>-</i></span></span></div>').join('')
 +'<button class="more ph" tabindex="-1" aria-hidden="true">Show 25 more</button><p class="st phs">Loading...</p>';
@@ -1225,7 +1233,7 @@ document.addEventListener('click',e=>{if(!e.target.closest('[data-again]'))retur
 $('q').onkeydown=e=>{if(e.key==='Enter')go()};
 $('top').onclick=e=>{if(e.target.id==='more'){const y=RS.getBoundingClientRect().top,kb=e.target.matches(':focus-visible'),n=BN[TOPK];BN[TOPK]+=25;board();if(PCQ.matches){stick();scrollBy(0,RS.getBoundingClientRect().top-y)}const f=kb&&document.querySelectorAll('#top .rk')[n];if(f)f.focus({preventScroll:true});return}const b=e.target.closest('.rk');if(!b||b.tagName==='A'&&mod(e))return;e.preventDefault();go(TOPK,b.dataset.n)};
 // A player picture is asked for as WebP (a quarter of the PNG's size); a browser that can't show it gets the PNG.
-document.addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;if(/\/Webp\/noFilter$/.test(i.src)){i.src=i.src.replace(/Webp\/noFilter$/,'Png/noFilter');return}if(i.dataset.id&&!i.dataset.t){i.dataset.t=1;i.src='/ps99api/image/'+i.dataset.id}else i.style.display='none'},true);
+document.addEventListener('error',e=>{const i=e.target;if(i.tagName!=='IMG')return;if(i.dataset.id&&/rbxcdn/.test(i.src)){i.src='https://ps99.biggamesapi.io/image/'+i.dataset.id;return}if(/\/Webp\/noFilter$/.test(i.src)){i.src=i.src.replace(/Webp\/noFilter$/,'Png/noFilter');return}if(i.dataset.id&&!i.dataset.t){i.dataset.t=1;i.src='/ps99api/image/'+i.dataset.id}else i.style.display='none'},true);
 document.addEventListener('load',e=>{if(e.target.tagName==='IMG')e.target.parentNode.classList.add('ok')},true);
 document.addEventListener('click',e=>{const b=e.target.closest('.seg button[data-r],.seg button[data-m]');if(!b||!LAST||!$('chw'))return;if(b.dataset.r)RG=+b.dataset.r;if(b.dataset.m)CM=b.dataset.m;keepFocus($('chw'),()=>{$('chw').innerHTML=chartHtml(LAST.a,LAST.d)})});
 const chHit=e=>{const s=e.target.closest&&e.target.closest('.ch');if(!s||!CHD)return;const R=s.getBoundingClientRect(),x=(e.clientX-R.left)/R.width*CW;CHX=x/CW;CHK=LAST&&LAST.d.key;const p=CHD.ser[0].pts;let bi=0,bd=1e9;p.forEach((q,i)=>{const dx=Math.abs(CHD.X(q[0])-x);if(dx<bd){bd=dx;bi=i}});
@@ -1294,7 +1302,7 @@ const NZ=new Map(),nz=x=>{x=String(x);let v=NZ.get(x);if(v==null){v=x.toLowerCas
 function hits(a,q,max){const lq=q.toLowerCase(),z=nz(q),g=[[],[],[],[]];if(!z)return[];
 for(let i=0;i<a.length;i++){const x=String(a[i][0]),y=nz(x),t=x.toLowerCase()===lq?0:y===z?1:y.startsWith(z)?2:y.includes(z)?3:-1;if(t>=0&&g[t].length<max)g[t].push(i)}
 return[].concat(...g).slice(0,max)}
-const sgRow=(k,a,i)=>'<button class="sg" data-open="'+k+'" data-n="'+esc(a[i][0])+'">'+logo(a[i][3],a[i][0])+'<span class="sgm"><span>'+esc(a[i][0])+'</span><i><span class="sgk">'+k+' ·</span> #'+(i+1).toLocaleString()+' · '+pt(fmt(a[i][1]))+'</i></span></button>';
+const sgRow=(k,a,i)=>'<button class="sg" data-open="'+k+'" data-n="'+esc(a[i][0])+'">'+logo(a[i][3],a[i][0],k)+'<span class="sgm"><span>'+esc(a[i][0])+'</span><i><span class="sgk">'+k+' ·</span> #'+(i+1).toLocaleString()+' · '+pt(fmt(a[i][1]))+'</i></span></button>';
 const sgSet=h=>{$('sg').innerHTML=h;FIND.classList.toggle('sgon',!!h)};
 // Up to 6 suggestions, all of the kind being searched: the Clan tab never offers leagues, nor League clans.
 // Players come from the names this device has already seen in the teams it opened.

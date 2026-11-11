@@ -12,10 +12,13 @@ GitHub machine, Roblox takes about 1,000 names and 10,000 pictures a minute, so 
 and the first fill of 60,000 players about 2 hours of runs, each stopping after 8 minutes. When Roblox stops
 answering, what was saved before is kept. The scan's merge step saves --out next to ranks.json:
   id/<user ID % 1024>.json           {user ID: [username, display name, picture, name checked, picture checked]}
-  team/<league|clan>/<0-511>.json    {team name in lowercase: {user ID: [username, display name, picture]}}
+  team/<league|clan>/<0-511>.json    {team name in lowercase: {user ID: [username, display name, picture], "logo": {asset ID: picture}}}
   by/<0-255>.json                    {username in lowercase: user ID}, for the player search
+  logo/<league|clan>.json            {logo's asset ID: picture}, for the logos of the teams in the last scan
 The team and username files are picked by shard() of the name; index.html has the same sum (nmh). A picture is the
-32 characters that differ between Roblox's picture addresses; pic() in index.html puts the address back together.
+32 characters that differ between Roblox's picture addresses; pic() and lsrc() in index.html put the address back
+together. Logos: BIG Games only serves each one full size (80 to 260 KB). Roblox keeps a small copy (a few KB), at an
+address only Roblox can tell, so each run asks for the logos that have none saved and, once a day, each saved one again.
 """
 import argparse, json, os, re, sys, time, urllib.error, urllib.request
 
@@ -24,7 +27,9 @@ ap.add_argument("--prev", default="prev", help="folder holding the previous data
 ap.add_argument("--out", default="names", help="folder to write the names to")
 a = ap.parse_args()
 PIC = re.compile(r"https://tr\.rbxcdn\.com/30DAY-AvatarHeadshot-([0-9A-F]{32})-Png/150/150/AvatarHeadshot/Png/noFilter")
-next_at, stopped = {}, set()
+# A logo Roblox won't show (private, removed, not reviewed yet) comes back as a stand-in whose kind ends in "Image".
+LOGO = re.compile(r"https://tr\.rbxcdn\.com/180DAY-([0-9a-f]{32})/150/150/(?:Image|(?!\w*Image/)\w+)/(?:Webp|Png)/noFilter")
+next_at, stopped, refused = {}, set(), {}
 
 
 def ask(host, path, per_minute, body=None):
@@ -46,6 +51,7 @@ def ask(host, path, per_minute, body=None):
             if e.code != 429:
                 break
             # Roblox says "too many requests" now and then even under its stated limit, so wait and ask again.
+            refused[host] = refused.get(host, 0) + 1
             next_at[host] = time.monotonic() + 10 * (attempt + 1)
         except Exception as e:
             why = e
@@ -84,16 +90,20 @@ def write(folder, shards):
 
 assert shard("un0", 512) == 183 and shard("", 512) == 0
 assert short("https://tr.rbxcdn.com/30DAY-AvatarHeadshot-33EBC42BC550FCB5158C6AF17BE3E4C8-Png/150/150/AvatarHeadshot/Png/noFilter") == "33EBC42BC550FCB5158C6AF17BE3E4C8"
+assert LOGO.fullmatch("https://tr.rbxcdn.com/180DAY-7e8df1efb862c16dbbbaddf3ef22e793/150/150/Decal/Png/noFilter")[1] == "7e8df1efb862c16dbbbaddf3ef22e793"
+assert LOGO.fullmatch("https://tr.rbxcdn.com/180DAY-7e8df1efb862c16dbbbaddf3ef22e793/150/150/Image/Webp/noFilter")
+assert not LOGO.fullmatch("https://tr.rbxcdn.com/180DAY-92f01c392ee9a79829852ac02d3fb15a/150/150/PrivateImage/Webp/noFilter")
 assert short("https://t1.rbxcdn.com/abc/150/150") == "https://t1.rbxcdn.com/abc/150/150" and short("https://evil.example/x.png") == "" and short(None) == ""
 
 if __name__ == "__main__":
-    teams, ids = {}, {}
+    teams, ids, icons = {}, {}, {}
     for kind in ("league", "clan"):  # in the scan's order, so the top teams' players are asked about first
         saved = (load(os.path.join(a.prev, "teams", kind + ".json")) or {}).get("teams") or {}
         teams[kind] = {key: list(dict.fromkeys(int(u) for u in (c.get("mem") or []) + [r[0] for r in c.get("rows") or []] if u))
                        for key, c in saved.items()}
         for members in teams[kind].values():
             ids.update(dict.fromkeys(members))
+        icons[kind] = {key: m[0] for key, c in saved.items() if (m := re.search(r"\d+", c.get("icon") or ""))}
     if not ids:
         sys.exit("The last scan has no teams, so no names were written.")
     old = {}
@@ -136,6 +146,22 @@ if __name__ == "__main__":
                 if state in ("Completed", "Blocked"):  # anything else (still being drawn, an error) is asked for again next run
                     store[u][2], store[u][4] = short(got[u].get("imageUrl")) if state == "Completed" else "", now
             asked[1] += len(part)
+    # Logos come after the names and pictures, so a refusal here can't cost those their turn.
+    logos = {}
+    for kind in icons:
+        was = load(os.path.join(a.prev, "names", "logo", kind + ".json"))
+        logos.update(was if isinstance(was, dict) else {})
+    turn = int(time.time()) // 900 % 96  # 96 runs a day, so each saved logo is asked about again once a day
+    used = {i for t in icons.values() for i in t.values()}
+    todo = sorted(i for i in used if not logos.get(i) or int(i) % 96 == turn)
+    for n in range(0, len(todo), 100):  # Roblox takes one logo request a second from a GitHub machine (measured), so 50 a minute
+        j = ask("thumbnails", "/v1/assets?assetIds=" + ",".join(todo[n:n + 100]) + "&size=150x150&format=Webp&isCircular=false", 50)
+        if j is None:
+            break
+        for x in j.get("data") or []:
+            m = LOGO.fullmatch(x.get("imageUrl") or "") if x.get("state") == "Completed" else None
+            logos[str(x.get("targetId"))] = m[1] if m else ""  # none: the page shows BIG Games' picture, and it is asked again next run
+    logos = {i: h for i, h in logos.items() if i in used and re.fullmatch("[0-9a-f]{32}", str(h))}
     by_id, by_name = [{} for _ in range(1024)], [{} for _ in range(256)]
     for u, e in store.items():
         if e[3] or e[4]:
@@ -148,6 +174,14 @@ if __name__ == "__main__":
         packs = [{} for _ in range(512)]
         for key, members in t.items():
             packs[shard(key, 512)][key] = {str(u): store[u][:3] for u in members if store[u][0] or store[u][2]}
+            if icons[kind].get(key) in logos:  # the team's own logo, so its page can show it without reading the logo file
+                packs[shard(key, 512)][key]["logo"] = {icons[kind][key]: logos[icons[kind][key]]}
         write(os.path.join(a.out, "team", kind), packs)
-    print(f"Asked Roblox about {asked[0]} names and {asked[1]} pictures. Of {len(ids)} players, "
-          f"{sum(1 for e in store.values() if e[0])} have a name saved and {sum(1 for e in store.values() if e[2])} a picture.")
+    os.makedirs(os.path.join(a.out, "logo"), exist_ok=True)
+    for kind, t in icons.items():
+        with open(os.path.join(a.out, "logo", kind + ".json"), "w") as f:
+            json.dump({i: logos[i] for i in sorted(set(t.values())) if i in logos}, f, separators=(",", ":"))
+    print(f"Asked Roblox about {asked[0]} names, {asked[1]} pictures and {len(todo)} logos. Of {len(ids)} players, "
+          f"{sum(1 for e in store.values() if e[0])} have a name saved and {sum(1 for e in store.values() if e[2])} a picture. "
+          f"Of {len(used)} logos, {len(logos)} have a small copy. "
+          f"Requests Roblox refused and were asked again: {refused or 'none'}.")
